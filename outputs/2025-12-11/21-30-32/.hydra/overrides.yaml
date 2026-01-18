@@ -1,0 +1,2 @@
+- workflow.target_attribute=safety
+- workflow.input_dir=data/01_raw

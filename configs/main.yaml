@@ -1,0 +1,22 @@
+defaults:
+  - agents: default
+  - tools: default
+
+project:
+  data_root: ${hydra:runtime.cwd}/data
+  raw_dir: ${project.data_root}/01_raw
+  mask_dir: ${project.data_root}/02_masks
+  counterfactual_dir: ${project.data_root}/03_counterfactuals
+  eval_dir: ${project.data_root}/04_eval_results
+
+workflow:
+  target_attribute: safety
+  input_dir: ${project.raw_dir}
+  max_attempts: 3
+  openai_model: gpt-5.2
+  concurrency: 1
+  realism_threshold: 0.5
+
+logging:
+  level: INFO
+
