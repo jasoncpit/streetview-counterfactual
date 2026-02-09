@@ -5,6 +5,38 @@ from langgraph.graph import END, StateGraph
 from src.workflow.nodes import criticism, generation, planning, segmentation
 from src.workflow.state import AgentState
 
+def build_baseline_workflow(cfg, replicate_client):
+    graph = StateGraph(AgentState)
+    graph.add_node(
+        "baseline",
+        lambda state: replicate_client.image_edit_baseline(
+            state=state,
+            replicate_client=replicate_client,
+            output_dir=Path(cfg.project.baseline_dir),
+            model=cfg.tools.replicate.nano_banana_model,
+            image_path=state["image_path"],
+            edit_plan=state["edit_plan"],
+            target_object=state["target_object"],
+        ),
+    ) 
+    graph.add_node(
+        'planner',
+        lambda state: planning.plan_edit_node(
+            state=state,
+            planner=planner,
+            target_attribute=cfg.workflow.target_attribute,
+        ), 
+    ) 
+    graph.add_node(
+        "critic",
+        lambda state: criticism.check_realism_node(
+            state=state,
+            planner=planner,
+        ),
+    )   
+    graph.add_edge("baseline", "critic")
+    graph.set_entry_point("baseline")
+    return graph.compile()  
 
 def build_workflow(cfg, planner, replicate_client):
     """

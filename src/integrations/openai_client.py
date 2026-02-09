@@ -13,7 +13,8 @@ class PlanResult:
 
 @dataclass
 class CritiqueResult:
-    is_realistic: bool
+    is_realistic: bool 
+    is_acceptable: bool 
     notes: str
 
 
@@ -61,7 +62,7 @@ class OpenAIPlanner:
         user_prompt = (
             f"Edited image: {edited_image_path}\n"
             f"Context: {notes}\n"
-            "Respond with JSON containing is_realistic and notes."
+            "Respond with JSON containing is_realistic, is_acceptable and notes."
         )
         completion = self.client.chat.completions.create(
             model=self.model,
@@ -75,6 +76,7 @@ class OpenAIPlanner:
         data = json.loads(content) if content else {}
         return CritiqueResult(
             is_realistic=bool(data.get("is_realistic", False)),
+            is_acceptable=bool(data.get("is_acceptable", False)),
             notes=data.get("notes", ""),
         )
 

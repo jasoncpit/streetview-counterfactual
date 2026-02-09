@@ -1,15 +1,19 @@
+from __future__ import annotations 
+import os 
+import sys 
 import logging
 import tempfile
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence
-
+from typing_extensions import Literal 
 import replicate
 from PIL import Image
 from replicate.exceptions import ReplicateError
-
 from src.utils.paths import ensure_dir, timestamped_path
+from dotenv import load_dotenv
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +45,82 @@ class ReplicateModels:
 
 class ReplicateClient:
     def __init__(self, models: ReplicateModels, download_timeout: int = 120) -> None:
-        self.client = replicate.Client()
+        self.client = replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
         self.models = models
         self.download_timeout = download_timeout
 
+    def image_edit_baseline(
+        self,
+        model: Literal[
+            "google/nano-banana-pro",
+            "bytedance/seedream-4",
+            "openai/gpt-image-1.5"
+        ],
+        image_path: str,
+        edit_plan: str,
+        target_object: str,
+        output_dir: Path
+    ) -> Path:
+        base_prompt: str = (
+            "Only edit the image according to the prompt. "
+            "Do not add any other text or commentary. "
+            "Object: {target_object}. Edit plan: {edit_plan}"
+        )
+        image = open(image_path, "rb")
+        formatted_prompt: str  = base_prompt.format(
+                    target_object=target_object,
+                    edit_plan=edit_plan
+                )  
+        # Building the payload
+        if model == "google/nano-banana-pro":
+            payload = {
+                "prompt": formatted_prompt,
+                "resolution": "2K",
+                "image_input": [image],
+                "aspect_ratio": "2:3",
+                "output_format": "png",
+                "safety_filter_level": "block_only_high"
+            }
+        elif model == "bytedance/seedream-4":
+            payload = {
+                "size": "2K",
+                "width": 2048,
+                "height": 2048,
+                "prompt": formatted_prompt,
+                "max_images": 1,
+                "image_input": [image],
+                "aspect_ratio": "2:3",  
+                "enhance_prompt": True,
+                "sequential_image_generation": "disabled"
+            }
+        elif model == "openai/gpt-image-1.5":
+            payload = {
+                "prompt": formatted_prompt, 
+                "quality": "high",
+                "background": "auto",
+                "moderation": "auto",
+                "aspect_ratio": "2:3",  
+                "output_format": "png",
+                "input_fidelity": "low",
+                "number_of_images": 1,
+                "output_compression": 90
+            }
+        else:
+            raise ValueError(f"Invalid model: {model}")  
+        logger.info("Running model: %s with payload: %s", model, payload)
+        result_url = self.client.run(model, input=payload)  
+        logger.info("Result URL: %s", result_url)   
+        output_path = timestamped_path(output_dir, "image_edit_baseline", suffix=".png")
+        if isinstance(result_url, str):
+                self._download(result_url, output_path)
+        elif isinstance(result_url, replicate.helpers.FileOutput):   
+            logger.info("Downloading file output to %s", output_path)
+            with open(output_path, 'wb') as f:
+                f.write(result_url.read()) 
+        else:
+            logger.warning("Invalid result URL: %s", result_url)
+            return None
+        return output_path
     def segment_object(
         self,
         image_path: str,
@@ -134,7 +210,11 @@ class ReplicateClient:
             )
             logger.debug("Inpaint result url: %s", result_url)
             output_path = timestamped_path(output_dir, Path(image_path).stem, suffix=".png")
-            self._download(result_url, output_path)
+            if isinstance(result_url, str):
+                self._download(result_url, output_path)
+            else:
+                with open(output_path, 'wb') as f:
+                    f.write(result_url[0].read())
             logger.info("Inpaint success -> %s", output_path)
             return output_path
         except ReplicateError as err:
@@ -169,11 +249,16 @@ class ReplicateClient:
             return 0.5
 
     def _download(self, url: str, destination: Path) -> None:
-        logger.debug("Downloading %s -> %s", url, destination)
-        with tempfile.NamedTemporaryFile(delete=False) as handle:
-            urllib.request.urlretrieve(url, handle.name)
-            ensure_dir(destination.parent)
-            Path(handle.name).replace(destination)
+        if not url:
+            # If the model returns a single output
+            with open(destination, 'wb') as f:
+                f.write(url[0].read())
+        else:
+            logger.debug("Downloading %s -> %s", url, destination) 
+            with tempfile.NamedTemporaryFile(delete=False) as handle:
+                urllib.request.urlretrieve(url, handle.name)
+                ensure_dir(destination.parent)
+                Path(handle.name).replace(destination)
 
     def _segment_grounded_sam(self, image_path: str, prompt: str, mask_dir: Path) -> Path:
         """Use schananas/grounded_sam which bundles GroundingDINO+SAM."""
@@ -270,3 +355,36 @@ class ReplicateClient:
         img.save(output_path)
         return output_path
 
+if __name__ == "__main__":
+    from omegaconf import OmegaConf
+    import logging
+    from pathlib import Path 
+    output_dir = Path("data/02_edited")
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("replicate").setLevel(logging.INFO)
+    cfg = OmegaConf.load("src/configs/tools/default.yaml")
+    replicate_cfg = cfg.get("replicate", cfg)
+    replicate_client = ReplicateClient(ReplicateModels.from_config(replicate_cfg))
+    replicate_client.image_edit_baseline(
+        model="google/nano-banana-pro",
+        image_path="data/01_raw/image2.JPG",
+        edit_plan="Add a streetlight to the left side of the image.",
+        target_object="streetlight",
+        output_dir=output_dir,
+    )  
+
+    replicate_client.image_edit_baseline(
+        model="bytedance/seedream-4",
+        image_path="data/01_raw/image2.JPG",
+        edit_plan="Add a streetlight to the left side of the image.",
+        target_object="streetlight",
+        output_dir=output_dir,
+    )  
+
+    replicate_client.image_edit_baseline(
+        model="openai/gpt-image-1.5",
+        image_path="data/01_raw/image2.JPG",
+        edit_plan="Add a streetlight to the left side of the image.",
+        target_object="streetlight",
+        output_dir=output_dir,
+    )  
