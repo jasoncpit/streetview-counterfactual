@@ -16,5 +16,6 @@ class AgentState(TypedDict, total=False):
     # Loop control
     attempts: int
     is_realistic: bool
+    is_minimal_edit: Optional[bool]
     critic_notes: Optional[str]
-
+    used_mock: Optional[bool]
