@@ -2,15 +2,14 @@ from pathlib import Path
 from typing import Iterable
 
 from dotenv import load_dotenv
-from hydra import main
-from omegaconf import DictConfig
 from rich.console import Console
 
+from src.config import load_config
 from src.integrations.openai_client import OpenAIPlanner
 from src.integrations.replicate_client import ReplicateClient, ReplicateModels
 from src.utils.logging import configure_logging
 from src.utils.paths import ensure_dir
-from src.workflow.graph import build_workflow
+from src.workflow.graph import build_baseline_workflow, build_workflow
 from src.workflow.state import AgentState
 
 
@@ -20,8 +19,8 @@ def collect_images(input_dir: Path) -> Iterable[Path]:
         yield from sorted(input_dir.glob(pattern))
 
 
-@main(config_path="../configs", config_name="main", version_base=None)
-def run(cfg: DictConfig) -> None:
+def run() -> None:
+    cfg = load_config()
     load_dotenv()
     configure_logging(cfg.logging.level)
     console = Console()
@@ -34,10 +33,13 @@ def run(cfg: DictConfig) -> None:
         planner_prompt=cfg.agents.planner_prompt,
         critic_prompt=cfg.agents.critic_prompt,
     )
-    replicate_models = ReplicateModels.from_config(cfg.tools.replicate)
+    replicate_models = ReplicateModels.from_config(cfg.tools.replicate.__dict__)
     replicate_client = ReplicateClient(models=replicate_models)
 
-    app = build_workflow(cfg, planner, replicate_client)
+    if cfg.workflow.use_baseline:
+        app = build_baseline_workflow(cfg, planner, replicate_client)
+    else:
+        app = build_workflow(cfg, planner, replicate_client)
     images = list(collect_images(input_dir))
 
     if not images:
@@ -59,6 +61,7 @@ def run(cfg: DictConfig) -> None:
             "edited_image_path": None,
             "attempts": 0,
             "is_realistic": False,
+            "is_minimal_edit": False,
         }
 
         console.rule(title=f"[cyan]Processing[/cyan] {image_path.name}")
@@ -77,4 +80,3 @@ def run(cfg: DictConfig) -> None:
 
 if __name__ == "__main__":
     run()
-

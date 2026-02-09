@@ -4,23 +4,37 @@ from src.integrations.openai_client import OpenAIPlanner
 from src.workflow.state import AgentState
 
 
-def check_realism_node(
+def critique_generated_node(
     state: AgentState,
     planner: OpenAIPlanner,
 ) -> Dict[str, object]:
     """
-    LLM-only realism critique (Nano Banana removed). The planner's critique decides pass/fail.
+    Critique the generated image against the original + plan.
+    If it fails, return a tightened plan for another attempt.
     """
-    edited = state.get("edited_image_path")
-    if not edited:
-        raise ValueError("Missing edited_image_path for criticism node.")
+    image_path = state.get("image_path")
+    edited_path = state.get("edited_image_path")
+    edit_plan = state.get("edit_plan")
+    target_object = state.get("target_object")
+    if not image_path or not edited_path or not edit_plan or not target_object:
+        raise ValueError("Missing image_path, edited_image_path, edit_plan, or target_object.")
+    if state.get("used_mock"):
+        return {
+            "is_realistic": False,
+            "is_minimal_edit": False,
+            "critic_notes": "mock_output=true; skipping critique.",
+            "attempts": state.get("attempts", 0) + 1,
+        }
 
-    # No VLM scoring; rely solely on LLM critique.
-    realism_score = 1.0
-    llm_critique = planner.critique(edited_image_path=edited, notes="vlm_skipped")
-
+    critique = planner.critique_generated(
+        image_path=image_path,
+        edited_image_path=edited_path,
+        edit_plan=edit_plan,
+        target_object=target_object,
+    )
     return {
-        "is_realistic": llm_critique.is_realistic,
-        "critic_notes": f"vlm=skipped; llm={llm_critique.notes}",
+        "is_realistic": critique.is_realistic,
+        "is_minimal_edit": critique.is_minimal_edit,
+        "critic_notes": critique.notes,
+        "attempts": state.get("attempts", 0) + 1,
     }
-
