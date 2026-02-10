@@ -20,7 +20,7 @@ class GeneratedCritiqueResult:
     notes: str
 
 
-class OpenAIPlanner:
+class Planner:
     """
     Lightweight wrapper over OpenAI Chat Completions for planning and realism checks.
     """
