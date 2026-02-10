@@ -22,6 +22,7 @@ def build_baseline_workflow(cfg, planner, replicate_client):
             image_path=state["image_path"],
             edit_plan=state["edit_plan"],
             target_object=state["target_object"],
+            prompt_template=cfg.agents.baseline_edit_prompt,
         )
         if not edited_path:
             raise ValueError("Baseline edit failed to produce an output image.")
