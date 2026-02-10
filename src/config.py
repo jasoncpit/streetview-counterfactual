@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
 
 
 @dataclass
@@ -21,15 +20,8 @@ class WorkflowConfig:
     input_dir: Path = Path("data/01_raw")
     max_attempts: int = 3
     openai_model: str = "gpt-5.2"
-    concurrency: int = 1
-    realism_threshold: float = 0.5
     use_baseline: bool = True
-    baseline_model: str = "black-forest-labs/flux-kontext-max"
-
-
-@dataclass
-class LoggingConfig:
-    level: str = "INFO"
+    baseline_model: str = "qwen/qwen-image-edit"
 
 
 @dataclass
@@ -49,6 +41,18 @@ class AgentsConfig:
         '  "edit_plan": "<what to add/change>",\n'
         '  "target_object": "<specific object to localize>"\n'
         "}\n"
+    )
+    baseline_edit_prompt: str = (
+        "Use the provided image as the base. Do NOT generate a new scene. "
+        "Preserve the exact camera viewpoint, geometry, lighting, color, and all objects. "
+        "Only edit the target object and only as much as required by the plan. "
+        "Follow the edit plan literally; do not embellish or add extra elements. "
+        "Do not add or remove any other objects, signs, markings, people, vehicles, or text. "
+        "If the plan mentions repainting existing markings, keep their layout, spacing, and color; "
+        "only adjust brightness/texture/width subtly. "
+        "If the plan mentions adding a marking, add only that marking and nothing else. "
+        "Keep everything else pixel-identical outside the target area. "
+        "Object: {target_object}. Edit plan: {edit_plan}"
     )
     critic_prompt: str = (
         "You are an image edit critic. Evaluate whether the GENERATED image meets the\n"
@@ -70,43 +74,11 @@ class AgentsConfig:
 
 
 @dataclass
-class ReplicateConfig:
-    dino_model: str = "adirik/grounding-dino:latest"
-    sam_model: str = (
-        "meta/sam-2:fe97b453a6455861e3bac769b441ca1f1086110da7466dbb65cf1eecfd60dc83"
-    )
-    inpaint_model: str = "black-forest-labs/flux-fill-pro:latest"
-    flux_kontext_model: str = "black-forest-labs/flux-kontext-max"
-    nano_banana_model: str = "google/nano-banana-pro"
-    mock: bool = False
-    inpaint_params: Dict[str, Any] = field(default_factory=dict)
-    flux_kontext_params: Dict[str, Any] = field(
-        default_factory=lambda: {
-            "aspect_ratio": "match_input_image",
-            "output_format": "jpg",
-            "safety_tolerance": 2,
-            "prompt_upsampling": False,
-        }
-    )
-    dino_params: Dict[str, Any] = field(
-        default_factory=lambda: {"box_threshold": 0.25, "text_threshold": 0.25}
-    )
-    sam_params: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class ToolsConfig:
-    replicate: ReplicateConfig = field(default_factory=ReplicateConfig)
-    download_timeout: int = 360
-
-
-@dataclass
 class AppConfig:
     project: ProjectConfig
-    workflow: WorkflowConfig = field(default_factory=WorkflowConfig)
-    logging: LoggingConfig = field(default_factory=LoggingConfig)
-    agents: AgentsConfig = field(default_factory=AgentsConfig)
-    tools: ToolsConfig = field(default_factory=ToolsConfig)
+    workflow: WorkflowConfig = WorkflowConfig()
+    agents: AgentsConfig = AgentsConfig()
+    log_level: str = "INFO"
 
 
 def load_config() -> AppConfig:
