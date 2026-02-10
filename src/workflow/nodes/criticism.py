@@ -1,12 +1,12 @@
 from typing import Dict
 
-from src.integrations.openai_client import OpenAIPlanner
+from src.integrations.openai_client import Planner
 from src.workflow.state import AgentState
 
 
 def critique_generated_node(
     state: AgentState,
-    planner: OpenAIPlanner,
+    planner: Planner,
 ) -> Dict[str, object]:
     """
     Critique the generated image against the original + plan.

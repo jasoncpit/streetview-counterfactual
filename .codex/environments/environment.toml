@@ -8,4 +8,4 @@ script = ""
 [[actions]]
 name = "Run"
 icon = "run"
-command = "uv run -m scripts.run_pipeline"
+command = "uv run -m scripts.generate_counterfactual"

@@ -1,0 +1,2 @@
+input_image_path,output_image_path,planner_edit_plan,planner_target_object,critic_is_realistic,critic_is_minimal_edit,critic_notes
+/Users/admin/streetview-counterfactual/data/01_raw/image.png,,,,False,False,ERROR: 'AgentsConfig' object has no attribute 'baseline_edit_prompt'
