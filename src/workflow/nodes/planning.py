@@ -24,7 +24,9 @@ def _sanitize_target_object(raw: str | None) -> str:
     return text or "object"
 
 
-def plan_edit_node(state: AgentState, planner: OpenAIPlanner, target_attribute: str) -> Dict[str, object]:
+def plan_edit_node(
+    state: AgentState, planner: OpenAIPlanner, target_attribute: str
+) -> Dict[str, object]:
     """
     Uses OpenAI to propose an edit plan and the target object to localize.
     """

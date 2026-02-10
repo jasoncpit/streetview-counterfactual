@@ -5,6 +5,7 @@ from langgraph.graph import END, StateGraph
 from src.workflow.nodes import criticism, generation, planning, segmentation
 from src.workflow.state import AgentState
 
+
 def build_baseline_workflow(cfg, planner, replicate_client):
     graph = StateGraph(AgentState)
     graph.add_node(
@@ -15,6 +16,7 @@ def build_baseline_workflow(cfg, planner, replicate_client):
             target_attribute=cfg.workflow.target_attribute,
         ),
     )
+
     def baseline_node(state: AgentState):
         edited_path = replicate_client.image_edit_baseline(
             output_dir=Path(cfg.project.baseline_dir),
@@ -41,6 +43,7 @@ def build_baseline_workflow(cfg, planner, replicate_client):
     )
     graph.add_edge("planner", "baseline")
     graph.add_edge("baseline", "critic")
+
     def critic_router(state: AgentState):
         if state.get("is_realistic") and state.get("is_minimal_edit"):
             return END
@@ -51,6 +54,7 @@ def build_baseline_workflow(cfg, planner, replicate_client):
     graph.add_conditional_edges("critic", critic_router)
     graph.set_entry_point("planner")
     return graph.compile()
+
 
 def build_workflow(cfg, planner, replicate_client):
     """
@@ -94,6 +98,7 @@ def build_workflow(cfg, planner, replicate_client):
     graph.add_edge("planner", "segmenter")
     graph.add_edge("segmenter", "generator")
     graph.add_edge("generator", "critic")
+
     def critic_router(state: AgentState):
         if state.get("is_realistic") and state.get("is_minimal_edit"):
             return END

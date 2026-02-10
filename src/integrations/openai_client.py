@@ -53,8 +53,12 @@ class OpenAIPlanner:
         prior_plan: Optional[str] = None,
         critic_notes: Optional[str] = None,
     ) -> PlanResult:
-        prior_text = f"Prior attempt: {prior_plan}" if prior_plan else "No prior attempts."
-        critic_text = f"Critic notes: {critic_notes}" if critic_notes else "No critic notes."
+        prior_text = (
+            f"Prior attempt: {prior_plan}" if prior_plan else "No prior attempts."
+        )
+        critic_text = (
+            f"Critic notes: {critic_notes}" if critic_notes else "No critic notes."
+        )
         user_prompt = (
             f"Image path: {image_path}\n"
             f"Target percept: {target_attribute}\n"

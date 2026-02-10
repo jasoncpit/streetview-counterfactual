@@ -11,5 +11,3 @@ def timestamped_path(root: Path, stem: str, suffix: str) -> Path:
     ensure_dir(root)
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
     return root / f"{stem}_{ts}{suffix}"
-
-

@@ -17,7 +17,9 @@ def critique_generated_node(
     edit_plan = state.get("edit_plan")
     target_object = state.get("target_object")
     if not image_path or not edited_path or not edit_plan or not target_object:
-        raise ValueError("Missing image_path, edited_image_path, edit_plan, or target_object.")
+        raise ValueError(
+            "Missing image_path, edited_image_path, edit_plan, or target_object."
+        )
     if state.get("used_mock"):
         return {
             "is_realistic": False,

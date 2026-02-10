@@ -29,10 +29,10 @@ class AgentsConfig:
     planner_prompt: str = (
         "You are an urban planner. Given a street-level image and a target\n"
         'percept (e.g., "safety", "wealth", "greenery"), propose a visual edit\n'
-        'that would increase that percept. Identify a single, concrete object or\n'
+        "that would increase that percept. Identify a single, concrete object or\n"
         'element to modify (e.g., "streetlight", "tree canopy", "crosswalk marking").\n'
         "The target_object must be a short noun phrase (1-4 words), no verbs,\n"
-        "no parentheses, and no location descriptions. Example: \"crosswalk marking\".\n"
+        'no parentheses, and no location descriptions. Example: "crosswalk marking".\n'
         "The edit_plan must be a single, minimal, localized change to that object.\n"
         "Do NOT add other objects, signage, or global scene changes.\n"
         "Avoid embellishments; specify only the exact change needed.\n"

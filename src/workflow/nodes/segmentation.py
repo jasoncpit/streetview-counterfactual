@@ -20,4 +20,3 @@ def segment_object_node(
         mask_dir=mask_dir,
     )
     return {"mask_path": str(mask_path)}
-

@@ -6,7 +6,7 @@ from rich.console import Console
 
 from src.config import load_config
 from src.integrations.openai_client import OpenAIPlanner
-from src.integrations.replicate_client import ReplicateClient 
+from src.integrations.replicate_client import ReplicateClient
 from src.utils.logging import configure_logging
 from src.utils.paths import ensure_dir
 from src.workflow.graph import build_baseline_workflow, build_workflow
@@ -16,7 +16,7 @@ from src.workflow.state import AgentState
 def collect_images(input_dir: Path) -> Iterable[Path]:
     patterns = ("*.jpg", "*.jpeg", "*.png", "*.webp")
     for pattern in patterns:
-            yield from sorted(input_dir.glob(pattern))
+        yield from sorted(input_dir.glob(pattern))
 
 
 def run() -> None:

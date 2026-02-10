@@ -28,4 +28,3 @@ def inpaint_node(
         output_dir=output_dir,
     )
     return {"edited_image_path": str(edited_image)}
-

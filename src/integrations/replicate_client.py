@@ -1,13 +1,12 @@
-from __future__ import annotations 
+from __future__ import annotations
 
 import logging
 import os
 import tempfile
 import time
 import urllib.request
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List
 
 import replicate
 from dotenv import load_dotenv
@@ -25,6 +24,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Client
 # ---------------------------------------------------------------------------
+
 
 class ReplicateClient:
     """Thin wrapper around the Replicate API for segmentation, inpainting,
@@ -53,12 +53,17 @@ class ReplicateClient:
         match_input_size: bool = True,
     ) -> Path:
         prompt = prompt_template.format(
-            target_object=target_object, edit_plan=edit_plan,
+            target_object=target_object,
+            edit_plan=edit_plan,
         )
         self.last_baseline_used_mock = False
 
         result, output_format = self._run_with_retries(
-            model, image_path, prompt, max_retries, retry_base_delay,
+            model,
+            image_path,
+            prompt,
+            max_retries,
+            retry_base_delay,
         )
 
         if result is None:
@@ -68,14 +73,16 @@ class ReplicateClient:
         suffix = ".jpg" if str(output_format).lower() in {"jpg", "jpeg"} else ".png"
         output_path = timestamped_path(output_dir, "image_edit_baseline", suffix=suffix)
         if not self._save_result(result, output_path):
-            logger.warning("Unrecognised result type (%s); falling back to mock.", type(result))
+            logger.warning(
+                "Unrecognised result type (%s); falling back to mock.", type(result)
+            )
             self.last_baseline_used_mock = True
             return None
 
         if match_input_size:
             self._match_size_safe(output_path, image_path)
         return output_path
-        
+
     def segment_object(
         self,
         image_path: str,
@@ -85,11 +92,12 @@ class ReplicateClient:
         box_threshold: float | None = None,
         text_threshold: float | None = None,
     ) -> Path:
-        pass 
+        pass
 
-    def inpaint(self, image_path: str, mask_path: str, prompt: str, output_dir: Path) -> Path:
-        pass 
-
+    def inpaint(
+        self, image_path: str, mask_path: str, prompt: str, output_dir: Path
+    ) -> Path:
+        pass
 
     # ── baseline: retry loop ──────────────────────────────────────────────
 
@@ -110,23 +118,32 @@ class ReplicateClient:
             try:
                 with open(image_path, "rb") as fh:
                     payload, fmt = self._build_baseline_payload(
-                        model, fh, prompt,
+                        model,
+                        fh,
+                        prompt,
                         use_alt=(model == "openai/gpt-image-1.5" and attempt > 1),
                     )
-                    logger.info("Running %s (attempt %s/%s)", model, attempt, max_retries)
+                    logger.info(
+                        "Running %s (attempt %s/%s)", model, attempt, max_retries
+                    )
                     result = self.client.run(model, input=payload)
                 return self._first_item(result), fmt
             except (ReplicateError, ModelError) as err:
                 if attempt >= max_retries:
                     logger.warning(
                         "Baseline edit failed after %s attempts: %s",
-                        max_retries, err, exc_info=True,
+                        max_retries,
+                        err,
+                        exc_info=True,
                     )
                     return None, None
                 delay = retry_base_delay * (2 ** (attempt - 1))
                 logger.warning(
                     "Attempt %s/%s failed: %s — retrying in %.1fs.",
-                    attempt, max_retries, err, delay,
+                    attempt,
+                    max_retries,
+                    err,
+                    delay,
                 )
                 time.sleep(delay)
         return None, None  # unreachable, keeps type-checkers happy
@@ -134,7 +151,12 @@ class ReplicateClient:
     # ── baseline: payload builders ────────────────────────────────────────
 
     def _build_baseline_payload(
-        self, model: str, image_handle: Any, prompt: str, *, use_alt: bool = False,
+        self,
+        model: str,
+        image_handle: Any,
+        prompt: str,
+        *,
+        use_alt: bool = False,
     ) -> tuple[Dict[str, Any], str | None]:
         """Return ``(payload, output_format)`` for the given baseline model."""
         if model == "google/nano-banana-pro":
@@ -183,7 +205,7 @@ class ReplicateClient:
                 "output_format": "jpg",
                 "safety_tolerance": 2,
                 "prompt_upsampling": False,
-            }, "jpg"        
+            }, "jpg"
 
         if model == "qwen/qwen-image-edit":
             return {
@@ -208,11 +230,13 @@ class ReplicateClient:
         box_threshold: float | None = None,
         text_threshold: float | None = None,
     ) -> Path:
-        pass 
+        pass
 
-    def _segment_grounded_sam(self, image_path: str, prompt: str, mask_dir: Path) -> Path:
+    def _segment_grounded_sam(
+        self, image_path: str, prompt: str, mask_dir: Path
+    ) -> Path:
         """Single-model segmentation using a bundled GroundingDINO+SAM model."""
-        pass 
+        pass
 
     # ── output helpers ────────────────────────────────────────────────────
 
@@ -247,9 +271,7 @@ class ReplicateClient:
 
     def _normalize_boxes(self, bbox_raw: Any) -> List[List[float]]:
         """Coerce varied GroundingDINO outputs into ``[[x1, y1, x2, y2], …]``."""
-        pass 
-
-
+        pass
 
     # ── image resize ──────────────────────────────────────────────────────
 
@@ -270,4 +292,6 @@ class ReplicateClient:
             top = (new_h - in_h) // 2
             resized.crop((left, top, left + in_w, top + in_h)).save(output_path)
         except Exception:
-            logger.warning("Failed to resize baseline output to match input.", exc_info=True)
+            logger.warning(
+                "Failed to resize baseline output to match input.", exc_info=True
+            )
