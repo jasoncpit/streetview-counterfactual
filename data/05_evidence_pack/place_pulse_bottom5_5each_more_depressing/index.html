@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evidence Pack - more depressing</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap");
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1d1b17;
+      --muted: #5f594f;
+      --card: #fffdfa;
+      --line: #d8d0c2;
+      --accent: #b85d2a;
+      --accent-soft: #f0d7c9;
+      --good: #2e7d32;
+      --bad: #b71c1c;
+      --shadow: 0 14px 36px rgba(35, 28, 20, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 0%, #fbe7d8 0, transparent 38%),
+        radial-gradient(circle at 0% 100%, #e6efe9 0, transparent 32%),
+        var(--bg);
+      line-height: 1.45;
+    }
+    .wrap {
+      width: min(1140px, 92vw);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+    .hero {
+      background: linear-gradient(140deg, #fffdf7 0%, #f9f2ea 100%);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+    .kicker {
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 8px 0 10px;
+      font-family: "Fraunces", serif;
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+    .hero-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .pair {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 18px;
+      animation: fade 0.42s ease both;
+    }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pair-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .pair-id {
+      margin: 0 0 4px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .pair-subtitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .chip.good {
+      border-color: #9ec7a0;
+      background: #edf8ee;
+      color: var(--good);
+    }
+    .chip.bad {
+      border-color: #e2a4a4;
+      background: #fdeeee;
+      color: var(--bad);
+    }
+    .pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .image-panel {
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f7f2ea;
+    }
+    figcaption {
+      padding: 10px 12px 8px;
+      font-weight: 700;
+      color: var(--ink);
+      background: linear-gradient(90deg, #fff, #fbf7ef);
+      border-bottom: 1px solid var(--line);
+    }
+    .image-panel img {
+      display: block;
+      width: 100%;
+      max-height: 410px;
+      object-fit: contain;
+      background: #0f0e0c;
+    }
+    .image-path {
+      margin: 0;
+      padding: 8px 12px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+      background: #fffdfa;
+      border-top: 1px solid var(--line);
+    }
+    .missing-box {
+      min-height: 240px;
+      display: grid;
+      place-items: center;
+      border: 2px dashed var(--line);
+      margin: 12px;
+      border-radius: 10px;
+      color: var(--muted);
+      background: #fff;
+    }
+    .description {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+    .description h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .description p {
+      margin: 0;
+      color: var(--ink);
+    }
+    .description p + h3 {
+      margin-top: 10px;
+    }
+    @media (max-width: 920px) {
+      .pair-grid {
+        grid-template-columns: 1fr;
+      }
+      .pair-head {
+        flex-direction: column;
+      }
+      .chips {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <p class="kicker">Streetview Counterfactual Evidence Pack</p>
+      <h1>more depressing</h1>
+      <p class="hero-meta">Source CSV: /Users/admin/streetview-counterfactual/data/03_eval_results/place_pulse_bottom5_5each_more_depressing.csv</p>
+      <p class="hero-meta">Pairs: 5 | Built: 2026-02-12 21:19 UTC</p>
+    </section>
+    
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 01</p>
+                  <p class="pair-subtitle">Edited object: tree canopy</p>
+                </div>
+                <div class="chips"><span class="chip">Object: tree canopy</span><span class="chip good">Realistic: Yes</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/01_original.jpg" alt="more depressing pair 1 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_depressing/01_more_depressing_513d6d75fdc9f0358700515b.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/01_edited.jpg" alt="more depressing pair 1 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210948_241804.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Replace the leafy tree canopy with bare, leafless branches.</p>
+                <h3>Critic Notes</h3>
+                <p>The leafy canopy on the large left-side tree was replaced with bare branches in a physically plausible way. However, the edit is not minimal: additional trees/shrubs in the left background also appear to have reduced foliage/turned barer compared to the original. To improve, confine the change strictly to the specified tree canopy and keep all other vegetation unchanged.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 02</p>
+                  <p class="pair-subtitle">Edited object: building facade</p>
+                </div>
+                <div class="chips"><span class="chip">Object: building facade</span><span class="chip bad">Realistic: No</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/02_original.jpg" alt="more depressing pair 2 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_depressing/02_more_depressing_513e5fc6fdc9f0358700b2be.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/02_edited.jpg" alt="more depressing pair 2 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_211007_653493.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Add a large dark soot stain and streaking across the building facade.</p>
+                <h3>Critic Notes</h3>
+                <p>The requested soot stain/streaking on the building facade is not convincingly added. Instead, there appears to be a broad blurry dark smudge/band across the lower-right area (including storefront/shutter zone) that looks like an editing artifact rather than physically plausible soot streaks. It also affects a wider area than a localized facade stain. Repair: add textured, irregular soot discoloration anchored to facade features (e.g., below windows/vents), with directional vertical streaking and proper blending to the wall surface, keeping the change confined strictly to the facade.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 03</p>
+                  <p class="pair-subtitle">Edited object: tree canopy</p>
+                </div>
+                <div class="chips"><span class="chip">Object: tree canopy</span><span class="chip good">Realistic: Yes</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/03_original.jpg" alt="more depressing pair 3 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_depressing/03_more_depressing_50f55eaefdc9f065f0004deb.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/03_edited.jpg" alt="more depressing pair 3 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_211054_651415.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Replace the leafy green canopy with bare, leafless branches by desaturating and removing the foliage texture on the tree canopy.</p>
+                <h3>Critic Notes</h3>
+                <p>The canopy was successfully changed from leafy green to mostly bare branches and looks plausible. However, the edit is not minimal: it affects many trees across the scene (overall vegetation/seasonal look) rather than being localized to just the specified tree canopy, and the surrounding foliage/greenery appearance shifts noticeably. To improve, restrict the mask to only the target canopy area and avoid altering other trees/understory or global color/season cues.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 04</p>
+                  <p class="pair-subtitle">Edited object: tree trunk</p>
+                </div>
+                <div class="chips"><span class="chip">Object: tree trunk</span><span class="chip bad">Realistic: No</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/04_original.jpg" alt="more depressing pair 4 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_depressing/04_more_depressing_51414223fdc9f04926006274.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/04_edited.jpg" alt="more depressing pair 4 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_211121_985606.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the tree trunk with dark, blotchy staining to make it look diseased and neglected.</p>
+                <h3>Critic Notes</h3>
+                <p>The edited image appears essentially unchanged: the tree trunk does not show added dark, blotchy staining consistent with disease/neglect. No obvious drift in scene, camera, or lighting, but the requested trunk repainting is not evident. Reapply a localized texture/paint edit on the visible trunk area (left foreground) with darker irregular blotches while preserving existing bark texture and scene lighting.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 05</p>
+                  <p class="pair-subtitle">Edited object: school bus</p>
+                </div>
+                <div class="chips"><span class="chip">Object: school bus</span><span class="chip bad">Realistic: No</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/05_original.jpg" alt="more depressing pair 5 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_depressing/05_more_depressing_51422ad6fdc9f049260089a5.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/05_edited.jpg" alt="more depressing pair 5 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_211141_609820.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the school bus with dull, faded, patchy paint and visible rust streaks.</p>
+                <h3>Critic Notes</h3>
+                <p>The requested edit was not applied to the school bus. In the edited image, the yellow school bus at right appears to have been replaced/changed into a white vehicle, which is a major content change rather than repainting. To fix: keep the same bus and only modify its paint surface—reduce saturation/brightness, add patchy faded areas and localized rust streaks—without changing the vehicle type, position, or the rest of the scene.</p>
+              </div>
+            </section>
+            
+  </main>
+</body>
+</html>

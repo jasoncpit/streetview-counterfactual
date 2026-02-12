@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evidence Pack - more boring</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap");
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1d1b17;
+      --muted: #5f594f;
+      --card: #fffdfa;
+      --line: #d8d0c2;
+      --accent: #b85d2a;
+      --accent-soft: #f0d7c9;
+      --good: #2e7d32;
+      --bad: #b71c1c;
+      --shadow: 0 14px 36px rgba(35, 28, 20, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 0%, #fbe7d8 0, transparent 38%),
+        radial-gradient(circle at 0% 100%, #e6efe9 0, transparent 32%),
+        var(--bg);
+      line-height: 1.45;
+    }
+    .wrap {
+      width: min(1140px, 92vw);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+    .hero {
+      background: linear-gradient(140deg, #fffdf7 0%, #f9f2ea 100%);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+    .kicker {
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 8px 0 10px;
+      font-family: "Fraunces", serif;
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+    .hero-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .pair {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 18px;
+      animation: fade 0.42s ease both;
+    }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pair-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .pair-id {
+      margin: 0 0 4px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .pair-subtitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .chip.good {
+      border-color: #9ec7a0;
+      background: #edf8ee;
+      color: var(--good);
+    }
+    .chip.bad {
+      border-color: #e2a4a4;
+      background: #fdeeee;
+      color: var(--bad);
+    }
+    .pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .image-panel {
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f7f2ea;
+    }
+    figcaption {
+      padding: 10px 12px 8px;
+      font-weight: 700;
+      color: var(--ink);
+      background: linear-gradient(90deg, #fff, #fbf7ef);
+      border-bottom: 1px solid var(--line);
+    }
+    .image-panel img {
+      display: block;
+      width: 100%;
+      max-height: 410px;
+      object-fit: contain;
+      background: #0f0e0c;
+    }
+    .image-path {
+      margin: 0;
+      padding: 8px 12px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+      background: #fffdfa;
+      border-top: 1px solid var(--line);
+    }
+    .missing-box {
+      min-height: 240px;
+      display: grid;
+      place-items: center;
+      border: 2px dashed var(--line);
+      margin: 12px;
+      border-radius: 10px;
+      color: var(--muted);
+      background: #fff;
+    }
+    .description {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+    .description h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .description p {
+      margin: 0;
+      color: var(--ink);
+    }
+    .description p + h3 {
+      margin-top: 10px;
+    }
+    @media (max-width: 920px) {
+      .pair-grid {
+        grid-template-columns: 1fr;
+      }
+      .pair-head {
+        flex-direction: column;
+      }
+      .chips {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <p class="kicker">Streetview Counterfactual Evidence Pack</p>
+      <h1>more boring</h1>
+      <p class="hero-meta">Source CSV: /Users/admin/streetview-counterfactual/data/03_eval_results/place_pulse_bottom5_5each_more_boring.csv</p>
+      <p class="hero-meta">Pairs: 5 | Built: 2026-02-12 21:19 UTC</p>
+    </section>
+    
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 01</p>
+                  <p class="pair-subtitle">Edited object: crosswalk stripes</p>
+                </div>
+                <div class="chips"><span class="chip">Object: crosswalk stripes</span><span class="chip bad">Realistic: No</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/01_original.jpg" alt="more boring pair 1 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_boring/01_more_boring_50f43b78fdc9f065f0003176.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/01_edited.jpg" alt="more boring pair 1 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210222_550835.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the crosswalk stripes to be faded and patchy so they blend more with the asphalt.</p>
+                <h3>Critic Notes</h3>
+                <p>The crosswalk stripes in the edited image do not appear repainted to be faded/patchy; they remain bright, solid, and high-contrast like the original. There is also noticeable global drift (overall image looks sharper/cleaner and slightly different in tone), suggesting changes beyond the target object. To fix: apply localized wear to the white stripes only (reduced opacity, uneven edges, asphalt-colored scuffs/gaps) while keeping the rest of the scene identical in color/contrast and preserving the same camera/viewpoint.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 02</p>
+                  <p class="pair-subtitle">Edited object: car</p>
+                </div>
+                <div class="chips"><span class="chip">Object: car</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/02_original.jpg" alt="more boring pair 2 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_boring/02_more_boring_513d7cfdfdc9f03587007090.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/02_edited.jpg" alt="more boring pair 2 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210245_716440.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the red car in a dull neutral gray to make it blend into the street scene.</p>
+                <h3>Critic Notes</h3>
+                <p>The car’s body color appears changed from red to a dull neutral gray while keeping the rest of the street scene consistent. Lighting, shadows, and surrounding objects look unchanged, and the repaint is localized to the car with no noticeable camera/viewpoint or global color drift.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 03</p>
+                  <p class="pair-subtitle">Edited object: awning</p>
+                </div>
+                <div class="chips"><span class="chip">Object: awning</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/03_original.jpg" alt="more boring pair 3 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_boring/03_more_boring_50f43b90fdc9f065f0003217.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/03_edited.jpg" alt="more boring pair 3 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210305_314849.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the awning to a uniform dull gray, removing its bright color variation.</p>
+                <h3>Critic Notes</h3>
+                <p>The awning has been repainted to a uniform dull gray, with plausible shading consistent with the scene. The change appears localized to the awning fabric with no noticeable drift in camera viewpoint, global lighting/color, or surrounding objects.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 04</p>
+                  <p class="pair-subtitle">Edited object: bus</p>
+                </div>
+                <div class="chips"><span class="chip">Object: bus</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/04_original.jpg" alt="more boring pair 4 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_boring/04_more_boring_51414c6efdc9f04926007327.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/04_edited.jpg" alt="more boring pair 4 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210339_668052.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the bus body to a plain matte light gray, removing the bright orange color.</p>
+                <h3>Critic Notes</h3>
+                <p>The bus body color appears changed from bright orange to a plain light gray/white with plausible shading and reflections. Surrounding scene, camera viewpoint, and overall lighting/style remain consistent with the original. No obvious unintended edits outside the bus; the change is localized and matches the edit plan.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 05</p>
+                  <p class="pair-subtitle">Edited object: crosswalk marking</p>
+                </div>
+                <div class="chips"><span class="chip">Object: crosswalk marking</span><span class="chip bad">Realistic: No</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/05_original.jpg" alt="more boring pair 5 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/more_boring/05_more_boring_513d6924fdc9f03587004616.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/05_edited.jpg" alt="more boring pair 5 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210416_771687.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the crosswalk marking to a faded light-gray so it blends more with the asphalt.</p>
+                <h3>Critic Notes</h3>
+                <p>The edit does not match the plan: instead of fading the existing white crosswalk stripes to light-gray, the stripes were replaced/covered by a large solid rectangular patch across the road. This looks like an added painted slab and is not physically plausible for a faded crosswalk. Repair: keep the original stripe geometry and edges, reduce contrast/saturation to a light-gray with slight uneven wear/texture so asphalt shows through; avoid adding new filled shapes beyond the stripe areas.</p>
+              </div>
+            </section>
+            
+  </main>
+</body>
+</html>
