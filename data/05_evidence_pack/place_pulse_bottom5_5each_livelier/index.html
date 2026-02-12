@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evidence Pack - livelier</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap");
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1d1b17;
+      --muted: #5f594f;
+      --card: #fffdfa;
+      --line: #d8d0c2;
+      --accent: #b85d2a;
+      --accent-soft: #f0d7c9;
+      --good: #2e7d32;
+      --bad: #b71c1c;
+      --shadow: 0 14px 36px rgba(35, 28, 20, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 0%, #fbe7d8 0, transparent 38%),
+        radial-gradient(circle at 0% 100%, #e6efe9 0, transparent 32%),
+        var(--bg);
+      line-height: 1.45;
+    }
+    .wrap {
+      width: min(1140px, 92vw);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+    .hero {
+      background: linear-gradient(140deg, #fffdf7 0%, #f9f2ea 100%);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+    .kicker {
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 8px 0 10px;
+      font-family: "Fraunces", serif;
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+    .hero-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .pair {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 18px;
+      animation: fade 0.42s ease both;
+    }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pair-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .pair-id {
+      margin: 0 0 4px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .pair-subtitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .chip.good {
+      border-color: #9ec7a0;
+      background: #edf8ee;
+      color: var(--good);
+    }
+    .chip.bad {
+      border-color: #e2a4a4;
+      background: #fdeeee;
+      color: var(--bad);
+    }
+    .pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .image-panel {
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f7f2ea;
+    }
+    figcaption {
+      padding: 10px 12px 8px;
+      font-weight: 700;
+      color: var(--ink);
+      background: linear-gradient(90deg, #fff, #fbf7ef);
+      border-bottom: 1px solid var(--line);
+    }
+    .image-panel img {
+      display: block;
+      width: 100%;
+      max-height: 410px;
+      object-fit: contain;
+      background: #0f0e0c;
+    }
+    .image-path {
+      margin: 0;
+      padding: 8px 12px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+      background: #fffdfa;
+      border-top: 1px solid var(--line);
+    }
+    .missing-box {
+      min-height: 240px;
+      display: grid;
+      place-items: center;
+      border: 2px dashed var(--line);
+      margin: 12px;
+      border-radius: 10px;
+      color: var(--muted);
+      background: #fff;
+    }
+    .description {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+    .description h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .description p {
+      margin: 0;
+      color: var(--ink);
+    }
+    .description p + h3 {
+      margin-top: 10px;
+    }
+    @media (max-width: 920px) {
+      .pair-grid {
+        grid-template-columns: 1fr;
+      }
+      .pair-head {
+        flex-direction: column;
+      }
+      .chips {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <p class="kicker">Streetview Counterfactual Evidence Pack</p>
+      <h1>livelier</h1>
+      <p class="hero-meta">Source CSV: /Users/admin/streetview-counterfactual/data/03_eval_results/place_pulse_bottom5_5each_livelier.csv</p>
+      <p class="hero-meta">Pairs: 5 | Built: 2026-02-12 21:19 UTC</p>
+    </section>
+    
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 01</p>
+                  <p class="pair-subtitle">Edited object: tunnel wall panels</p>
+                </div>
+                <div class="chips"><span class="chip">Object: tunnel wall panels</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/01_original.jpg" alt="livelier pair 1 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/livelier/01_livelier_513e6501fdc9f0358700b8ed.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/01_edited.jpg" alt="livelier pair 1 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210007_703290.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the tunnel wall panels with a brighter, more saturated color.</p>
+                <h3>Critic Notes</h3>
+                <p>The tunnel wall panels have been repainted to a brighter, more saturated yellow while preserving panel seams and perspective, and the change looks physically plausible under tunnel lighting. The edit appears localized to the wall panels with no noticeable viewpoint, global color/lighting, or surrounding context drift.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 02</p>
+                  <p class="pair-subtitle">Edited object: car</p>
+                </div>
+                <div class="chips"><span class="chip">Object: car</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/02_original.jpg" alt="livelier pair 2 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/livelier/02_livelier_5140b993fdc9f04926001e97.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/02_edited.jpg" alt="livelier pair 2 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210030_176686.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the small car in a brighter, more saturated color (e.g., vivid red) to make it stand out.</p>
+                <h3>Critic Notes</h3>
+                <p>The small car appears repainted to a brighter, more saturated red while the rest of the scene (road, buildings, sky, debris pile, lighting) remains unchanged. The color change looks plausible with consistent shading and no noticeable spillover or artifacts. Edit is localized to the car with no camera/viewpoint or global color drift detected.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 03</p>
+                  <p class="pair-subtitle">Edited object: building facade</p>
+                </div>
+                <div class="chips"><span class="chip">Object: building facade</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/03_original.jpg" alt="livelier pair 3 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/livelier/03_livelier_513d2cdcfdc9f0358700246e.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/03_edited.jpg" alt="livelier pair 3 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210059_804419.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the building facade with a bright, saturated color to add visual energy.</p>
+                <h3>Critic Notes</h3>
+                <p>The edit repaints the intended building facade (left-side building) to a bright saturated pink/red, which looks plausible as exterior paint and stays consistent with the scene lighting. The change is localized to the facade with no noticeable camera, lighting, or surrounding-object drift.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 04</p>
+                  <p class="pair-subtitle">Edited object: concrete wall</p>
+                </div>
+                <div class="chips"><span class="chip">Object: concrete wall</span><span class="chip bad">Realistic: No</span><span class="chip bad">Minimal: No</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/04_original.jpg" alt="livelier pair 4 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/livelier/04_livelier_514091a5fdc9f04926000554.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/04_edited.jpg" alt="livelier pair 4 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210121_849558.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the concrete wall a bright, saturated color to make it stand out.</p>
+                <h3>Critic Notes</h3>
+                <p>The edit did not repaint the concrete wall; instead, large areas of the surrounding hillside/vegetation were globally recolored to an orange tone, indicating a broad color shift. This violates minimality and causes drift in scene appearance. Repair: apply a localized mask only to the concrete wall surfaces and change their paint color to a bright saturated hue while keeping all other areas (vegetation, road, sky) unchanged in color and lighting.</p>
+              </div>
+            </section>
+            
+
+            <section class="pair">
+              <header class="pair-head">
+                <div>
+                  <p class="pair-id">Pair 05</p>
+                  <p class="pair-subtitle">Edited object: parked van</p>
+                </div>
+                <div class="chips"><span class="chip">Object: parked van</span><span class="chip good">Realistic: Yes</span><span class="chip good">Minimal: Yes</span></div>
+              </header>
+              <div class="pair-grid">
+                
+        <figure class="image-panel">
+          <figcaption>Original</figcaption>
+          <img src="assets/05_original.jpg" alt="livelier pair 5 original" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/01_raw/place_pulse_bottom5_5each/livelier/05_livelier_50f5ec9cfdc9f065f0008a7c.jpg</p>
+        </figure>
+        
+                
+        <figure class="image-panel">
+          <figcaption>Edited</figcaption>
+          <img src="assets/05_edited.jpg" alt="livelier pair 5 edited" loading="lazy" />
+          <p class="image-path">/Users/admin/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260212_210148_266535.jpg</p>
+        </figure>
+        
+              </div>
+              <div class="description">
+                <h3>Description</h3>
+                <p>Repaint the parked van in a brighter, more saturated color (e.g., red) while keeping its shape and lighting consistent.</p>
+                <h3>Critic Notes</h3>
+                <p>The parked van was repainted to a brighter saturated red while preserving its shape, position, and scene lighting/shadows. No noticeable changes to camera viewpoint, global color/contrast, or surrounding objects/background.</p>
+              </div>
+            </section>
+            
+  </main>
+</body>
+</html>

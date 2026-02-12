@@ -34,6 +34,12 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default=None,
         help="Override input directory (default: data/01_raw).",
+    ) 
+    parser.add_argument( 
+        "--input-path", 
+        type=str,
+        default=None,
+        help="Override input image path. If provided, --input-dir will be ignored.", 
     )
     parser.add_argument(
         "--csv-path",
@@ -110,7 +116,12 @@ def main() -> None:
 
     results: list[Dict[str, Any]] = []
 
-    for image_path in tqdm(images, desc="Processing images"):
+    if args.input_path:
+        image_paths = [Path(args.input_path)]
+    else:
+        image_paths = images
+        
+    for image_path in tqdm(image_paths, desc="Processing images"):
         try:
             final_state = run_baseline_for_image(
                 cfg,
