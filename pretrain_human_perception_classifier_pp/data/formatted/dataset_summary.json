@@ -1,0 +1,29 @@
+{
+  "cities": {
+    "Abuja": 80,
+    "Amsterdam": 80,
+    "San Francisco": 80,
+    "Santiago": 80,
+    "Singapore": 80
+  },
+  "dataset_repo_id": "matiasqr/specs",
+  "inference_coverage": {
+    "beautiful": 400,
+    "boring": 400,
+    "depressing": 400,
+    "lively": 400,
+    "safety": 400,
+    "wealthy": 400
+  },
+  "num_images": 400,
+  "num_pairwise_rows": 50000,
+  "qscore_coverage": {
+    "beautiful": 400,
+    "boring": 400,
+    "depressing": 400,
+    "lively": 400,
+    "safety": 400,
+    "wealthy": 400
+  },
+  "raw_snapshot_dir": "/Users/admin/streetview-counterfactual/pretrain_human_perception_classifier_pp/data/raw/specs"
+}
