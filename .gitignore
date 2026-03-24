@@ -3,6 +3,7 @@ __pycache__/
 *.py[codz]
 *$py.class
 .env
+.env.*
 # C extensions
 *.so
 
@@ -231,3 +232,7 @@ outputs/
 *.synctex.gz
 *.toc
 paper/main.pdf
+
+# Local model checkpoints
+*.pt
+*.pth

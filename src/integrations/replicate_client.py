@@ -23,6 +23,22 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
+# Compatibility models
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ReplicateModels:
+    dino_model: str = ""
+    sam_model: str = ""
+    inpaint_model: str = ""
+    flux_kontext_model: str = "black-forest-labs/flux-kontext-max"
+    nano_banana_model: str = "google/nano-banana-pro"
+    inpaint_params: Dict[str, Any] | None = None
+    flux_kontext_params: Dict[str, Any] | None = None
+
+
+# ---------------------------------------------------------------------------
 # Client
 # ---------------------------------------------------------------------------
 
@@ -30,9 +46,10 @@ class ReplicateClient:
     """Thin wrapper around the Replicate API for segmentation, inpainting,
     baseline image-editing, and realism scoring."""
 
-    def __init__(self, download_timeout: int = 120) -> None:
+    def __init__(self, download_timeout: int = 120, models: ReplicateModels | None = None) -> None:
         self.client = replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
         self.download_timeout = download_timeout
+        self.models = models
 
     def image_edit_baseline(
         self,
@@ -48,12 +65,21 @@ class ReplicateClient:
         target_object: str,
         output_dir: Path,
         prompt_template: str,
+        lever_concept: str = "",
+        scene_support: str = "",
+        intervention_direction: str = "",
+        edit_template: str = "",
         max_retries: int = 3,
         retry_base_delay: float = 1.0,
         match_input_size: bool = True,
     ) -> Path:
         prompt = prompt_template.format(
-            target_object=target_object, edit_plan=edit_plan,
+            lever_concept=lever_concept,
+            scene_support=scene_support,
+            intervention_direction=intervention_direction,
+            edit_template=edit_template,
+            target_object=target_object,
+            edit_plan=edit_plan,
         )
         self.last_baseline_used_mock = False
 
@@ -115,7 +141,7 @@ class ReplicateClient:
                     )
                     logger.info("Running %s (attempt %s/%s)", model, attempt, max_retries)
                     result = self.client.run(model, input=payload)
-                return self._first_item(result), fmt
+                return self._normalize_result(result), fmt
             except (ReplicateError, ModelError) as err:
                 if attempt >= max_retries:
                     logger.warning(
@@ -134,9 +160,16 @@ class ReplicateClient:
     # ── baseline: payload builders ────────────────────────────────────────
 
     def _build_baseline_payload(
-        self, model: str, image_handle: Any, prompt: str, *, use_alt: bool = False,
+        self,
+        model: str,
+        image_handle: Any,
+        prompt: str | None = None,
+        *,
+        formatted_prompt: str | None = None,
+        use_alt: bool = False,
     ) -> tuple[Dict[str, Any], str | None]:
         """Return ``(payload, output_format)`` for the given baseline model."""
+        prompt = formatted_prompt or prompt or ""
         if model == "google/nano-banana-pro":
             return {
                 "prompt": prompt,
@@ -223,6 +256,15 @@ class ReplicateClient:
             return result[0]
         return result
 
+    def _normalize_result(self, result: Any) -> Any:
+        return self._first_item(result)
+
+    @staticmethod
+    def _suffix_from_format(fmt: str | None) -> str:
+        if not fmt:
+            return ".png"
+        return ".jpg" if str(fmt).lower() in {"jpg", "jpeg"} else ".png"
+
     def _save_result(self, result: Any, destination: Path) -> bool:
         """Persist a Replicate result to *destination*.
 
@@ -271,3 +313,6 @@ class ReplicateClient:
             resized.crop((left, top, left + in_w, top + in_h)).save(output_path)
         except Exception:
             logger.warning("Failed to resize baseline output to match input.", exc_info=True)
+
+    def _match_size(self, output_path: Path, input_path: str) -> None:
+        self._match_size_safe(output_path, input_path)

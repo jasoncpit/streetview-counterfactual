@@ -6,6 +6,10 @@ class AgentState(TypedDict, total=False):
     target_attribute: str
 
     # Planner outputs
+    lever_concept: Optional[str]
+    scene_support: Optional[str]
+    intervention_direction: Optional[str]
+    edit_template: Optional[str]
     edit_plan: Optional[str]
     target_object: Optional[str]
 
@@ -15,7 +19,10 @@ class AgentState(TypedDict, total=False):
 
     # Loop control
     attempts: int
+    same_place_preserved: Optional[bool]
+    is_localized: Optional[bool]
     is_realistic: bool
-    is_minimal_edit: Optional[bool]
+    is_plausible: Optional[bool]
+    is_valid: Optional[bool]
     critic_notes: Optional[str]
     used_mock: Optional[bool]

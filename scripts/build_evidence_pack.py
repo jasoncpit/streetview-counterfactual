@@ -384,21 +384,39 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
         target_object = (row.get("planner_target_object", "") or "").strip() or "unspecified object"
         edit_plan = (row.get("planner_edit_plan", "") or "").strip() or "No edit plan recorded."
         critic_notes = (row.get("critic_notes", "") or "").strip() or "No critic notes recorded."
+        same_place = parse_bool(row.get("critic_same_place_preserved"))
+        localized = parse_bool(row.get("critic_is_localized"))
         realistic = parse_bool(row.get("critic_is_realistic"))
-        minimal = parse_bool(row.get("critic_is_minimal_edit"))
+        plausible = parse_bool(row.get("critic_is_plausible"))
+        valid = parse_bool(row.get("critic_is_valid"))
 
         subtitle = f"Edited object: {target_object}"
         chips = [
             f'<span class="chip">Object: {html.escape(target_object)}</span>',
+            (
+                '<span class="chip good">Same Place: Yes</span>'
+                if same_place
+                else '<span class="chip bad">Same Place: No</span>'
+            ),
+            (
+                '<span class="chip good">Localized: Yes</span>'
+                if localized
+                else '<span class="chip bad">Localized: No</span>'
+            ),
             (
                 '<span class="chip good">Realistic: Yes</span>'
                 if realistic
                 else '<span class="chip bad">Realistic: No</span>'
             ),
             (
-                '<span class="chip good">Minimal: Yes</span>'
-                if minimal
-                else '<span class="chip bad">Minimal: No</span>'
+                '<span class="chip good">Plausible: Yes</span>'
+                if plausible
+                else '<span class="chip bad">Plausible: No</span>'
+            ),
+            (
+                '<span class="chip good">Valid: Yes</span>'
+                if valid
+                else '<span class="chip bad">Valid: No</span>'
             ),
         ]
 
@@ -447,8 +465,11 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
                 "attribute": attribute,
                 "target_object": target_object,
                 "edit_description": edit_plan,
+                "critic_same_place_preserved": str(same_place),
+                "critic_is_localized": str(localized),
                 "critic_is_realistic": str(realistic),
-                "critic_is_minimal_edit": str(minimal),
+                "critic_is_plausible": str(plausible),
+                "critic_is_valid": str(valid),
                 "critic_notes": critic_notes,
                 "source_input_image_path": str(input_path),
                 "source_output_image_path": str(output_path),
@@ -476,8 +497,11 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
                 "attribute",
                 "target_object",
                 "edit_description",
+                "critic_same_place_preserved",
+                "critic_is_localized",
                 "critic_is_realistic",
-                "critic_is_minimal_edit",
+                "critic_is_plausible",
+                "critic_is_valid",
                 "critic_notes",
                 "source_input_image_path",
                 "source_output_image_path",

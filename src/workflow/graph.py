@@ -42,7 +42,12 @@ def build_baseline_workflow(cfg, planner, replicate_client):
     graph.add_edge("planner", "baseline")
     graph.add_edge("baseline", "critic")
     def critic_router(state: AgentState):
-        if state.get("is_realistic") and state.get("is_minimal_edit"):
+        if state.get("is_valid") or (
+            state.get("same_place_preserved")
+            and state.get("is_localized")
+            and state.get("is_realistic")
+            and state.get("is_plausible")
+        ):
             return END
         if state.get("attempts", 0) >= cfg.workflow.max_attempts:
             return END
@@ -95,7 +100,12 @@ def build_workflow(cfg, planner, replicate_client):
     graph.add_edge("segmenter", "generator")
     graph.add_edge("generator", "critic")
     def critic_router(state: AgentState):
-        if state.get("is_realistic") and state.get("is_minimal_edit"):
+        if state.get("is_valid") or (
+            state.get("same_place_preserved")
+            and state.get("is_localized")
+            and state.get("is_realistic")
+            and state.get("is_plausible")
+        ):
             return END
         if state.get("attempts", 0) >= cfg.workflow.max_attempts:
             return END

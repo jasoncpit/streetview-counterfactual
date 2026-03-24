@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import base64
 import json
+import re
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional
@@ -8,16 +11,36 @@ from openai import OpenAI
 
 
 @dataclass
-class PlanResult:
-    edit_plan: str
+class LeverCandidate:
+    lever_concept: str
+    scene_support: str
     target_object: str
+    intervention_direction: str
+    edit_template: str
+    edit_plan: str
+
+
+@dataclass
+class CandidateSetResult:
+    candidates: list[LeverCandidate]
 
 
 @dataclass
 class GeneratedCritiqueResult:
+    same_place_preserved: bool
+    is_localized: bool
     is_realistic: bool
-    is_minimal_edit: bool
+    is_plausible: bool
     notes: str
+
+    @property
+    def is_valid(self) -> bool:
+        return (
+            self.same_place_preserved
+            and self.is_localized
+            and self.is_realistic
+            and self.is_plausible
+        )
 
 
 class Planner:
@@ -46,21 +69,118 @@ class Planner:
         encoded = base64.b64encode(data).decode("utf-8")
         return f"data:{mime};base64,{encoded}"
 
-    def propose_edit(
+    @staticmethod
+    def _stringify_field(raw: object) -> str:
+        if raw is None:
+            return ""
+        if isinstance(raw, list):
+            return " ".join(str(item) for item in raw if item is not None)
+        if isinstance(raw, dict):
+            return " ".join(f"{key}: {value}" for key, value in raw.items())
+        return str(raw)
+
+    @classmethod
+    def _sanitize_short_text(cls, raw: object, *, default: str, max_words: int = 8) -> str:
+        if not raw:
+            return default
+        text = cls._stringify_field(raw).strip().replace("\n", " ")
+        text = re.sub(r"^[\[\]\(\)\{\}\-\*\d\.\s:]+", "", text)
+        text = re.sub(r"[\[\]\(\)\{\}]+", "", text)
+        text = re.sub(r"\s+", " ", text)
+        text = text.replace('"', "").replace("'", "").strip(" .,-")
+        words = text.split()
+        if not words:
+            return default
+        words = words[:max_words]
+        trailing_stopwords = {
+            "a",
+            "an",
+            "and",
+            "at",
+            "by",
+            "for",
+            "from",
+            "in",
+            "of",
+            "on",
+            "or",
+            "the",
+            "to",
+            "with",
+        }
+        while len(words) > 1 and words[-1].lower() in trailing_stopwords:
+            words.pop()
+        text = " ".join(words).strip(" .,-")
+        return text or default
+
+    @classmethod
+    def _sanitize_sentence(cls, raw: object, *, default: str, max_words: int = 28) -> str:
+        text = cls._sanitize_short_text(raw, default=default, max_words=max_words)
+        text = re.split(r"(?<=[.!?])\s+", text)[0].strip()
+        text = text.rstrip(",;:")
+        if not text:
+            return default
+        if text[-1] not in ".!?":
+            text = f"{text}."
+        return text
+
+    def _coerce_candidate(self, data: dict) -> LeverCandidate:
+        lever_concept = self._sanitize_short_text(
+            data.get("lever_concept"),
+            default="surface cleaning",
+            max_words=5,
+        )
+        scene_support = self._sanitize_short_text(
+            data.get("scene_support") or data.get("target_object"),
+            default="visible support",
+            max_words=12,
+        )
+        target_object = self._sanitize_short_text(
+            data.get("target_object") or scene_support,
+            default="object",
+            max_words=5,
+        )
+        direction = self._sanitize_short_text(
+            data.get("intervention_direction"),
+            default="repair",
+            max_words=3,
+        )
+        edit_template = self._sanitize_short_text(
+            data.get("edit_template"),
+            default=f"{direction} the {target_object}",
+            max_words=12,
+        )
+        edit_plan = self._sanitize_sentence(
+            data.get("edit_plan"),
+            default=f"{direction.capitalize()} the {target_object}.",
+            max_words=28,
+        )
+        return LeverCandidate(
+            lever_concept=lever_concept,
+            scene_support=scene_support,
+            target_object=target_object,
+            intervention_direction=direction,
+            edit_template=edit_template,
+            edit_plan=edit_plan,
+        )
+
+    def propose_lever_candidates(
         self,
         image_path: str,
         target_attribute: str,
-        prior_plan: Optional[str] = None,
-        critic_notes: Optional[str] = None,
-    ) -> PlanResult:
-        prior_text = f"Prior attempt: {prior_plan}" if prior_plan else "No prior attempts."
-        critic_text = f"Critic notes: {critic_notes}" if critic_notes else "No critic notes."
+        lever_ontology: tuple[str, ...],
+        candidate_budget: int,
+    ) -> CandidateSetResult:
+        ontology_text = "\n".join(f"- {item}" for item in lever_ontology)
         user_prompt = (
             f"Image path: {image_path}\n"
             f"Target percept: {target_attribute}\n"
-            f"{prior_text}\n"
-            f"{critic_text}\n"
-            "Respond with JSON containing edit_plan and target_object."
+            f"Candidate budget: {candidate_budget}\n"
+            "Choose candidate levers only from this ontology:\n"
+            f"{ontology_text}\n"
+            "Return JSON with a top-level candidates array.\n"
+            f"Target count: {candidate_budget} candidates.\n"
+            "If possible, use different lever concepts across the returned candidates."
         )
         image_url = self._image_to_data_url(image_path)
 
@@ -80,10 +200,60 @@ class Planner:
         )
         content = completion.choices[0].message.content
         data = json.loads(content) if content else {}
-        return PlanResult(
-            edit_plan=data.get("edit_plan", "No plan generated"),
-            target_object=data.get("target_object", "object"),
+        raw_candidates = data.get("candidates")
+        candidates = []
+        seen_keys: set[tuple[str, str, str]] = set()
+        if isinstance(raw_candidates, list):
+            for item in raw_candidates:
+                if isinstance(item, dict):
+                    candidate = self._coerce_candidate(item)
+                    dedupe_key = (
+                        candidate.lever_concept.lower(),
+                        candidate.target_object.lower(),
+                        candidate.edit_plan.lower(),
+                    )
+                    if dedupe_key in seen_keys:
+                        continue
+                    seen_keys.add(dedupe_key)
+                    candidates.append(candidate)
+                    if len(candidates) >= candidate_budget:
+                        break
+        if not candidates:
+            candidates.append(
+                LeverCandidate(
+                    lever_concept="surface cleaning",
+                    scene_support="visible support",
+                    target_object="object",
+                    intervention_direction="repair",
+                    edit_template="repair localized wear while preserving surrounding context",
+                    edit_plan="Repair the object with a localized, plausible improvement.",
+                )
+            )
+        return CandidateSetResult(candidates=candidates)
+
+    def propose_edit(
+        self,
+        image_path: str,
+        target_attribute: str,
+        prior_plan: Optional[str] = None,
+        critic_notes: Optional[str] = None,
+    ) -> LeverCandidate:
+        result = self.propose_lever_candidates(
+            image_path=image_path,
+            target_attribute=target_attribute,
+            lever_ontology=("surface cleaning",),
+            candidate_budget=1,
         )
+        candidate = result.candidates[0]
+        if critic_notes or prior_plan:
+            # Preserve compatibility for callers that still route a single candidate
+            # through iterative retries with critique notes.
+            candidate.edit_plan = self._sanitize_short_text(
+                prior_plan or candidate.edit_plan,
+                default=candidate.edit_plan,
+                max_words=24,
+            )
+        return candidate
 
     def critique_generated(
         self,
@@ -91,13 +261,21 @@ class Planner:
         edited_image_path: str,
         edit_plan: str,
         target_object: str,
+        lever_concept: str = "",
+        scene_support: str = "",
+        intervention_direction: str = "",
+        edit_template: str = "",
     ) -> GeneratedCritiqueResult:
         user_prompt = (
             f"Original image path: {image_path}\n"
             f"Edited image path: {edited_image_path}\n"
+            f"Lever concept: {lever_concept}\n"
+            f"Scene support: {scene_support}\n"
             f"Target object (do not change): {target_object}\n"
+            f"Intervention direction: {intervention_direction}\n"
+            f"Edit template: {edit_template}\n"
             f"Edit plan: {edit_plan}\n"
-            "Respond with JSON containing is_realistic, is_minimal_edit and notes."
+            "Respond with JSON containing same_place_preserved, is_localized, is_realistic, is_plausible and notes."
         )
         original_url = self._image_to_data_url(image_path)
         edited_url = self._image_to_data_url(edited_image_path)
@@ -118,8 +296,16 @@ class Planner:
         )
         content = completion.choices[0].message.content
         data = json.loads(content) if content else {}
+        same_place_preserved = bool(
+            data.get("same_place_preserved", data.get("is_minimal_edit", False))
+        )
+        is_localized = bool(
+            data.get("is_localized", data.get("is_minimal_edit", False))
+        )
         return GeneratedCritiqueResult(
+            same_place_preserved=same_place_preserved,
+            is_localized=is_localized,
             is_realistic=bool(data.get("is_realistic", False)),
-            is_minimal_edit=bool(data.get("is_minimal_edit", False)),
+            is_plausible=bool(data.get("is_plausible", data.get("is_realistic", False))),
             notes=data.get("notes", ""),
         )

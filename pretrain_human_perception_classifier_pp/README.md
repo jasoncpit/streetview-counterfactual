@@ -29,8 +29,8 @@ This will:
 To score the formatted SPECS manifest with the published checkpoints:
 
 ```bash
-pip install -r pretrain_human_perception_classifier_pp/requirements.txt
-python pretrain_human_perception_classifier_pp/scripts/run_inference.py
+uv run --python 3.12 --with torch --with torchvision --with huggingface_hub --with pillow \
+  python pretrain_human_perception_classifier_pp/scripts/run_inference.py
 ```
 
 Useful variants:
@@ -50,3 +50,13 @@ The inference script downloads the six published `.pth` checkpoints into
 `pretrain_human_perception_classifier_pp/models/human_perception_place_pulse/`
 and writes one wide CSV with `pred_safety`, `pred_lively`, `pred_wealthy`,
 `pred_beautiful`, `pred_boring`, and `pred_depressing`.
+
+For the main repo's auxiliary scoring pipeline, you can also download a
+single checkpoint directly with:
+
+```bash
+./scripts/download_vitpp2.sh --attribute safety
+```
+
+This is useful when running `scripts/run_analysis.py` locally on Apple
+Silicon with `--device mps`.
