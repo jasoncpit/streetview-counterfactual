@@ -209,3 +209,5 @@ __marimo__/
 uv.lock 
 outputs/
 .history/
+.img 
+.jpeg
