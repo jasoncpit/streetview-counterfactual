@@ -1,0 +1,60 @@
+\section{Introduction}
+\label{sec:intro}
+
+
+Street-view perception models can predict subjective attributes such as safety, wealth, or liveliness at scale~\cite{salesses2013,naik2014,dubey2016}. These predictors are useful for mapping and correlational analysis, but they do not answer a question central to urban planning and design: \emph{for this specific street, which visual elements are responsible for the perception, and what targeted modification would shift it?}
+
+Existing explainability approaches—saliency maps, SHAP, or concept probes—remain largely correlational: they highlight pixels or features associated with a score without validating that manipulating those features changes human judgement~\cite{adebayo2018,kim2018}. The distinction matters. A correlational explanation may point to a visually dominant cue that is not causally active; an interventional test directly validates whether editing a proposed lever shifts perception.
+
+We reframe interpretability for street-view perception as \emph{interventional attribution}: explanations are testable hypotheses about which visual interventions, when applied to a scene, produce a measurable shift in perceived safety. Our central empirical question is:
+
+\begin{quote}
+\textit{How many individually testable visual levers drive perceived safety in a typical street-view scene?}
+\end{quote}
+
+A key practical complication is that the best intervention family is scene-dependent. “Add greenery”
+may help some streets; “remove clutter/graffiti” may matter more elsewhere. Instead of fixing a
+single intervention across all scenes, we instantiate constrained interventions conditioned on the image,
+while keeping the evaluation interventional and human-grounded by validating accepted edits with randomized human judgments.
+
+We are interested in the observed effective lever set $E(x,a)$ not only as a
+model-explanation object, but as a scene-level characterization of
+intervention opportunity. Its size and composition indicate whether a
+place admits one dominant perceptual pathway or multiple substitutable
+visual levers that can each shift perceived safety under valid
+single-lever interventions. This question is substantively motivated by urban theory:
+following Jacobs, perceived street safety is often understood as an
+emergent property of visible activity, natural surveillance, upkeep, and
+public-facing openness rather than a single isolated object. In this
+view, a scene may support several distinct intervention pathways. At the
+same time, high-scoring scenes may exhibit diminishing returns, such
+that additional local improvements produce smaller or fewer perceptual
+gains. Our framework makes these questions empirically testable at the
+single-scene level. 
+
+
+This is the \emph{multi-optima} question~\cite{elliott2021}: rather than finding the single most important cue, we ask whether multiple levers can each, in isolation, shift perception. If so, safety perception is overdetermined by multiple visual mechanisms per scene - a finding with direct implications for urban design intervention.
+
+Our contributions are fourfold:
+\begin{enumerate}
+    \item We introduce a \textbf{lever-based interventional attribution}
+    framework for street-view perception, in which the explanatory atom
+    is a structured lever intervention
+    $l=(c,s,d,\tau)$ rather than an arbitrary image region.
+
+    \item We propose a \textbf{scene-specific candidate construction and
+    evaluation pipeline} that instantiates lever interventions from a
+    curated ontology of manipulable urban cues, realizes them through
+    constrained prompt-only edits, and audits them for same-place
+    preservation, locality, realism, and plausibility.
+
+    \item We define the \textbf{observed effective lever set} $E(x,a)$
+    under a \textbf{preregistered human pairwise preference threshold},
+    treating classifier-based scoring only as an auxiliary pilot signal
+    rather than the basis of the estimand.
+
+    \item We provide a \textbf{pilot empirical study} on urban safety
+    perception and a \textbf{human pairwise evaluation protocol} as the
+    primary endpoint for assessing whether accepted single-lever edits
+    shift perceived safety.
+\end{enumerate}

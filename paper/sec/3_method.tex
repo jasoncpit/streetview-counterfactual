@@ -1,0 +1,177 @@
+\section{Method}
+
+\begin{figure}[t]
+  \centering
+  \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+  % \includegraphics[width=\columnwidth]{figures/figure_1_pipeline.pdf}
+  \caption{
+    Lever-based interventional attribution pipeline. Each candidate is a
+    structured lever intervention $l=(c,s,d,\tau)$ comprising a lever
+    concept, spatial support, intervention direction, and constrained edit
+    template. Phase~1 constructs scene-specific lever candidates.
+    Phase~2 performs bounded stochastic generation subject to validity
+    checks. Phase~3 evaluates accepted edits with human pairwise
+    judgments and auxiliary classifier scoring.
+  }
+  \label{fig:pipeline}
+\end{figure}
+
+\subsection{Problem Setup}
+
+Let $x \in \mathcal{X}$ denote a street-view image, and let
+$a \in \mathcal{A}$ denote a perceptual attribute, such as safety.
+Our goal is not to identify arbitrary salient pixels, but to discover
+which \emph{minimal plausible visual change} would increase perceived
+attribute $a$ while preserving the identity of the place.
+
+We therefore treat the explanatory atom as a \emph{lever intervention},
+rather than a raw image region. A lever intervention is defined as the
+structured tuple
+\begin{equation}
+  l = (c, s, d, \tau),
+\end{equation}
+where $c$ is a lever concept (e.g.\ greenery, graffiti, storefront
+transparency), $s$ is the spatial support in image $x$, $d$ is the
+direction of intervention (e.g.\ add, remove, increase, repair), and
+$\tau$ is a constrained edit template specifying the allowable semantic
+transformation.
+
+For a given image $x$, let $\mathcal{L}(x)$ denote the closed
+scene-specific candidate set instantiated from a curated lever ontology.
+Here, ``closed'' means complete with respect to the chosen ontology and
+the visible cues it permits, not complete with respect to all possible
+perceptual mechanisms. We seek to identify the set of \emph{observed
+effective levers} under our intervention protocol:
+\begin{equation}
+  E(x,a) = \{ l_i \in \mathcal{L}(x) \mid l_i \in V \;\wedge\; p_i > \theta \},
+\end{equation}
+where $V$ is the set of accepted lever edits, $p_i$ is the human
+preference share for the accepted edit generated from $l_i$ in a
+pairwise safety comparison against the original image, and $\theta$ is a
+preregistered human preference threshold.
+
+Importantly, $E(x,a)$ should be interpreted as the set of
+\emph{observed effective lever interventions under bounded valid
+single-lever edits}. We do not claim to identify intrinsic causal
+effects of lever concepts in isolation, nor do we assume independence
+between co-occurring levers. Interactions between levers are deferred to
+future work.
+
+
+\subsection{Phase 1: Scene-Specific Lever Candidate Construction}
+
+Rather than beginning from exhaustive object segmentation, we begin from
+a curated ontology of manipulable visual levers relevant to perceptual
+judgments. The ontology spans interpretable domains such as material
+upkeep, environmental amenity, openness/activity, and visual
+order/control. Each domain contains concrete lever concepts, such as
+graffiti, litter, facade repair, greenery, lighting, and storefront
+transparency.
+
+For each image $x$, we instantiate scene-specific candidates by
+grounding these lever concepts to visible locations in the scene. Each
+instantiated candidate yields a tuple
+$l_i = (c_i, s_i, d_i, \tau_i)$,
+where $s_i$ provides the editable spatial support and $\tau_i$
+restricts the semantic form of the intervention. For example, a scene
+may instantiate candidates such as
+\emph{remove graffiti from this wall},
+\emph{add modest greenery near this entrance}, or
+\emph{increase ground-floor transparency in this storefront}.
+
+This stage produces the candidate set $\mathcal{L}(x)$.
+If needed, candidates may be ranked for computational efficiency using a
+proposal heuristic, but this ranking is only used to prioritize testing
+under a bounded budget. It is not part of the estimand and does not
+determine success.
+
+\subsection{Phase 2: Bounded Stochastic Lever Intervention}
+
+For each candidate lever intervention $l_i = (c_i,s_i,d_i,\tau_i)$, we
+construct a constrained edit instruction and apply a black-box
+prompt-only image generator $G$ to produce a candidate counterfactual:
+\begin{equation}
+  x'_{i,j} = G(x;\, c_i, s_i, d_i, \tau_i, \varphi_j),
+\end{equation}
+where $\varphi_j$ denotes stochastic generation settings such as random
+seed or guidance parameters, and $j$ indexes retry attempts. In the
+current implementation, $G$ is instantiated by
+\texttt{flux-kontext-max}, but the framework is generator-agnostic.
+
+Because prompt-only generations may alter scene identity or introduce
+non-local and bundled changes, each candidate is filtered through a
+validity audit before it is accepted as a tested intervention. Given the
+source image $x$, generated candidate $x'_{i,j}$, and intended lever
+specification $(c_i,s_i,d_i,\tau_i)$, the audit checks four validity
+conditions:
+\begin{enumerate}
+  \item \textbf{same-place preservation}: the edited image still depicts
+  the same underlying location;
+  \item \textbf{locality}: changes remain substantially confined to the
+  intended spatial support $s_i$;
+  \item \textbf{realism}: the edited image is visually coherent and
+  photorealistic;
+  \item \textbf{plausibility}: the edit represents a credible instance
+  of the intended lever intervention rather than an arbitrary or bundled
+  transformation.
+\end{enumerate}
+
+If at least one candidate passes within a retry budget of $T$ attempts,
+the first accepted edit is retained:
+\begin{equation}
+  \tilde{x}_i \in V
+  \quad \text{for} \quad
+  l_i \in \mathcal{L}(x),
+\end{equation}
+where $V$ denotes the set of accepted lever edits. If no candidate
+passes, the lever is recorded as invalid under the intervention
+protocol.
+
+We report \emph{valid-edit coverage} explicitly as
+\begin{equation}
+  \mathrm{Coverage}(x) = \frac{|V|}{|\mathcal{L}(x)|},
+\end{equation}
+since inability to realize a valid edit is itself informative about the
+limits of current generative intervention methods.
+
+\subsection{Phase 3: Human Perceptual Evaluation}
+
+For each accepted edit $\tilde{x}_i \in V$ generated from lever
+intervention $l_i$, we estimate directional effect using randomized
+human pairwise judgments. Let $p_i$ denote the proportion of raters who
+judge the edited image to look safer than the original image for
+attribute $a$. A lever intervention is considered \emph{observed
+effective} when its preference share exceeds the preregistered
+threshold:
+\begin{equation}
+  l_i \in E(x,a)
+  \iff
+  p_i > \theta.
+\end{equation}
+
+\subsection{Auxiliary Classifier Scoring}
+
+For pilot analysis and candidate prioritization, we also measure the
+directional attribute shift using a pretrained perception classifier
+$f_a$:
+\begin{equation}
+  \Delta_i = f_a(\tilde{x}_i) - f_a(x).
+\end{equation}
+This score is treated strictly as an auxiliary proxy for perceptual
+change. It is not the basis of the estimand and is reported only to
+summarize pilot behavior before the human study is complete.
+
+
+
+\subsection{Interpretation}
+
+Our method should be understood as \emph{constrained interventional
+search over scene-specific lever hypotheses}. It does not claim
+pixel-level decomposition, exhaustive recovery of all perceptual cues, or
+full causal identification. Instead, it identifies semantically
+interpretable, spatially grounded lever interventions that can be
+realized validly and that produce human-measured directional preference
+shifts under single-lever testing.
+
+This framing is particularly suited to questions of the form:
+\emph{what minimal plausible change would make this place feel safer?}
