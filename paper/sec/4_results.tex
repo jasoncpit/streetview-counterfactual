@@ -1,0 +1,106 @@
+\section{Preliminary Results}
+\label{sec:results}
+
+% [NOTE: All numbers below are placeholders from fake data.
+%  Replace with real pilot results before submission.]
+
+\noindent\textbf{Dataset and setup.}
+We use the SPECS dataset~\cite{quintana2025} (Singapore subset, 80
+images) and sample \todo{N=30} images stratified by baseline ViT-PP2
+safety score (low, mid, high thirds). Table~\ref{tab:setup} summarises
+the pilot setup. The statistics reported below are preliminary
+diagnostics from candidate realization and auxiliary classifier scoring;
+human pairwise judgments remain the primary endpoint for determining
+$E(x,a)$.
+
+\begin{table}[t]
+  \centering
+  \caption{Pilot experimental setup. \todo{Replace with real values.}}
+  \label{tab:setup}
+  \small
+  \begin{tabular}{ll}
+    \toprule
+    Setting & Value \\
+    \midrule
+    Images & \todo{N=30} (SPECS Singapore) \\
+    Attribute & Safety (increase direction) \\
+    Candidate set $K$ & 5 per image \\
+    Refinement budget $T$ & 3 per lever \\
+    Generator & \texttt{flux-kontext-max} \\
+    Auxiliary scorer & Pretrained safety classifier \\
+    Critic pass rate & \todo{X\%} \\
+    Human threshold $\theta$ & \todo{0.65} preference share (planned E2) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent\textbf{Coverage and pilot ranking signals.}
+Until E2 judgments are collected, we report valid-edit coverage and
+auxiliary classifier shifts for accepted candidates. Table~\ref{tab:main}
+shows the intended structure for final $|E(x, \mathrm{safety})|$
+reporting once human judgments are available, alongside coverage
+statistics that are already meaningful at the pilot stage.
+
+\begin{table}[t]
+  \centering
+  \caption{Template for final $|E(x, \mathrm{safety})|$ by scene type.
+  P($|E|{>}1$) is the fraction of scenes with more than one
+  observed effective lever. Coverage = $|V|/|\mathcal{L}(x)|$.
+  \todo{Replace with real values.}}
+  \label{tab:main}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lcccc}
+    \toprule
+    Scene type & $N$ & Mean $|E|$ & P($|E|{>}1$) & Coverage \\
+    \midrule
+    Neglected commercial  & \todo{8}  & \todo{2.9} & \todo{88\%} & \todo{78\%} \\
+    Residential terrace   & \todo{10} & \todo{1.4} & \todo{50\%} & \todo{72\%} \\
+    Maintained commercial & \todo{7}  & \todo{1.1} & \todo{43\%} & \todo{69\%} \\
+    Well-maintained res.  & \todo{5}  & \todo{0.2} & \todo{0\%}  & \todo{61\%} \\
+    \midrule
+    \textbf{All} & \todo{30} & \todo{1.7} & \todo{57\%} & \todo{73\%} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  % \includegraphics[width=\columnwidth]{figures/figure_2_distribution.pdf}
+  \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+  %\placeholder{Figure 2 — bar chart. x-axis: $|E|$ values 0--4+.
+  %y-axis: number of scenes. Modal value $|E|=2$. Five scenes at
+  %$|E|=0$ (no observed effective lever; predominantly high-baseline
+  %scenes). P($|E|{>}1$) = \todo{57\%} shown as annotation.}
+  \caption{
+    Planned final distribution of $|E(x, \mathrm{safety})|$ across
+    \todo{N=30} pilot scenes after E2 collection. $|E|{=}0$ reflects
+    the absence of observed effective levers under single-lever
+    interventions within the scoped candidate set.
+  }
+  \label{fig:distribution}
+\end{figure}
+
+\noindent\textbf{Qualitative examples.}
+Figure~\ref{fig:qualitative} illustrates three representative scenes.
+In the current pilot stage, these examples are used to visualize
+accepted candidate interventions and their auxiliary classifier shifts.
+Final membership in $E(x,a)$ will be determined by human pairwise
+judgment rather than classifier score alone.
+
+\begin{figure}[t]
+  \centering
+  % \includegraphics[width=\columnwidth]{figures/figure_3_qualitative.pdf}
+   \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+ % \placeholder{Figure 3 — three-scene qualitative panel. Each scene
+ % shows: (left) original image with candidate regions annotated;
+ % (right) table of region name, classifier rank score, $\delta_i$,
+ % and membership in $E(x,a)$. Scene A: $|E|=3$. Scene B: $|E|=1$.
+ % Scene C: $|E|=0$.}
+  \caption{
+    Qualitative examples. Auxiliary classifier scores and accepted-edit
+    validity do not by themselves establish effectiveness, motivating
+    human 2AFC as the primary endpoint for final lever-set membership.
+  }
+  \label{fig:qualitative}
+\end{figure}

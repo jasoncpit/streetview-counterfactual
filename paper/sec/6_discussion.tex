@@ -1,0 +1,34 @@
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+\noindent\textbf{Claim language.}
+We deliberately use the weaker framing ``observed effective levers
+under single-lever interventions'' rather than ``independent causal
+levers.'' The independence assumption—that $\delta_i$ and $\delta_j$
+are additive—is not tested by our design. Levers in $E(x, a)$ are
+tested separately against the unedited original; their joint effect
+and potential interactions are left for future work requiring
+factorial intervention designs.
+
+\noindent\textbf{Generator leakage.}
+Because our implementation relies on prompt-only editing rather than
+mask-constrained generation, generators can introduce residual texture
+and style changes outside the intended support.
+The 2AFC measures the total image difference, not the isolated
+effect of the intended edit. This is why we position the work as
+interventional attribution rather than structural causal inference.
+
+\noindent\textbf{Ontology scope.}
+We measure $E(x, a)$ only with respect to the closed candidate set
+defined by our ontology and scene-grounding procedure. Some potential
+street-view cues may be outside that scope or excluded because they are
+not judged safely manipulable under the prompt-only protocol.
+$|E|{=}0$ may reflect this scope limitation rather than a
+perception ceiling, particularly for high-baseline scenes.
+
+\noindent\textbf{Grounding bias.}
+Scene support grounded by planners or annotators may favor large,
+salient, or easy-to-describe elements. Small but perceptually active
+cues (a barely visible security camera, a subtle entry light) may be
+absent from $\mathcal{L}(x)$.
+Our multi-lever counts are therefore likely underestimates.

@@ -1,0 +1,39 @@
+\section{Related Work}
+
+\noindent\textbf{Urban perception from street-view imagery.}
+Crowdsourced pairwise judgement datasets have enabled vision models
+for perceived safety, wealth, beauty, and liveliness at scale~\cite{
+salesses2013,naik2014,dubey2016,quintana2025}. These models are
+effective for prediction and geographic mapping, but are not designed
+to answer mechanistic questions at the scene level: \emph{what visual
+evidence drives a judgement, and what localised change would shift it?}
+
+\noindent\textbf{Interpretability and counterfactual explanations.}
+Gradient-based saliency and SHAP-style methods attribute predictions
+to pixels or semantic features, but are known to be visually plausible
+yet unfaithful, failing basic sanity checks~\cite{adebayo2018}.
+Concept-based methods such as TCAV~\cite{kim2018} remain correlational
+unless paired with explicit interventions. Counterfactual visual
+explanations~\cite{goyal2019} and principled causal evaluation
+frameworks~\cite{pawlowski2020,melistas2024} provide stronger tools,
+but typically target model logits rather than human perceptual
+preference, and rarely validate that manipulating identified regions
+shifts human judgement under controlled conditions.
+
+\noindent\textbf{Generative editing and urban counterfactuals.}
+Diffusion-based editors~\cite{brooks2023,meng2022,zhang2023} enable
+photorealistic localised edits, but even constrained edits can
+introduce correlated non-target changes (lighting, style, scene
+activity) that confound perception evidence. Law et al.~\cite{
+law2023,law2025} demonstrate plausible counterfactuals for urban image
+regressors and facade design; Zhao et al.~\cite{zhao2026} use
+perception-guided generation for streetscape improvement. These
+efforts optimise outcomes rather than explain individual scenes, and
+do not treat generator artefacts as a threat to validity.
+
+\noindent\textbf{Positioning.}
+We unify these threads into a framework for \textbf{interventional
+attribution} of street-view perception: explanations are
+scene-specific hypotheses tested via constrained prompt-only edits,
+audited for non-target drift, and grounded in human pairwise
+judgements rather than model logits.
