@@ -1,17 +1,17 @@
 \section{Method}
+\label{sec:method}
 
 \begin{figure}[t]
   \centering
-  \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
-  % \includegraphics[width=\columnwidth]{figures/figure_1_pipeline.pdf}
+  \includegraphics[width=\columnwidth]{figures/figure_1_pipeline.png}
   \caption{
     Lever-based interventional attribution pipeline. Each candidate is a
     structured lever intervention $l=(c,s,d,\tau)$ comprising a lever
     concept, spatial support, intervention direction, and constrained edit
     template. Phase~1 constructs scene-specific lever candidates.
     Phase~2 performs bounded stochastic generation subject to validity
-    checks. Phase~3 evaluates accepted edits with human pairwise
-    judgments and auxiliary classifier scoring.
+    checks. Phase~3 summarizes accepted edits with auxiliary classifier
+    scoring and, optionally, future human pairwise judgments.
   }
   \label{fig:pipeline}
 \end{figure}
@@ -37,11 +37,11 @@ the direction of intervention (e.g.\ add, remove, increase, repair),
 and $\tau$ is a constrained edit template specifying the allowable
 semantic transformation.
 
-For a given image $x$, let $L(x)$ denote the closed scene-specific
+For a given image $x$, let $L(x)$ denote the bounded scene-specific
 candidate set instantiated from a curated lever ontology. Here,
-``closed'' means complete with respect to the chosen ontology and the
-visible cues it permits, not complete with respect to all possible
-perceptual mechanisms.
+``bounded'' means scoped to the chosen ontology, visible scene cues, and
+the finite candidate budget used in the pilot, not complete with
+respect to all possible perceptual mechanisms.
 
 Our method first identifies the subset of candidate levers that can be
 realized as valid accepted edits under a bounded intervention protocol:
@@ -49,15 +49,17 @@ realized as valid accepted edits under a bounded intervention protocol:
   V(x) = \{ l_i \in L(x) \mid \exists \tilde{x}_i \text{ such that } \tilde{x}_i \text{ passes the validity audit} \}.
 \end{equation}
 
-In the full protocol, perceptual effectiveness is then estimated only
-over this valid set using randomized human pairwise evaluation.
+In an optional future human study, perceptual effectiveness may then be
+estimated only over this valid set using randomized pairwise evaluation.
 Accordingly, the set of observed effective levers is defined as
 \begin{equation}
   E(x,a) = \{ l_i \in V(x) \mid p_i > \theta \},
 \end{equation}
 where $p_i$ is the human preference share for the accepted edit
 generated from $l_i$ in a pairwise comparison against the original
-image, and $\theta$ is a preregistered effectiveness threshold.
+image, and $\theta$ is a preregistered effectiveness threshold. In the
+current pilot we do not estimate $E(x,a)$; we report only validity and
+auxiliary score diagnostics for the realized set $V(x)$.
 
 Importantly, $E(x,a)$ should be interpreted as the set of
 \emph{observed effective lever interventions under bounded, valid,
@@ -75,7 +77,21 @@ judgments. The ontology spans interpretable domains such as material
 upkeep, environmental amenity, openness/activity, and visual
 order/control. Each domain contains concrete lever concepts, such as
 graffiti, litter, facade repair, greenery, lighting, and storefront
-transparency.
+transparency~\cite{jacobs1961,newman1972,li2015greenery,jiang2018brokenwindows,portnov2020lighting}.
+
+We use a curated ontology not because we assume the true space of
+perceptually relevant urban cues is closed, but because unrestricted
+free-form proposal would make the intervention space unbounded,
+inconsistent, and difficult to audit. Constraining the planner to a
+literature-informed set of visible, localizable, and plausibly editable
+lever concepts turns open-ended language generation into a controlled
+search problem. This makes proposal frequency, valid-realization
+coverage, and downstream effect proxies measurable at the level of
+comparable intervention families. In principle, a stronger alternative
+would be to learn this proposal space directly from a sufficiently large
+annotated dataset of scene-level interventions and outcomes; in the
+absence of such data, the ontology provides a practical intermediate
+scaffold for controlled evaluation.
 
 For each image $x$, we instantiate scene-specific candidates by
 grounding ontology concepts to visible and editable locations in the
@@ -109,16 +125,17 @@ prompt-only image generator $G$ to produce a candidate counterfactual:
   x'_{i,j} = G(x;\, c_i, s_i, d_i, \tau_i, \varphi_j),
 \end{equation}
 where $\varphi_j$ denotes stochastic generation settings such as random
-seed or guidance parameters, and $j$ indexes repeated attempts under a
-bounded retry budget. In the current implementation, $G$ is
-instantiated using \texttt{flux-kontext-max}, but the framework is
-generator-agnostic.
+seed or guidance parameters, and $j$ indexes repeated stochastic draws
+of the same fixed lever specification under a bounded retry budget. In
+the current implementation, $G$ is instantiated using
+\texttt{flux-kontext-max}, but the framework is generator-agnostic.
 
 Because prompt-only generations may alter scene identity or introduce
-non-local and bundled changes, each candidate is subjected to a
-validity audit before it can be retained as a tested intervention.
-Given the source image $x$, generated candidate $x'_{i,j}$, and
-intended lever specification $(c_i,s_i,d_i,\tau_i)$, the audit
+non-local and bundled changes, each candidate is subjected to an
+automated validity audit before it can be retained as a tested
+intervention. In the current implementation this audit is performed by a
+vision-language critic prompted with the original image, edited image,
+and intended lever specification $(c_i,s_i,d_i,\tau_i)$. The critic
 evaluates four conditions:
 \begin{enumerate}
   \item \textbf{same-place preservation}: the edited image still depicts
@@ -145,40 +162,17 @@ We report \emph{valid-edit coverage} explicitly as
 since failure to realize a valid edit is itself informative about the
 practical limits of current generative intervention methods.
 
-\subsection{Phase 3: Human Perceptual Evaluation}
+\subsection{Phase 3: Auxiliary Scoring}
 
-In the full protocol, for each accepted edit $\tilde{x}_i$ generated
-from lever intervention $l_i \in V(x)$, we estimate directional
-perceptual effect using randomized human pairwise judgments. Let $p_i$
-denote the proportion of raters who judge the edited image to exhibit a
-higher level of attribute $a$ than the original image. A lever
-intervention is considered observed effective when its preference share
-exceeds the preregistered threshold:
-\begin{equation}
-  l_i \in E(x,a)
-  \iff
-  p_i > \theta.
-\end{equation}
-
-This stage therefore evaluates perceptual effectiveness only over valid
-realized interventions, rather than conflating editing success with
-perceptual impact.
-
-\subsection{Auxiliary Classifier Scoring}
-
-For pilot analysis and candidate prioritization, we also measure the
-directional attribute shift using a pretrained perception classifier
-$f_a$:
+For the current pilot, for each accepted edit $\tilde{x}_i$ generated
+from lever intervention $l_i \in V(x)$, we measure a directional
+attribute proxy using a pretrained perception classifier $f_a$:
 \begin{equation}
   \Delta_i = f_a(\tilde{x}_i) - f_a(x).
 \end{equation}
 This score is treated strictly as an auxiliary proxy for perceptual
 change. It is not the basis of the estimand and is reported only to
-summarize pilot behavior before the human study is complete. In the
-current pilot, we therefore defer human evaluation and report auxiliary
-classifier shifts only as a provisional analysis.
-
-
+summarize pilot behavior and prioritize future human study design.
 
 \subsection{Interpretation}
 
@@ -187,8 +181,12 @@ search over scene-specific lever hypotheses}. It does not claim
 pixel-level decomposition, exhaustive recovery of all perceptual cues, or
 full causal identification. Instead, it identifies semantically
 interpretable, spatially grounded lever interventions that can be
-realized validly and that produce human-measured directional preference
-shifts under single-lever testing.
+realized validly and, in a future extension, could be tested with
+human-measured directional preference shifts under single-lever testing.
+
+In the current draft, the reported outputs are the realized lever set
+$V(x)$, valid-edit coverage, and auxiliary score shifts. Human-grounded
+effectiveness estimates remain future work.
 
 This framing is particularly suited to questions of the form:
 \emph{what minimal plausible change would make this place feel safer?}

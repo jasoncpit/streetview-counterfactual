@@ -23,7 +23,17 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run auxiliary classifier scoring over generated lever CSVs.")
     parser.add_argument("--csv", required=True, help="Input candidate CSV from generate_counterfactual.py")
     parser.add_argument("--attribute", default="safety", help="Perception attribute to score")
-    parser.add_argument("--theta", type=float, default=THETA_DEFAULT, help="Exploratory auxiliary threshold")
+    parser.add_argument(
+        "--score-cache",
+        default="data/specs_scores.json",
+        help="Baseline score cache produced by prepare_specs.py",
+    )
+    parser.add_argument(
+        "--theta",
+        type=float,
+        default=THETA_DEFAULT,
+        help="Auxiliary classifier threshold used only for exploratory summaries.",
+    )
     parser.add_argument(
         "--device",
         default="auto",
@@ -65,11 +75,19 @@ def main() -> None:
 
     input_csv = Path(args.csv)
     output_csv = Path(args.output_csv) if args.output_csv else default_output_path(input_csv, "_scored")
-    summary_csv = Path(args.summary_csv) if args.summary_csv else default_output_path(input_csv, "_per_image_aux")
-    scatter_svg = Path(args.scatter_svg) if args.scatter_svg else default_svg_path(input_csv, "_baseline_vs_delta")
+    summary_csv = (
+        Path(args.summary_csv)
+        if args.summary_csv
+        else default_output_path(input_csv, "_per_image_auxiliary")
+    )
+    scatter_svg = (
+        Path(args.scatter_svg)
+        if args.scatter_svg
+        else default_svg_path(input_csv, "_baseline_vs_aux_delta")
+    )
 
     rows = load_candidate_rows(input_csv)
-    baseline_scores = load_baseline_scores()
+    baseline_scores = load_baseline_scores(args.score_cache)
     rows = score_candidate_rows(
         rows,
         attribute=args.attribute,

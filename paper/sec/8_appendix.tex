@@ -1,0 +1,88 @@
+\section{Appendix: Implementation Details}
+\label{sec:appendix}
+
+\subsection{Lever Ontology Used in the Pilot}
+
+The bounded candidate set in the current implementation is instantiated
+from the following ontology:
+\begin{quote}
+\small
+graffiti removal; litter removal; facade repair; storefront
+transparency increase; localized greenery addition; lighting repair;
+signage decluttering; crosswalk repainting; lane marking repainting;
+surface cleaning; shutter repair; tree canopy management.
+\end{quote}
+
+\subsection{Prompt Contracts}
+
+The code-level planner, editor, and critic prompts are implemented in
+the repository configuration and enforce a structured contract rather
+than free-form prompting.
+
+\noindent\textbf{Planner contract.}
+The planner is instructed to return a bounded set of single-lever
+candidates grounded in visible scene elements. Each candidate must
+contain exactly:
+\begin{quote}
+\small
+\texttt{lever\_concept}, \texttt{scene\_support},
+\texttt{target\_object}, \texttt{intervention\_direction},
+\texttt{edit\_template}, and \texttt{edit\_plan}.
+\end{quote}
+Additional hard constraints require ontology membership, one lever per
+candidate, locality, plausibility, and prompt-only-friendly edits.
+
+\noindent\textbf{Edit prompt contract.}
+The image-edit prompt explicitly forbids global restyling, relighting,
+camera changes, background changes, and adding or removing non-target
+objects. The prompt requires the model to preserve the input scene and
+modify only the specified target object according to the lever plan.
+
+\noindent\textbf{Critic contract.}
+The automated critic receives the original image, the edited image, and
+the intended lever specification, and returns structured JSON for four
+binary checks:
+\begin{quote}
+\small
+\texttt{same\_place\_preserved}, \texttt{is\_localized},
+\texttt{is\_realistic}, and \texttt{is\_plausible},
+\end{quote}
+plus brief repair guidance. An edit is accepted only if all four checks
+are true.
+
+\subsection{Current Pilot Configuration}
+
+The reproducible pilot reported in the paper uses:
+\begin{itemize}
+    \item SPECS subset size $N{=}20$;
+    \item five cities with 4 images per city;
+    \item per-city stratification by baseline safety score and visual
+    complexity;
+    \item candidate budget $K{=}3$;
+    \item stochastic budget $T{=}1$ per fixed lever;
+    \item \texttt{flux-kontext-max} for prompt-only editing;
+    \item ViT-PP2 for auxiliary safety scoring.
+\end{itemize}
+
+The corresponding driver command is:
+\begin{quote}
+\small
+\texttt{uv run python scripts/run\_repro\_pipeline.py --prefix specs\_repro\_n20 --n-total 20 --candidate-budget 3 --max-attempts 1 --score-device mps}
+\end{quote}
+
+\subsection{Exported Artifacts}
+
+The main paper-facing run writes:
+\begin{itemize}
+    \item a candidate-level CSV with full lever identities and critic
+    fields;
+    \item a scored CSV with baseline score, edited score, and auxiliary
+    delta;
+    \item a per-image auxiliary summary CSV;
+    \item generated paper figures derived directly from the scored
+    outputs.
+\end{itemize}
+
+Human-evaluation export and ingestion paths are implemented in the
+repository but are optional in the current draft and were not used to
+produce the reported pilot results.

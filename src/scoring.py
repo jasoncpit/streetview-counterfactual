@@ -24,6 +24,12 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from src.lever_identity import (
+    lever_identity_label,
+    serialize_identity_labels,
+    serialize_identity_values,
+)
+
 
 SCORES_CACHE = Path("data") / "specs_scores.json"
 THETA_DEFAULT = 0.10
@@ -38,12 +44,13 @@ MODEL_FILES = {
 }
 
 
-def load_baseline_scores() -> dict[str, float]:
-    if not SCORES_CACHE.exists():
+def load_baseline_scores(cache_path: str | Path | None = None) -> dict[str, float]:
+    path = Path(cache_path) if cache_path is not None else SCORES_CACHE
+    if not path.exists():
         raise FileNotFoundError(
-            f"Baseline scores cache not found: {SCORES_CACHE}. Run scripts/prepare_specs.py first."
+            f"Baseline scores cache not found: {path}. Run scripts/prepare_specs.py first."
         )
-    with SCORES_CACHE.open(encoding="utf-8") as f:
+    with path.open(encoding="utf-8") as f:
         scores = json.load(f)
     return {str(key): float(value) for key, value in scores.items() if value is not None}
 
@@ -234,11 +241,11 @@ def score_candidate_rows(
     for row in rows:
         image_id = extract_image_id(row)
         row["image_id"] = image_id
-        row["theta_aux"] = round(theta, 4)
+        row["auxiliary_threshold"] = round(theta, 4)
         row["baseline_score"] = None
         row["edited_score"] = None
         row["delta_classifier"] = None
-        row["in_E_aux"] = False
+        row["exceeds_auxiliary_threshold"] = False
 
         if not coerce_bool(row.get("critic_is_valid")):
             continue
@@ -269,7 +276,8 @@ def score_candidate_rows(
         row["baseline_score"] = round(baseline, 4)
         row["edited_score"] = round(edited_score, 4)
         row["delta_classifier"] = delta
-        row["in_E_aux"] = delta > theta
+        row["exceeds_auxiliary_threshold"] = delta > theta
+        row["lever_identity_label"] = lever_identity_label(row)
 
     return rows
 
@@ -288,7 +296,9 @@ def compute_per_image_aux_summary(
     for image_id, image_rows in by_image.items():
         accepted = [row for row in image_rows if coerce_bool(row.get("critic_is_valid"))]
         scored = [row for row in accepted if row.get("delta_classifier") is not None]
-        effective = [row for row in scored if coerce_bool(row.get("in_E_aux"))]
+        effective = [
+            row for row in scored if coerce_bool(row.get("exceeds_auxiliary_threshold"))
+        ]
         deltas = [float(row["delta_classifier"]) for row in scored]
 
         baseline_score = None
@@ -306,9 +316,29 @@ def compute_per_image_aux_summary(
             "coverage": round(len(accepted) / len(image_rows), 3) if image_rows else 0.0,
             "mean_delta_classifier": round(statistics.mean(deltas), 4) if deltas else 0.0,
             "max_delta_classifier": round(max(deltas), 4) if deltas else 0.0,
-            "E_size_aux": len(effective),
-            "theta_aux": round(theta, 4),
-            "effective_levers_aux": "|".join(row.get("planner_target_object", "") for row in effective),
+            "n_auxiliary_effective_levers": len(effective),
+            "auxiliary_threshold": round(theta, 4),
+            "auxiliary_effective_lever_labels": serialize_identity_labels(effective),
+            "auxiliary_effective_lever_concepts": serialize_identity_values(
+                effective,
+                "lever_concept",
+            ),
+            "auxiliary_effective_scene_supports": serialize_identity_values(
+                effective,
+                "scene_support",
+            ),
+            "auxiliary_effective_intervention_directions": serialize_identity_values(
+                effective,
+                "intervention_direction",
+            ),
+            "auxiliary_effective_edit_templates": serialize_identity_values(
+                effective,
+                "edit_template",
+            ),
+            "auxiliary_effective_target_objects": serialize_identity_values(
+                effective,
+                "target_object",
+            ),
         }
     return summary
 
@@ -351,9 +381,9 @@ def write_scatter_svg(
         (
             float(row["baseline_score"]),
             float(row["delta_classifier"]),
-            coerce_bool(row.get("in_E_aux")),
+            coerce_bool(row.get("exceeds_auxiliary_threshold")),
             extract_image_id(row),
-            row.get("planner_target_object", ""),
+            row.get("lever_identity_label", "") or lever_identity_label(row),
         )
         for row in rows
         if row.get("baseline_score") is not None and row.get("delta_classifier") is not None
@@ -415,11 +445,11 @@ def write_scatter_svg(
   <line x1="{margin_left}" y1="{margin_top + plot_h}" x2="{margin_left + plot_w}" y2="{margin_top + plot_h}" stroke="#111827" />
   <line x1="{margin_left}" y1="{margin_top}" x2="{margin_left}" y2="{margin_top + plot_h}" stroke="#111827" />
   <line x1="{margin_left}" y1="{theta_y:.1f}" x2="{margin_left + plot_w}" y2="{theta_y:.1f}" stroke="#b91c1c" stroke-dasharray="6 4" />
-  <text x="{margin_left + 8}" y="{theta_y - 8:.1f}" font-size="13" fill="#b91c1c" font-family="Helvetica, Arial, sans-serif">theta = {theta:.3f}</text>
+  <text x="{margin_left + 8}" y="{theta_y - 8:.1f}" font-size="13" fill="#b91c1c" font-family="Helvetica, Arial, sans-serif">aux threshold = {theta:.3f}</text>
   <text x="{width / 2:.1f}" y="{height - 20}" text-anchor="middle" font-size="15" font-family="Helvetica, Arial, sans-serif" fill="#111827">Baseline score</text>
   <text x="20" y="{height / 2:.1f}" transform="rotate(-90 20 {height / 2:.1f})" text-anchor="middle" font-size="15" font-family="Helvetica, Arial, sans-serif" fill="#111827">Classifier delta</text>
   {''.join(point_markup)}
-  <text x="{margin_left}" y="{height - 45}" font-size="12" fill="#4b5563" font-family="Helvetica, Arial, sans-serif">Grey = scored candidate, red = delta &gt; theta</text>
+  <text x="{margin_left}" y="{height - 45}" font-size="12" fill="#4b5563" font-family="Helvetica, Arial, sans-serif">Grey = scored candidate, red = delta &gt; auxiliary threshold</text>
 </svg>"""
     path.write_text(svg, encoding="utf-8")
 
@@ -430,13 +460,19 @@ def print_aux_summary(summary: dict[str, dict[str, Any]]) -> None:
         return
 
     rows = list(summary.values())
-    mean_e = round(statistics.mean(row["E_size_aux"] for row in rows), 3)
+    mean_e = round(
+        statistics.mean(row["n_auxiliary_effective_levers"] for row in rows),
+        3,
+    )
     mean_cov = round(statistics.mean(row["coverage"] for row in rows), 3)
     mean_delta = round(statistics.mean(row["mean_delta_classifier"] for row in rows), 3)
-    p_multi = round(sum(1 for row in rows if row["E_size_aux"] > 1) / len(rows), 3)
+    p_multi = round(
+        sum(1 for row in rows if row["n_auxiliary_effective_levers"] > 1) / len(rows),
+        3,
+    )
 
     print("---")
-    print(f"mean_E_aux:       {mean_e}")
+    print(f"mean_aux_effective: {mean_e}")
     print(f"coverage:         {mean_cov}")
     print(f"mean_delta_aux:   {mean_delta}")
     print(f"p_multi_aux:      {p_multi}")

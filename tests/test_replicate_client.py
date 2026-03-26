@@ -90,3 +90,34 @@ def test_match_size_cover_crop(tmp_path, client):
     client._match_size(output_path, str(input_path))
     out = Image.open(output_path)
     assert out.size == (400, 200)
+
+
+def test_mock_inpaint_copies_input_image(tmp_path, client):
+    input_path = tmp_path / "input.png"
+    output_dir = tmp_path / "out"
+    from PIL import Image
+
+    Image.new("RGB", (32, 24), color="green").save(input_path)
+    output_path = client._mock_inpaint(str(input_path), output_dir)
+
+    assert output_path.exists()
+    out = Image.open(output_path)
+    assert out.size == (32, 24)
+
+
+def test_retry_delay_uses_replicate_reset_window(client):
+    err = Exception(
+        "ReplicateError Details:\nstatus: 429\ndetail: Request was throttled. "
+        "Your rate limit resets in ~7s."
+    )
+    delay = client._retry_delay_seconds(err, attempt=1, api_retry_base_delay=1.0)
+    assert delay == pytest.approx(8.0)
+
+
+def test_retry_delay_falls_back_for_non_throttle_errors(client):
+    delay = client._retry_delay_seconds(
+        Exception("network timeout"),
+        attempt=3,
+        api_retry_base_delay=1.0,
+    )
+    assert delay == pytest.approx(4.0)

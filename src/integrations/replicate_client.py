@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import os
+import re
+import shutil
 import tempfile
 import time
 import urllib.request
@@ -50,6 +52,7 @@ class ReplicateClient:
         self.client = replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
         self.download_timeout = download_timeout
         self.models = models
+        self._next_prediction_create_at = 0.0
 
     def image_edit_baseline(
         self,
@@ -69,8 +72,9 @@ class ReplicateClient:
         scene_support: str = "",
         intervention_direction: str = "",
         edit_template: str = "",
-        max_retries: int = 3,
-        retry_base_delay: float = 1.0,
+        api_max_retries: int = 3,
+        api_retry_base_delay: float = 1.0,
+        prediction_timeout_s: float = 90.0,
         match_input_size: bool = True,
     ) -> Path:
         prompt = prompt_template.format(
@@ -83,8 +87,13 @@ class ReplicateClient:
         )
         self.last_baseline_used_mock = False
 
-        result, output_format = self._run_with_retries(
-            model, image_path, prompt, max_retries, retry_base_delay,
+        result, output_format = self._run_with_transport_retries(
+            model,
+            image_path,
+            prompt,
+            api_max_retries,
+            api_retry_base_delay,
+            prediction_timeout_s,
         )
 
         if result is None:
@@ -119,43 +128,122 @@ class ReplicateClient:
 
     # ── baseline: retry loop ──────────────────────────────────────────────
 
-    def _run_with_retries(
+    def _run_with_transport_retries(
         self,
         model: str,
         image_path: str,
         prompt: str,
-        max_retries: int,
-        retry_base_delay: float,
+        api_max_retries: int,
+        api_retry_base_delay: float,
+        prediction_timeout_s: float,
     ) -> tuple[Any, str | None]:
-        """Run a baseline edit with exponential-backoff retries.
+        """Run a baseline edit with exponential-backoff transport retries.
 
         Returns ``(result, output_format)`` on success, or ``(None, None)``
         when all attempts are exhausted.
         """
-        for attempt in range(1, max_retries + 1):
+        for attempt in range(1, api_max_retries + 1):
             try:
                 with open(image_path, "rb") as fh:
                     payload, fmt = self._build_baseline_payload(
                         model, fh, prompt,
                         use_alt=(model == "openai/gpt-image-1.5" and attempt > 1),
                     )
-                    logger.info("Running %s (attempt %s/%s)", model, attempt, max_retries)
-                    result = self.client.run(model, input=payload)
+                    logger.info(
+                        "Running %s (transport attempt %s/%s)",
+                        model,
+                        attempt,
+                        api_max_retries,
+                    )
+                    result = self._run_prediction_with_timeout(
+                        model=model,
+                        payload=payload,
+                        timeout_s=prediction_timeout_s,
+                    )
                 return self._normalize_result(result), fmt
-            except (ReplicateError, ModelError) as err:
-                if attempt >= max_retries:
+            except (ReplicateError, ModelError, TimeoutError, RuntimeError) as err:
+                if attempt >= api_max_retries:
                     logger.warning(
-                        "Baseline edit failed after %s attempts: %s",
-                        max_retries, err, exc_info=True,
+                        "Baseline edit failed after %s transport retries: %s",
+                        api_max_retries,
+                        err,
+                        exc_info=True,
                     )
                     return None, None
-                delay = retry_base_delay * (2 ** (attempt - 1))
+                delay = self._retry_delay_seconds(
+                    err,
+                    attempt=attempt,
+                    api_retry_base_delay=api_retry_base_delay,
+                )
+                self._next_prediction_create_at = max(
+                    self._next_prediction_create_at,
+                    time.monotonic() + delay,
+                )
                 logger.warning(
-                    "Attempt %s/%s failed: %s — retrying in %.1fs.",
-                    attempt, max_retries, err, delay,
+                    "Transport attempt %s/%s failed: %s; retrying in %.1fs.",
+                    attempt,
+                    api_max_retries,
+                    err,
+                    delay,
                 )
                 time.sleep(delay)
         return None, None  # unreachable, keeps type-checkers happy
+
+    def _run_prediction_with_timeout(
+        self,
+        *,
+        model: str,
+        payload: Dict[str, Any],
+        timeout_s: float,
+    ) -> Any:
+        wait_s = self._next_prediction_create_at - time.monotonic()
+        if wait_s > 0:
+            logger.info("Waiting %.1fs for Replicate prediction create window.", wait_s)
+            time.sleep(wait_s)
+
+        owner, name = model.split("/", 1)
+        prediction = self.client.models.predictions.create(
+            model=(owner, name),
+            input=payload,
+            wait=False,
+        )
+        deadline = time.monotonic() + timeout_s
+        while prediction.status not in {"succeeded", "failed", "canceled"}:
+            if time.monotonic() >= deadline:
+                try:
+                    prediction.cancel()
+                except Exception:
+                    logger.warning("Failed to cancel timed-out prediction %s", prediction.id)
+                raise TimeoutError(
+                    f"Replicate prediction timed out after {timeout_s:.1f}s: {prediction.id}"
+                )
+            time.sleep(self.client.poll_interval)
+            prediction.reload()
+
+        if prediction.status == "succeeded":
+            return prediction.output
+
+        raise RuntimeError(
+            f"Replicate prediction {prediction.id} ended with status={prediction.status}: "
+            f"{prediction.error or 'no error message'}"
+        )
+
+    def _retry_delay_seconds(
+        self,
+        err: Exception,
+        *,
+        attempt: int,
+        api_retry_base_delay: float,
+    ) -> float:
+        delay = api_retry_base_delay * (2 ** (attempt - 1))
+        message = str(err)
+        if "status: 429" not in message and "Request was throttled" not in message:
+            return delay
+
+        match = re.search(r"resets in ~(\d+(?:\.\d+)?)s", message)
+        if match:
+            return max(delay, float(match.group(1)) + 1.0)
+        return max(delay, 10.0)
 
     # ── baseline: payload builders ────────────────────────────────────────
 
@@ -284,6 +372,20 @@ class ReplicateClient:
                 Path(tmp.name).replace(destination)
             return True
         return False
+
+    def _mock_inpaint(self, image_path: str, output_dir: Path) -> Path:
+        """Fallback output used when remote generation fails entirely.
+
+        This preserves the input image dimensions and allows the caller to
+        record an explicit invalid/mocked attempt rather than crashing the
+        whole image-level pipeline.
+        """
+        source = Path(image_path)
+        suffix = source.suffix or ".png"
+        destination = timestamped_path(output_dir, "image_edit_baseline_mock", suffix=suffix)
+        ensure_dir(destination.parent)
+        shutil.copy2(source, destination)
+        return destination
 
     # ── bounding-box helpers ──────────────────────────────────────────────
 

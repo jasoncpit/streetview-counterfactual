@@ -8,7 +8,6 @@ from src.config import AppConfig
 from src.integrations.openai_client import LeverCandidate, Planner
 from src.integrations.replicate_client import ReplicateClient
 from src.utils.paths import ensure_dir
-from src.workflow.graph import build_baseline_workflow
 from src.workflow.state import AgentState
 
 
@@ -53,6 +52,7 @@ def _run_candidate_attempts(
         "image_path": str(image_path),
         "target_attribute": cfg.workflow.target_attribute,
         "attempts": 0,
+        "stochastic_attempt_budget": max_attempts,
         "same_place_preserved": False,
         "is_localized": False,
         "is_realistic": False,
@@ -78,6 +78,7 @@ def _run_candidate_attempts(
         state["edited_image_path"] = str(edited_path) if edited_path else None
         state["used_mock"] = getattr(replicate_client, "last_baseline_used_mock", False)
         state["attempts"] = attempt
+        state["stochastic_attempt_index"] = attempt
 
         if not edited_path or state["used_mock"]:
             state.update(
@@ -157,44 +158,3 @@ def run_candidate_set_for_image(
         candidate_state["candidate_id"] = idx
         rows.append(candidate_state)
     return rows
-
-
-def run_baseline_for_image(
-    cfg: AppConfig,
-    image_path: Path,
-    *,
-    baseline_model: str,
-    max_attempts: int,
-) -> Dict[str, Any]:
-    local_cfg = deepcopy(cfg)
-    local_cfg.workflow.use_baseline = True
-    local_cfg.workflow.baseline_model = baseline_model
-    local_cfg.workflow.max_attempts = max_attempts
-
-    input_dir = Path(local_cfg.workflow.input_dir)
-    ensure_dir(input_dir)
-
-    planner, replicate_client = build_clients(local_cfg)
-    app = build_baseline_workflow(local_cfg, planner, replicate_client)
-
-    state: AgentState = {
-        "image_path": str(image_path),
-        "target_attribute": local_cfg.workflow.target_attribute,
-        "lever_concept": None,
-        "scene_support": None,
-        "intervention_direction": None,
-        "edit_template": None,
-        "edit_plan": None,
-        "target_object": None,
-        "mask_path": None,
-        "edited_image_path": None,
-        "attempts": 0,
-        "same_place_preserved": False,
-        "is_localized": False,
-        "is_realistic": False,
-        "is_plausible": False,
-        "is_valid": False,
-    }
-
-    final_state = app.invoke(state)
-    return dict(final_state)
