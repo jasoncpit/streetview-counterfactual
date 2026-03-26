@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Dict
 
 from src.integrations.openai_client import Planner
@@ -36,6 +38,10 @@ def plan_edit_node(state: AgentState, planner: Planner, target_attribute: str) -
         critic_notes=state.get("critic_notes"),
     )
     return {
+        "lever_concept": result.lever_concept,
+        "scene_support": result.scene_support,
+        "intervention_direction": result.intervention_direction,
+        "edit_template": result.edit_template,
         "edit_plan": result.edit_plan,
         "target_object": _sanitize_target_object(result.target_object),
     }

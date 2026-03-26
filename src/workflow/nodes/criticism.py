@@ -20,8 +20,11 @@ def critique_generated_node(
         raise ValueError("Missing image_path, edited_image_path, edit_plan, or target_object.")
     if state.get("used_mock"):
         return {
+            "same_place_preserved": False,
+            "is_localized": False,
             "is_realistic": False,
-            "is_minimal_edit": False,
+            "is_plausible": False,
+            "is_valid": False,
             "critic_notes": "mock_output=true; skipping critique.",
             "attempts": state.get("attempts", 0) + 1,
         }
@@ -31,10 +34,17 @@ def critique_generated_node(
         edited_image_path=edited_path,
         edit_plan=edit_plan,
         target_object=target_object,
+        lever_concept=state.get("lever_concept", "") or "",
+        scene_support=state.get("scene_support", "") or "",
+        intervention_direction=state.get("intervention_direction", "") or "",
+        edit_template=state.get("edit_template", "") or "",
     )
     return {
+        "same_place_preserved": critique.same_place_preserved,
+        "is_localized": critique.is_localized,
         "is_realistic": critique.is_realistic,
-        "is_minimal_edit": critique.is_minimal_edit,
+        "is_plausible": critique.is_plausible,
+        "is_valid": critique.is_valid,
         "critic_notes": critique.notes,
         "attempts": state.get("attempts", 0) + 1,
     }

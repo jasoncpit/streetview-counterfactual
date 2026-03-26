@@ -18,6 +18,7 @@ class WorkflowConfig:
     target_attribute: str = "safety"
     input_dir: Path = Path("data/01_raw")
     max_attempts: int = 3
+    candidate_set_size: int = 5
     openai_model: str = "gpt-5.2"
     use_baseline: bool = True
     baseline_model: str = "black-forest-labs/flux-kontext-max"
@@ -30,38 +31,55 @@ class LoggingConfig:
 
 @dataclass
 class AgentsConfig:
+    lever_ontology: tuple[str, ...] = (
+        "graffiti removal",
+        "litter removal",
+        "facade repair",
+        "storefront transparency increase",
+        "localized greenery addition",
+        "lighting repair",
+        "signage decluttering",
+        "crosswalk repainting",
+        "lane marking repainting",
+        "surface cleaning",
+        "shutter repair",
+        "tree canopy management",
+    )
     planner_prompt: str = (
-        "You are an urban planner.\n"
-        "Given a street-level image and a target percept (e.g., \"safety\", \"wealth\", \"greenery\"), "
-        "propose ONE minimal, plausible visual edit that would increase that percept.\n\n"
-        "HARD CONSTRAINTS (must follow):\n"
-        "1) Single-object edit: choose ONE concrete, physical object/element to modify.\n"
-        "2) Localizable: the edit must be achievable by changing pixels only on the target object surface "
-        "(or a very small immediately-adjacent area, e.g., mounting bracket/shadow/paint bleed).\n"
-        "3) No global changes: do NOT propose edits that imply global relighting, recoloring, weather changes, "
-        "camera/viewpoint changes, depth-of-field changes, or overall scene cleanup.\n"
-        "4) No multi-object plans: do NOT add/remove multiple objects or create a \"set\" of improvements.\n"
-        "5) Minimal magnitude: prefer the smallest change that could plausibly shift perception.\n"
-        "6) No text: do not add readable text.\n\n"
-        "TARGET OBJECT FORMAT:\n"
-        "- target_object must be a short noun phrase (1–4 words), no verbs, no parentheses, "
-        "no location descriptions (e.g., not \"streetlight on left\").\n"
-        "- Examples: \"streetlight\", \"crosswalk marking\", \"trash bin\", \"storefront shutter\", \"tree canopy\".\n\n"
-        "EDIT PLAN FORMAT:\n"
-        "- edit_plan must be ONE sentence describing ONE operation.\n"
-        "- Use concrete operations like: repair, remove, repaint, brighten, replace, add.\n"
-        "- The plan must be specific and directly applicable to the target object.\n"
-        "- Avoid embellishment; specify only the exact change required.\n\n"
-        "SELF-CHECK (must be true before you answer):\n"
-        "- Can the edit be done by editing only the target object pixels (or tiny adjacent area)? YES\n"
-        "- Does it avoid global lighting/style changes? YES\n"
-        "- Does it avoid adding/removing any other objects? YES\n"
-        "- Is it minimal and plausible in the real world? YES\n\n"
-        "Return valid JSON with exactly two fields:\n"
-        "{\n"
-        '  \"edit_plan\": \"<one-sentence minimal edit>\",\n'
-        '  \"target_object\": \"<1-4 word noun phrase>\"\n'
-        "}\n"
+        "You are an urban perception planner.\n"
+        "Given a street-view image and a target percept, propose a CLOSED, CONSTRAINED set of candidate lever interventions.\n\n"
+        "HARD CONSTRAINTS:\n"
+        "1) Each candidate must describe ONE lever only.\n"
+        "2) Each lever must be grounded in a concrete visible scene element.\n"
+        "3) Edits must be local, plausible, and prompt-only friendly.\n"
+        "4) Do not propose global relighting, weather changes, camera changes, or whole-scene cleanup.\n"
+        "5) Do not add readable text.\n"
+        "6) Prefer the smallest plausible intervention that could shift the target percept.\n"
+        "7) Choose only from the supplied ontology.\n\n"
+        "DIVERSITY RULES:\n"
+        "- Return distinct candidates, not variants of the same lever.\n"
+        "- Use different lever concepts whenever the scene supports it.\n"
+        "- Do not return multiple lane-marking variants unless the image truly contains no other credible lever.\n\n"
+        "FIELD FORMATTING RULES:\n"
+        "- lever_concept: exactly one ontology item.\n"
+        "- scene_support: 4-12 words naming the visible support; no brackets, no lists, no sentence fragments ending in articles/prepositions.\n"
+        "- target_object: 1-5 words; noun phrase only.\n"
+        "- intervention_direction: 1-3 words such as repair, remove, clean, repaint, brighten, add greenery, increase transparency.\n"
+        "- edit_template: short imperative fragment, max 14 words.\n"
+        "- edit_plan: exactly one sentence, max 28 words, no brackets, no numbering, no semicolons.\n\n"
+        "OUTPUT RULES:\n"
+        "- Return ONLY valid JSON. No markdown.\n"
+        "- Return exactly the requested number of candidates when possible.\n"
+        "- If the scene supports fewer candidates, return fewer, but every returned candidate must be valid and grounded.\n"
+        "- Never place arrays, bullets, or multiple sentences inside a single field.\n\n"
+        "Return valid JSON with one top-level field named \"candidates\".\n"
+        "Each candidate must contain exactly these fields:\n"
+        "- lever_concept\n"
+        "- scene_support\n"
+        "- target_object\n"
+        "- intervention_direction\n"
+        "- edit_template\n"
+        "- edit_plan\n"
     )
 
     baseline_edit_prompt: str = (
@@ -79,25 +97,33 @@ class AgentsConfig:
         "QUALITY BAR:\n"
         "- The edit should look realistic and physically plausible.\n"
         "- Outside the target object area, the image should appear unchanged to a human observer.\n\n"
+        "Lever concept: {lever_concept}\n"
+        "Scene support: {scene_support}\n"
+        "Intervention direction: {intervention_direction}\n"
+        "Edit template: {edit_template}\n"
         "Target object: {target_object}\n"
         "Edit plan: {edit_plan}\n"
     )
 
     critic_prompt: str = (
-         "Evaluate whether the GENERATED image satisfies the requested edit plan relative to the ORIGINAL image.\n\n"
+         "Evaluate whether the GENERATED image satisfies the requested lever intervention relative to the ORIGINAL image.\n\n"
         "EVALUATION CRITERIA:\n"
-        "A) Realism: The edit looks physically plausible and consistent with the scene.\n"
-        "B) Minimality: The smallest necessary change was made, localized to the target object.\n"
-        "C) No drift: No noticeable changes to camera/viewpoint, global lighting/color, style, or surrounding context.\n\n"
+        "A) same_place_preserved: the edited image still depicts the same underlying place.\n"
+        "B) is_localized: changes remain substantially confined to the intended support/target object.\n"
+        "C) is_realistic: the edit looks physically plausible and visually coherent.\n"
+        "D) is_plausible: the change is a credible instance of the requested lever intervention.\n\n"
         "FAIL CONDITIONS (examples):\n"
         "- Global style/contrast/saturation shifts.\n"
         "- Any added/removed objects outside the target object.\n"
         "- Camera/viewpoint/geometry changes.\n"
-        "- The target object was not edited as requested, or the edit magnitude is too large.\n\n"
+        "- The target object was not edited as requested, or the edit magnitude is too large.\n"
+        "- The requested lever concept is replaced by a different kind of change.\n\n"
         "Return valid JSON:\n"
         "{\n"
+        '  "same_place_preserved": true|false,\n'
+        '  "is_localized": true|false,\n'
         '  "is_realistic": true|false,\n'
-        '  "is_minimal_edit": true|false,\n'
+        '  "is_plausible": true|false,\n'
         '  "notes": "<brief reason and repair guidance for the planner>"\n'
         "}\n"
     )
