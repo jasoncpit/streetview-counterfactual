@@ -19,6 +19,8 @@ class AgentState(TypedDict, total=False):
 
     # Loop control
     attempts: int
+    stochastic_attempt_budget: int
+    stochastic_attempt_index: int
     same_place_preserved: Optional[bool]
     is_localized: Optional[bool]
     is_realistic: bool

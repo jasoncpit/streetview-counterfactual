@@ -8,6 +8,8 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.lever_identity import lever_identity_label
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -382,6 +384,7 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
         output_rel, output_exists = asset_copy(output_path, assets_dir, f"{idx:02d}_edited")
 
         target_object = (row.get("planner_target_object", "") or "").strip() or "unspecified object"
+        lever_label = (row.get("lever_identity_label", "") or "").strip() or lever_identity_label(row)
         edit_plan = (row.get("planner_edit_plan", "") or "").strip() or "No edit plan recorded."
         critic_notes = (row.get("critic_notes", "") or "").strip() or "No critic notes recorded."
         same_place = parse_bool(row.get("critic_same_place_preserved"))
@@ -390,9 +393,10 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
         plausible = parse_bool(row.get("critic_is_plausible"))
         valid = parse_bool(row.get("critic_is_valid"))
 
-        subtitle = f"Edited object: {target_object}"
+        subtitle = lever_label or f"Edited object: {target_object}"
         chips = [
             f'<span class="chip">Object: {html.escape(target_object)}</span>',
+            f'<span class="chip">Lever: {html.escape(row.get("lever_concept", "") or "unspecified")}</span>',
             (
                 '<span class="chip good">Same Place: Yes</span>'
                 if same_place
@@ -464,6 +468,7 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
                 "pair_id": str(idx),
                 "attribute": attribute,
                 "target_object": target_object,
+                "lever_identity_label": lever_label,
                 "edit_description": edit_plan,
                 "critic_same_place_preserved": str(same_place),
                 "critic_is_localized": str(localized),
@@ -496,6 +501,7 @@ def build_pack_for_csv(csv_path: Path, project_root: Path, output_root: Path) ->
                 "pair_id",
                 "attribute",
                 "target_object",
+                "lever_identity_label",
                 "edit_description",
                 "critic_same_place_preserved",
                 "critic_is_localized",

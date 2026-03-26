@@ -3,11 +3,12 @@ from __future__ import annotations
 import base64
 import json
 import re
-from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional
+from pathlib import Path
 
 from openai import OpenAI
+
+from src.lever_identity import ontology_lookup
 
 
 @dataclass
@@ -124,17 +125,32 @@ class Planner:
             text = f"{text}."
         return text
 
-    def _coerce_candidate(self, data: dict) -> LeverCandidate:
-        lever_concept = self._sanitize_short_text(
+    @staticmethod
+    def _is_valid_scene_support(value: str) -> bool:
+        word_count = len(value.split())
+        return 2 <= word_count <= 12
+
+    def _coerce_candidate(
+        self,
+        data: dict,
+        *,
+        allowed_ontology: dict[str, str],
+    ) -> LeverCandidate | None:
+        raw_concept = self._sanitize_short_text(
             data.get("lever_concept"),
-            default="surface cleaning",
+            default="",
             max_words=5,
         )
+        lever_concept = allowed_ontology.get(raw_concept.casefold())
+        if not lever_concept:
+            return None
         scene_support = self._sanitize_short_text(
             data.get("scene_support") or data.get("target_object"),
             default="visible support",
             max_words=12,
         )
+        if not self._is_valid_scene_support(scene_support):
+            return None
         target_object = self._sanitize_short_text(
             data.get("target_object") or scene_support,
             default="object",
@@ -172,6 +188,7 @@ class Planner:
         candidate_budget: int,
     ) -> CandidateSetResult:
         ontology_text = "\n".join(f"- {item}" for item in lever_ontology)
+        allowed_ontology = ontology_lookup(lever_ontology)
         user_prompt = (
             f"Image path: {image_path}\n"
             f"Target percept: {target_attribute}\n"
@@ -206,7 +223,12 @@ class Planner:
         if isinstance(raw_candidates, list):
             for item in raw_candidates:
                 if isinstance(item, dict):
-                    candidate = self._coerce_candidate(item)
+                    candidate = self._coerce_candidate(
+                        item,
+                        allowed_ontology=allowed_ontology,
+                    )
+                    if candidate is None:
+                        continue
                     dedupe_key = (
                         candidate.lever_concept.lower(),
                         candidate.target_object.lower(),
@@ -218,42 +240,7 @@ class Planner:
                     candidates.append(candidate)
                     if len(candidates) >= candidate_budget:
                         break
-        if not candidates:
-            candidates.append(
-                LeverCandidate(
-                    lever_concept="surface cleaning",
-                    scene_support="visible support",
-                    target_object="object",
-                    intervention_direction="repair",
-                    edit_template="repair localized wear while preserving surrounding context",
-                    edit_plan="Repair the object with a localized, plausible improvement.",
-                )
-            )
         return CandidateSetResult(candidates=candidates)
-
-    def propose_edit(
-        self,
-        image_path: str,
-        target_attribute: str,
-        prior_plan: Optional[str] = None,
-        critic_notes: Optional[str] = None,
-    ) -> LeverCandidate:
-        result = self.propose_lever_candidates(
-            image_path=image_path,
-            target_attribute=target_attribute,
-            lever_ontology=("surface cleaning",),
-            candidate_budget=1,
-        )
-        candidate = result.candidates[0]
-        if critic_notes or prior_plan:
-            # Preserve compatibility for callers that still route a single candidate
-            # through iterative retries with critique notes.
-            candidate.edit_plan = self._sanitize_short_text(
-                prior_plan or candidate.edit_plan,
-                default=candidate.edit_plan,
-                max_words=24,
-            )
-        return candidate
 
     def critique_generated(
         self,

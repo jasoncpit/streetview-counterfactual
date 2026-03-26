@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "langgraph>=0.2",
     "openai>=1.43",
     "pillow>=10.4",
     "pydantic>=2.9",

@@ -1,14 +1,14 @@
-\section{Discussion and Limitations}
+\section{Discussion and Future Work}
 \label{sec:discussion}
 
 \noindent\textbf{Claim language.}
-We deliberately use the weaker framing ``observed effective levers
-under single-lever interventions'' rather than ``independent causal
-levers.'' The independence assumption—that $\delta_i$ and $\delta_j$
-are additive—is not tested by our design. Levers in $E(x, a)$ are
-tested separately against the unedited original; their joint effect
-and potential interactions are left for future work requiring
-factorial intervention designs.
+We deliberately use the weaker framing of valid and directionally
+promising levers rather than ``independent causal levers.'' The
+independence assumption—that $\delta_i$ and $\delta_j$ are additive—is
+not tested by our design. Any future levers in $E(x, a)$ would be
+tested separately against the unedited original; their joint effect and
+potential interactions are left for future work requiring factorial
+intervention designs.
 
 \noindent\textbf{Generator leakage.}
 Because our implementation relies on prompt-only editing rather than
@@ -19,8 +19,9 @@ effect of the intended edit. This is why we position the work as
 interventional attribution rather than structural causal inference.
 
 \noindent\textbf{Ontology scope.}
-We measure $E(x, a)$ only with respect to the closed candidate set
-defined by our ontology and scene-grounding procedure. Some potential
+We measure future $E(x, a)$ only with respect to the bounded
+ontology-scoped candidate set defined by our scene-grounding procedure.
+Some potential
 street-view cues may be outside that scope or excluded because they are
 not judged safely manipulable under the prompt-only protocol.
 $|E|{=}0$ may reflect this scope limitation rather than a
@@ -32,3 +33,24 @@ salient, or easy-to-describe elements. Small but perceptually active
 cues (a barely visible security camera, a subtle entry light) may be
 absent from $\mathcal{L}(x)$.
 Our multi-lever counts are therefore likely underestimates.
+
+\noindent\textbf{Future human evaluation.}
+The current paper reports only automated validity auditing and auxiliary
+classifier diagnostics. A natural next step is a human study that
+explicitly separates edit validity from perceived-safety effect. In a
+future extension, we would first run an E1 validity check on
+original/edited pairs covering same-place preservation, locality,
+realism, and plausibility, and then run an E2 randomized 2AFC question
+such as ``Which image looks safer?'' only on edits that pass E1.
+Pair-level preference share $p_i$ could then be compared against a
+preregistered threshold $\theta$ to estimate membership in $E(x,a)$.
+The long-term scientific endpoint is therefore human-grounded
+counterfactual effect estimation, not auxiliary classifier movement
+alone.
+Accordingly, the current submission should be read as validating the
+intervention protocol and its failure modes, rather than as providing
+definitive human-grounded estimates of which levers shift perceived
+safety.
+Positioning this protocol as future work keeps the present paper focused
+on the reproducible pilot quantities it actually measures: proposal,
+realization, and auxiliary directional shift.

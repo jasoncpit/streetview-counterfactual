@@ -1,36 +1,11 @@
-\section{Human Evaluation Protocol}
+\section{Optional Human Evaluation Protocol}
 
-The classifier-based results above are a preliminary proxy.
-We describe here the human evaluation protocol that provides the
-ground-truth endpoint for the full study.
-
-\noindent\textbf{Study E1 — Validity audit.}
-Participants are shown an original/edited image pair and answer
-four questions: (i)~does this appear to be the same place with
-a small change; (ii)~does the change appear localised (not global);
-(iii)~does the edited image look realistic; and
-(iv)~does the change look like a plausible instance of the intended
-intervention. Participants respond on a 5-point Likert scale. An edit
-is \emph{valid} if it achieves mean score ${\geq}4$ on all four items.
-
-\noindent\textbf{Study E2 — Directional preference.}
-Participants complete a 2-alternative forced choice (2AFC) task:
-``Which image looks safer?'' Pairs are presented in randomised
-left/right order. Five raters per pair. The pair-level
-preference share $p_i$ is the primary quantity used to determine
-membership in $E(x,a)$. The 2AFC is run only on edits that pass
-Study~E1.
-
-\noindent\textbf{Design note.}
-E1 and E2 are run as separate studies to prevent the validity
-judgement task from contaminating the safety preference response.
-Both are deployed via Prolific with attention checks, response-time
-filters, and image-load verification. The threshold $\theta$ for
-``effective'' is set at preference share ${\geq}0.65$ (one-sided
-binomial test, $\alpha{=}0.05$) across $n{=}5$ raters per pair.
-
-\noindent\textbf{Expected outcomes.}
-\todo{[NOTE TO AUTHORS: Run E1 + E2 on the pilot subset before the
-journal submission. For April 7, this section describes the protocol
-and motivation. Report any available results from E1/E2 if the study
-launches in time; otherwise present as planned work.]}
+The classifier-based results above are the only empirical outcomes
+reported in the current draft. If extended to a human study, we would
+run a two-stage protocol: an E1 validity check on original/edited pairs
+covering same-place preservation, locality, realism, and plausibility,
+followed by an E2 randomized 2AFC question such as ``Which image looks
+safer?'' on edits that pass E1. Pair-level preference share $p_i$ would
+then be compared against a preregistered threshold $\theta$ to estimate
+membership in $E(x,a)$. We have not run E1 or E2 for the current paper,
+so no claims about human-measured effectiveness are made here.
