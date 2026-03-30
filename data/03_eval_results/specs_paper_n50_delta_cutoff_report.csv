@@ -1,0 +1,46 @@
+group_kind,group_name,cutoff,count_valid_edits_ge_cutoff
+family,Physical Maintenance,0.0,41
+family,Environmental Amenity,0.0,32
+family,Visual Legibility,0.0,3
+family,Mobility Infrastructure,0.0,31
+city,Amsterdam,0.0,22
+city,Abuja,0.0,16
+city,San Francisco,0.0,26
+city,Santiago,0.0,29
+city,Singapore,0.0,14
+family,Physical Maintenance,0.1,38
+family,Environmental Amenity,0.1,27
+family,Visual Legibility,0.1,2
+family,Mobility Infrastructure,0.1,28
+city,Amsterdam,0.1,20
+city,Abuja,0.1,11
+city,San Francisco,0.1,25
+city,Santiago,0.1,26
+city,Singapore,0.1,13
+family,Physical Maintenance,0.5,26
+family,Environmental Amenity,0.5,20
+family,Visual Legibility,0.5,1
+family,Mobility Infrastructure,0.5,26
+city,Amsterdam,0.5,13
+city,Abuja,0.5,6
+city,San Francisco,0.5,25
+city,Santiago,0.5,21
+city,Singapore,0.5,8
+family,Physical Maintenance,1.0,17
+family,Environmental Amenity,1.0,12
+family,Visual Legibility,1.0,1
+family,Mobility Infrastructure,1.0,15
+city,Amsterdam,1.0,9
+city,Abuja,1.0,2
+city,San Francisco,1.0,14
+city,Santiago,1.0,15
+city,Singapore,1.0,5
+family,Physical Maintenance,2.0,4
+family,Environmental Amenity,2.0,5
+family,Visual Legibility,2.0,0
+family,Mobility Infrastructure,2.0,6
+city,Amsterdam,2.0,4
+city,Abuja,2.0,0
+city,San Francisco,2.0,5
+city,Santiago,2.0,5
+city,Singapore,2.0,1
