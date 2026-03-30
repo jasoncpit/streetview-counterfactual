@@ -12,10 +12,15 @@
     "valid_rate_ci_low": 0.649,
     "valid_rate_ci_high": 0.761,
     "mean_delta_aux": 0.366,
+    "mean_delta_aux_ci_low": 0.198,
+    "mean_delta_aux_ci_high": 0.534,
     "median_delta_aux": 0.184,
     "min_delta_aux": -3.624,
     "max_delta_aux": 3.842,
-    "n_aux_effective": 95
+    "n_aux_effective": 95,
+    "mean_aux_effective_per_image": 1.9,
+    "mean_aux_effective_per_image_ci_low": 1.476,
+    "mean_aux_effective_per_image_ci_high": 2.324
   },
   "family_table": [
     {

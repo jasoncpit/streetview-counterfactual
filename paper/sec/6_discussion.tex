@@ -28,6 +28,19 @@ maintenance and roadway-marking interventions realise reliably, while
 lighting repair and canopy-management edits remain harder to realise or
 less consistently aligned with auxiliary safety improvement.
 
+\noindent\textbf{Mean effects versus retained positive tail.}
+The new cutoff analysis sharpens that point. Family-level mean
+$\Delta_{\mathrm{aux}}$ is useful, but it can hide whether a family
+produces a broad pool of modestly positive edits or a narrow pool of
+high-impact ones. Mobility Infrastructure remains strong under stricter
+cutoffs, while Environmental Amenity looks bimodal: localized greenery
+addition drives a substantial positive tail, but lighting repair and
+tree canopy management dilute the family mean. This is a more useful
+screen for downstream human evaluation than raw validity alone, because
+it identifies which families continue to supply multiple
+$\theta_{\mathrm{aux}}$-effective candidates once neutral edits are
+removed.
+
 \noindent\textbf{Critic calibration.}
 The VLM critic (GPT-5.2) has not been calibrated against human raters.
 Even with 177 accepted edits, a modest false-positive or false-negative
@@ -54,6 +67,14 @@ Santiago and San Francisco. These differences do not yet justify strong
 substantive city-level claims, but they do suggest that both
 realisability and perceived effect are context-sensitive rather than
 uniform across urban settings.
+
+The thresholded view makes the heterogeneity more concrete. San
+Francisco and Santiago contribute the largest pools of
+$\theta_{\mathrm{aux}}$-effective edits, and Amsterdam stays competitive
+once the cutoff is raised, whereas Abuja falls off more quickly. That
+pattern suggests the practical ceiling is not only whether a scene
+admits valid levers, but whether it admits \emph{multiple} visibly
+grounded edits that survive increasingly strict directional thresholds.
 
 \noindent\textbf{Human evaluation.}
 The present paper reports automated auditing and auxiliary-scorer

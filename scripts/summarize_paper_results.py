@@ -96,6 +96,17 @@ def round_or_none(value: float | None, digits: int = 3) -> float | None:
     return round(value, digits)
 
 
+def mean_confidence_interval(values: list[float], z: float = 1.96) -> tuple[float | None, float | None]:
+    if not values:
+        return None, None
+    if len(values) == 1:
+        return values[0], values[0]
+    mean_value = statistics.mean(values)
+    stdev = statistics.stdev(values)
+    margin = z * (stdev / math.sqrt(len(values)))
+    return mean_value - margin, mean_value + margin
+
+
 def wilson_interval(successes: int, total: int, z: float = 1.96) -> tuple[float | None, float | None]:
     if total <= 0:
         return None, None
@@ -168,6 +179,13 @@ def summarize(args: argparse.Namespace) -> dict[str, Any]:
     valid_rows = [row for row in scored_candidate_rows if coerce_bool(row.get("critic_is_valid"))]
     valid_deltas = [float(row["delta_classifier"]) for row in valid_rows if row.get("delta_classifier") not in {"", None}]
     overall_ci_low, overall_ci_high = wilson_interval(len(valid_rows), len(candidate_rows))
+    mean_delta_ci_low, mean_delta_ci_high = mean_confidence_interval(valid_deltas)
+    aux_effective_counts = [
+        float(row["n_auxiliary_effective_levers"])
+        for row in per_image_rows
+        if row.get("n_auxiliary_effective_levers") not in {"", None}
+    ]
+    mean_aux_effective_ci_low, mean_aux_effective_ci_high = mean_confidence_interval(aux_effective_counts)
 
     overall = {
         "n_images": len(per_image_rows),
@@ -184,10 +202,15 @@ def summarize(args: argparse.Namespace) -> dict[str, Any]:
         "valid_rate_ci_low": round_or_none(overall_ci_low),
         "valid_rate_ci_high": round_or_none(overall_ci_high),
         "mean_delta_aux": round_or_none(safe_mean(valid_deltas)),
+        "mean_delta_aux_ci_low": round_or_none(mean_delta_ci_low),
+        "mean_delta_aux_ci_high": round_or_none(mean_delta_ci_high),
         "median_delta_aux": round_or_none(safe_median(valid_deltas)),
         "min_delta_aux": round_or_none(min(valid_deltas) if valid_deltas else None),
         "max_delta_aux": round_or_none(max(valid_deltas) if valid_deltas else None),
         "n_aux_effective": sum(coerce_bool(row.get("exceeds_auxiliary_threshold")) for row in valid_rows),
+        "mean_aux_effective_per_image": round_or_none(safe_mean(aux_effective_counts)),
+        "mean_aux_effective_per_image_ci_low": round_or_none(mean_aux_effective_ci_low),
+        "mean_aux_effective_per_image_ci_high": round_or_none(mean_aux_effective_ci_high),
     }
 
     family_table: list[dict[str, Any]] = []

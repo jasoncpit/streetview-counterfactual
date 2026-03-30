@@ -29,9 +29,11 @@ analysis is in Appendix~\ref{sec:validity_appendix}.
 
 \noindent\textbf{Auxiliary directional shifts.}
 Among the 177 valid edits, the auxiliary scorer produces a mean shift of
-$+0.366$ (median $+0.184$, range $[-3.624, +3.842]$). Using threshold
-$\theta_{\mathrm{aux}}{=}0.1$, 95 of 177 valid edits fall in
-$E_{\mathrm{aux}}(x,a)$. The strongest positive examples come from
+$+0.366$ (95\% CI $[+0.198, +0.534]$, median $+0.184$, range
+$[-3.624, +3.842]$). Using threshold $\theta_{\mathrm{aux}}{=}0.1$,
+95 of 177 valid edits fall in $E_{\mathrm{aux}}(x,a)$, corresponding to
+a mean of 1.90 auxiliary-effective levers per scene
+(95\% CI $[1.476, 2.324]$). The strongest positive examples come from
 lane-marking repainting, crosswalk repainting, and localized greenery
 addition. At the same time, some valid edits remain neutral or
 negative, reinforcing the distinction between valid realization and
@@ -128,6 +130,24 @@ slightly negative on average. The important point is that the final
 rerun removes the earlier planner/API imbalance, so these city
 comparisons are no longer confounded by missing candidate generation.
 
+\noindent\textbf{Thresholded auxiliary-effect distribution.}
+Figure~\ref{fig:delta_cutoff_counts} complements the mean-shift summary
+by showing how many valid edits remain above increasingly strict
+auxiliary thresholds, broken out by family and city. At the study
+threshold $\theta_{\mathrm{aux}}{=}0.1$, Mobility Infrastructure
+retains 28 valid edits with mean retained shift $+1.270$
+(95\% CI $[+0.958, +1.583]$), Physical Maintenance retains 38 with mean
+$+1.044$ (95\% CI $[+0.793, +1.296]$), and Environmental Amenity
+retains 27 with mean $+1.168$ (95\% CI $[+0.821, +1.516]$). Visual
+Legibility contributes only two retained edits, so its interval is
+necessarily wide. By city, San Francisco and Santiago dominate the
+positive tail at $\theta_{\mathrm{aux}}{=}0.1$ with 25 and 26 retained
+edits respectively, while Abuja retains only 11. As the cutoff rises to
+$1.0$, the family ranking compresses but Environmental Amenity and
+Mobility Infrastructure still retain strong positive tails, and
+Amsterdam, San Francisco, and Santiago remain the cities with the
+largest high-delta pools.
+
 \noindent\textbf{Qualitative examples.}
 Figure~\ref{fig:qualitative} shows the top three positive auxiliary-shift
 examples from distinct scenes: lane-marking repainting in Amsterdam,
@@ -164,4 +184,18 @@ We revisit this null result in \S\ref{sec:discussion}.
     (Spearman $\rho{=}0.095$, $p{=}0.511$).
   }
   \label{fig:baseline_vs_valid}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure_5_delta_cutoff_counts.png}
+  \caption{
+    Number of valid edits retained above auxiliary-score cutoff
+    $\Delta_{\mathrm{aux}} \geq \tau$, split by lever family (left) and
+    city (right). The annotation reports the overall mean
+    $\Delta_{\mathrm{aux}}$ with 95\% CI and the mean number of
+    $\theta_{\mathrm{aux}}{=}0.1$-effective levers per scene with
+    95\% CI.
+  }
+  \label{fig:delta_cutoff_counts}
 \end{figure}
