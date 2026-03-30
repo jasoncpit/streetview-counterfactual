@@ -1,46 +1,46 @@
-group_kind,group_name,cutoff,count_valid_edits_ge_cutoff,mean_delta_aux_ge_cutoff,mean_delta_aux_ci_low,mean_delta_aux_ci_high
-family,Physical Maintenance,0.0,41,0.972,0.725,1.218
-family,Environmental Amenity,0.0,32,0.993,0.667,1.319
-family,Visual Legibility,0.0,3,0.642,-0.431,1.715
-family,Mobility Infrastructure,0.0,31,1.152,0.842,1.463
-city,Amsterdam,0.0,22,1.086,0.633,1.539
-city,Abuja,0.0,16,0.437,0.245,0.628
-city,San Francisco,0.0,26,1.304,0.996,1.612
-city,Santiago,0.0,29,1.162,0.854,1.47
-city,Singapore,0.0,14,0.77,0.378,1.163
-family,Physical Maintenance,0.1,38,1.044,0.793,1.296
-family,Environmental Amenity,0.1,27,1.168,0.821,1.516
-family,Visual Legibility,0.1,2,0.958,-0.558,2.475
-family,Mobility Infrastructure,0.1,28,1.27,0.958,1.583
-city,Amsterdam,0.1,20,1.189,0.714,1.664
-city,Abuja,0.1,11,0.628,0.44,0.816
-city,San Francisco,0.1,25,1.355,1.052,1.658
-city,Santiago,0.1,26,1.286,0.977,1.595
-city,Singapore,0.1,13,0.824,0.415,1.232
-family,Physical Maintenance,0.5,26,1.39,1.11,1.669
-family,Environmental Amenity,0.5,20,1.48,1.098,1.863
-family,Visual Legibility,0.5,1,1.732,1.732,1.732
-family,Mobility Infrastructure,0.5,26,1.346,1.027,1.664
-city,Amsterdam,0.5,13,1.709,1.16,2.258
-city,Abuja,0.5,6,0.863,0.683,1.043
-city,San Francisco,0.5,25,1.355,1.052,1.658
-city,Santiago,0.5,21,1.518,1.212,1.824
-city,Singapore,0.5,8,1.163,0.618,1.709
-family,Physical Maintenance,1.0,17,1.732,1.41,2.054
-family,Environmental Amenity,1.0,12,1.96,1.494,2.426
-family,Visual Legibility,1.0,1,1.732,1.732,1.732
-family,Mobility Infrastructure,1.0,15,1.815,1.405,2.225
-city,Amsterdam,1.0,9,2.115,1.486,2.743
-city,Abuja,1.0,2,1.114,1.081,1.147
-city,San Francisco,1.0,14,1.834,1.453,2.214
-city,Santiago,1.0,15,1.844,1.554,2.133
-city,Singapore,1.0,5,1.467,0.698,2.235
-family,Physical Maintenance,2.0,4,2.779,2.523,3.034
-family,Environmental Amenity,2.0,5,2.819,2.418,3.221
-family,Visual Legibility,2.0,0,,,
-family,Mobility Infrastructure,2.0,6,2.631,2.119,3.142
-city,Amsterdam,2.0,4,3.038,2.454,3.622
-city,Abuja,2.0,0,,,
-city,San Francisco,2.0,5,2.698,2.343,3.052
-city,Santiago,2.0,5,2.465,2.112,2.817
-city,Singapore,2.0,1,3.03,3.03,3.03
+group_kind,group_name,cutoff,scene_denominator,count_valid_edits_ge_cutoff,avg_valid_levers_per_scene_ge_cutoff,mean_delta_aux_ge_cutoff,mean_delta_aux_ci_low,mean_delta_aux_ci_high
+family,Physical Maintenance,0.0,50,41,0.82,0.972,0.725,1.218
+family,Environmental Amenity,0.0,50,32,0.64,0.993,0.667,1.319
+family,Visual Legibility,0.0,50,3,0.06,0.642,-0.431,1.715
+family,Mobility Infrastructure,0.0,50,31,0.62,1.152,0.842,1.463
+city,Amsterdam,0.0,10,22,2.2,1.086,0.633,1.539
+city,Abuja,0.0,10,16,1.6,0.437,0.245,0.628
+city,San Francisco,0.0,10,26,2.6,1.304,0.996,1.612
+city,Santiago,0.0,10,29,2.9,1.162,0.854,1.47
+city,Singapore,0.0,10,14,1.4,0.77,0.378,1.163
+family,Physical Maintenance,0.1,50,38,0.76,1.044,0.793,1.296
+family,Environmental Amenity,0.1,50,27,0.54,1.168,0.821,1.516
+family,Visual Legibility,0.1,50,2,0.04,0.958,-0.558,2.475
+family,Mobility Infrastructure,0.1,50,28,0.56,1.27,0.958,1.583
+city,Amsterdam,0.1,10,20,2.0,1.189,0.714,1.664
+city,Abuja,0.1,10,11,1.1,0.628,0.44,0.816
+city,San Francisco,0.1,10,25,2.5,1.355,1.052,1.658
+city,Santiago,0.1,10,26,2.6,1.286,0.977,1.595
+city,Singapore,0.1,10,13,1.3,0.824,0.415,1.232
+family,Physical Maintenance,0.5,50,26,0.52,1.39,1.11,1.669
+family,Environmental Amenity,0.5,50,20,0.4,1.48,1.098,1.863
+family,Visual Legibility,0.5,50,1,0.02,1.732,1.732,1.732
+family,Mobility Infrastructure,0.5,50,26,0.52,1.346,1.027,1.664
+city,Amsterdam,0.5,10,13,1.3,1.709,1.16,2.258
+city,Abuja,0.5,10,6,0.6,0.863,0.683,1.043
+city,San Francisco,0.5,10,25,2.5,1.355,1.052,1.658
+city,Santiago,0.5,10,21,2.1,1.518,1.212,1.824
+city,Singapore,0.5,10,8,0.8,1.163,0.618,1.709
+family,Physical Maintenance,1.0,50,17,0.34,1.732,1.41,2.054
+family,Environmental Amenity,1.0,50,12,0.24,1.96,1.494,2.426
+family,Visual Legibility,1.0,50,1,0.02,1.732,1.732,1.732
+family,Mobility Infrastructure,1.0,50,15,0.3,1.815,1.405,2.225
+city,Amsterdam,1.0,10,9,0.9,2.115,1.486,2.743
+city,Abuja,1.0,10,2,0.2,1.114,1.081,1.147
+city,San Francisco,1.0,10,14,1.4,1.834,1.453,2.214
+city,Santiago,1.0,10,15,1.5,1.844,1.554,2.133
+city,Singapore,1.0,10,5,0.5,1.467,0.698,2.235
+family,Physical Maintenance,2.0,50,4,0.08,2.779,2.523,3.034
+family,Environmental Amenity,2.0,50,5,0.1,2.819,2.418,3.221
+family,Visual Legibility,2.0,50,0,0.0,,,
+family,Mobility Infrastructure,2.0,50,6,0.12,2.631,2.119,3.142
+city,Amsterdam,2.0,10,4,0.4,3.038,2.454,3.622
+city,Abuja,2.0,10,0,0.0,,,
+city,San Francisco,2.0,10,5,0.5,2.698,2.343,3.052
+city,Santiago,2.0,10,5,0.5,2.465,2.112,2.817
+city,Singapore,2.0,10,1,0.1,3.03,3.03,3.03

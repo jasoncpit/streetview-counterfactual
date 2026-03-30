@@ -18,6 +18,13 @@ FAMILY_ORDER = [
     "Mobility Infrastructure",
 ]
 
+FAMILY_LABELS = {
+    "Physical Maintenance": "Maintenance",
+    "Environmental Amenity": "Amenity",
+    "Visual Legibility": "Legibility",
+    "Mobility Infrastructure": "Mobility",
+}
+
 CITY_ORDER = [
     "Amsterdam",
     "Abuja",
@@ -31,7 +38,7 @@ DEFAULT_REPORT_CUTOFFS = [0.0, 0.1, 0.5, 1.0, 2.0]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Plot how many valid levers remain above a delta cutoff, split by family and city."
+        description="Plot the average number of valid levers per scene above a delta cutoff, split by family and city."
     )
     parser.add_argument(
         "scored_csv",
@@ -102,16 +109,18 @@ def build_series(
     *,
     group_key: str,
     groups: list[str],
-) -> tuple[list[float], dict[str, list[int]]]:
+    denominator_by_group: dict[str, int],
+) -> tuple[list[float], dict[str, list[float]]]:
     deltas = sorted({float(row["delta_classifier"]) for row in rows})
-    series: dict[str, list[int]] = {group: [] for group in groups}
+    series: dict[str, list[float]] = {group: [] for group in groups}
     for cutoff in deltas:
         kept = [row for row in rows if float(row["delta_classifier"]) >= cutoff]
         counts = defaultdict(int)
         for row in kept:
             counts[row[group_key]] += 1
         for group in groups:
-            series[group].append(counts[group])
+            denominator = denominator_by_group[group]
+            series[group].append(counts[group] / denominator if denominator else 0.0)
     return deltas, series
 
 
@@ -120,6 +129,8 @@ def write_report(
     rows: list[dict[str, str]],
     *,
     city_by_image: dict[str, str],
+    total_scenes: int,
+    city_scene_counts: dict[str, int],
 ) -> None:
     records: list[dict[str, str | float | int]] = []
     for cutoff in DEFAULT_REPORT_CUTOFFS:
@@ -140,7 +151,9 @@ def write_report(
                     "group_kind": "family",
                     "group_name": family,
                     "cutoff": cutoff,
+                    "scene_denominator": total_scenes,
                     "count_valid_edits_ge_cutoff": len(scoped),
+                    "avg_valid_levers_per_scene_ge_cutoff": round_or_none(len(scoped) / total_scenes),
                     "mean_delta_aux_ge_cutoff": round_or_none(safe_mean(scoped_deltas)),
                     "mean_delta_aux_ci_low": round_or_none(delta_ci_low),
                     "mean_delta_aux_ci_high": round_or_none(delta_ci_high),
@@ -151,12 +164,17 @@ def write_report(
                 scoped = city_rows[city]
                 scoped_deltas = [float(row["delta_classifier"]) for row in scoped]
                 delta_ci_low, delta_ci_high = mean_confidence_interval(scoped_deltas)
+                scene_denominator = city_scene_counts[city]
                 records.append(
                     {
                         "group_kind": "city",
                         "group_name": city,
                         "cutoff": cutoff,
+                        "scene_denominator": scene_denominator,
                         "count_valid_edits_ge_cutoff": len(scoped),
+                        "avg_valid_levers_per_scene_ge_cutoff": round_or_none(
+                            len(scoped) / scene_denominator if scene_denominator else 0.0
+                        ),
                         "mean_delta_aux_ge_cutoff": round_or_none(safe_mean(scoped_deltas)),
                         "mean_delta_aux_ci_low": round_or_none(delta_ci_low),
                         "mean_delta_aux_ci_high": round_or_none(delta_ci_high),
@@ -172,7 +190,9 @@ def write_report(
                 "group_kind",
                 "group_name",
                 "cutoff",
+                "scene_denominator",
                 "count_valid_edits_ge_cutoff",
+                "avg_valid_levers_per_scene_ge_cutoff",
                 "mean_delta_aux_ge_cutoff",
                 "mean_delta_aux_ci_low",
                 "mean_delta_aux_ci_high",
@@ -189,6 +209,11 @@ def main() -> None:
     summary_rows = read_csv(args.summary_csv)
 
     city_by_image = {row["image_id"]: row["city"] for row in manifest_rows}
+    total_scenes = len({row["image_id"] for row in manifest_rows})
+    city_scene_counts = {
+        city: len({row["image_id"] for row in manifest_rows if row["city"] == city})
+        for city in canonical_city_order(manifest_rows)
+    }
     valid_rows = [row for row in scored_rows if row.get("critic_is_valid") == "True"]
     if not valid_rows:
         raise ValueError("No valid rows found in scored CSV.")
@@ -210,8 +235,18 @@ def main() -> None:
     x_max = float(np.ceil(max(deltas) * 2.0) / 2.0)
 
     city_order = canonical_city_order(manifest_rows)
-    family_cutoffs, family_series = build_series(valid_rows, group_key="lever_family", groups=FAMILY_ORDER)
-    city_cutoffs, city_series = build_series(valid_rows, group_key="city", groups=city_order)
+    family_cutoffs, family_series = build_series(
+        valid_rows,
+        group_key="lever_family",
+        groups=FAMILY_ORDER,
+        denominator_by_group={family: total_scenes for family in FAMILY_ORDER},
+    )
+    city_cutoffs, city_series = build_series(
+        valid_rows,
+        group_key="city",
+        groups=city_order,
+        denominator_by_group=city_scene_counts,
+    )
 
     palette = {
         "Physical Maintenance": "#4c956c",
@@ -225,7 +260,7 @@ def main() -> None:
         "Singapore": "#eaac8b",
     }
 
-    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.6), dpi=220, sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(11.5, 5.2), dpi=220, sharey=False)
     family_ax, city_ax = axes
 
     for family in FAMILY_ORDER:
@@ -233,17 +268,17 @@ def main() -> None:
             family_cutoffs,
             family_series[family],
             where="post",
-            label=family,
+            label=FAMILY_LABELS[family],
             linewidth=2.2,
             color=palette[family],
         )
     family_ax.axvline(0.1, color="#6b7280", linestyle="--", linewidth=1.2, alpha=0.8)
-    family_ax.set_title("Valid levers above delta cutoff by family")
+    family_ax.set_title("Average valid levers per scene above cutoff by family")
     family_ax.set_xlabel(r"Delta cutoff $\tau$ (keep edits with $\Delta_{\mathrm{aux}} \geq \tau$)")
-    family_ax.set_ylabel("Number of valid edits retained")
+    family_ax.set_ylabel("Average valid levers per scene")
     family_ax.set_xlim(x_min, x_max)
     family_ax.grid(True, axis="y", linestyle="--", linewidth=0.8, alpha=0.35)
-    family_ax.legend(fontsize=8, frameon=False, loc="upper right")
+    family_handles, family_labels = family_ax.get_legend_handles_labels()
 
     for city in city_order:
         city_ax.step(
@@ -255,19 +290,19 @@ def main() -> None:
             color=palette[city],
         )
     city_ax.axvline(0.1, color="#6b7280", linestyle="--", linewidth=1.2, alpha=0.8)
-    city_ax.set_title("Valid levers above delta cutoff by city")
+    city_ax.set_title("Average valid levers per scene above cutoff by city")
     city_ax.set_xlabel(r"Delta cutoff $\tau$ (keep edits with $\Delta_{\mathrm{aux}} \geq \tau$)")
     city_ax.set_xlim(x_min, x_max)
     city_ax.grid(True, axis="y", linestyle="--", linewidth=0.8, alpha=0.35)
-    city_ax.legend(fontsize=8, frameon=False, loc="upper right")
+    city_handles, city_labels = city_ax.get_legend_handles_labels()
 
     summary_lines = [
         f"n valid edits = {len(valid_rows)}",
         f"mean delta = {mean_delta:+.3f} [{mean_delta_ci_low:+.3f}, {mean_delta_ci_high:+.3f}]",
         f"mean # levers at theta=0.1 = {mean_aux_effective:.2f} [{mean_aux_effective_ci_low:.2f}, {mean_aux_effective_ci_high:.2f}]",
-        f"threshold 0.1 keeps {sum(delta >= 0.1 for delta in deltas)}",
-        f"threshold 0.5 keeps {sum(delta >= 0.5 for delta in deltas)}",
-        f"threshold 1.0 keeps {sum(delta >= 1.0 for delta in deltas)}",
+        f"avg # levers at tau=0.1 = {sum(delta >= 0.1 for delta in deltas) / total_scenes:.2f}",
+        f"avg # levers at tau=0.5 = {sum(delta >= 0.5 for delta in deltas) / total_scenes:.2f}",
+        f"avg # levers at tau=1.0 = {sum(delta >= 1.0 for delta in deltas) / total_scenes:.2f}",
     ]
     family_ax.text(
         0.02,
@@ -280,13 +315,54 @@ def main() -> None:
         bbox={"facecolor": "#fbfaf7", "edgecolor": "#d8d1c4", "boxstyle": "round,pad=0.35"},
     )
 
+    family_ax.legend(
+        family_handles,
+        family_labels,
+        title="Family",
+        title_fontsize=8.5,
+        fontsize=8.5,
+        ncol=2,
+        frameon=True,
+        facecolor="#ffffff",
+        edgecolor="#d8d1c4",
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.24),
+        handlelength=2.0,
+        borderpad=0.4,
+        labelspacing=0.4,
+        columnspacing=1.0,
+    )
+    city_ax.legend(
+        city_handles,
+        city_labels,
+        title="City",
+        title_fontsize=8.5,
+        fontsize=8.5,
+        ncol=2,
+        frameon=True,
+        facecolor="#ffffff",
+        edgecolor="#d8d1c4",
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.24),
+        handlelength=2.0,
+        borderpad=0.4,
+        labelspacing=0.4,
+        columnspacing=1.0,
+    )
+
     out_path = Path(args.out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     fig.savefig(out_path, bbox_inches="tight")
     plt.close(fig)
 
-    write_report(args.report_csv, valid_rows, city_by_image=city_by_image)
+    write_report(
+        args.report_csv,
+        valid_rows,
+        city_by_image=city_by_image,
+        total_scenes=total_scenes,
+        city_scene_counts=city_scene_counts,
+    )
     print(f"Saved figure -> {out_path}")
     print(f"Saved report -> {args.report_csv}")
 

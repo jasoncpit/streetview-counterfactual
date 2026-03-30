@@ -132,21 +132,22 @@ comparisons are no longer confounded by missing candidate generation.
 
 \noindent\textbf{Thresholded auxiliary-effect distribution.}
 Figure~\ref{fig:delta_cutoff_counts} complements the mean-shift summary
-by showing how many valid edits remain above increasingly strict
+by showing the average number of valid levers per scene above
+increasingly strict
 auxiliary thresholds, broken out by family and city. At the study
 threshold $\theta_{\mathrm{aux}}{=}0.1$, Mobility Infrastructure
-retains 28 valid edits with mean retained shift $+1.270$
-(95\% CI $[+0.958, +1.583]$), Physical Maintenance retains 38 with mean
-$+1.044$ (95\% CI $[+0.793, +1.296]$), and Environmental Amenity
-retains 27 with mean $+1.168$ (95\% CI $[+0.821, +1.516]$). Visual
-Legibility contributes only two retained edits, so its interval is
+averages 0.56 levers per scene with mean retained shift $+1.270$
+(95\% CI $[+0.958, +1.583]$), Physical Maintenance averages 0.76 with
+mean $+1.044$ (95\% CI $[+0.793, +1.296]$), and Environmental Amenity
+averages 0.54 with mean $+1.168$ (95\% CI $[+0.821, +1.516]$). Visual
+Legibility averages only 0.04 levers per scene, so its interval is
 necessarily wide. By city, San Francisco and Santiago dominate the
-positive tail at $\theta_{\mathrm{aux}}{=}0.1$ with 25 and 26 retained
-edits respectively, while Abuja retains only 11. As the cutoff rises to
-$1.0$, the family ranking compresses but Environmental Amenity and
-Mobility Infrastructure still retain strong positive tails, and
-Amsterdam, San Francisco, and Santiago remain the cities with the
-largest high-delta pools.
+positive tail at $\theta_{\mathrm{aux}}{=}0.1$ with averages of 2.5 and
+2.6 levers per scene respectively, while Abuja averages 1.1. As the
+cutoff rises to $1.0$, the family ranking compresses but Environmental
+Amenity and Mobility Infrastructure still retain strong positive tails,
+and Amsterdam, San Francisco, and Santiago remain the cities with the
+highest high-delta leverage per scene.
 
 \noindent\textbf{Qualitative examples.}
 Figure~\ref{fig:qualitative} shows the top three positive auxiliary-shift
@@ -190,9 +191,9 @@ We revisit this null result in \S\ref{sec:discussion}.
   \centering
   \includegraphics[width=\columnwidth]{figures/figure_5_delta_cutoff_counts.png}
   \caption{
-    Number of valid edits retained above auxiliary-score cutoff
-    $\Delta_{\mathrm{aux}} \geq \tau$, split by lever family (left) and
-    city (right). The annotation reports the overall mean
+    Average number of valid levers per scene above auxiliary-score
+    cutoff $\Delta_{\mathrm{aux}} \geq \tau$, split by lever family
+    (left) and city (right). The annotation reports the overall mean
     $\Delta_{\mathrm{aux}}$ with 95\% CI and the mean number of
     $\theta_{\mathrm{aux}}{=}0.1$-effective levers per scene with
     95\% CI.
