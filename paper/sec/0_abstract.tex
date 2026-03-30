@@ -1,21 +1,3 @@
 \begin{abstract}
-Street-view perception models predict subjective attributes such as
-safety at scale, yet they remain correlational: they do not reveal which
-localised visual changes would plausibly shift human perception for a
-specific street. We propose a lever-based interventional attribution
-framework that reframes scene-level explainability as a structured search
-over manipulable urban cues. Each candidate lever specifies a semantic
-concept, spatial support, intervention direction, and constrained edit
-template drawn from an editor-feasible intervention vocabulary. Candidates are realised via
-prompt-conditioned diffusion editing and validated by a vision--language
-critic for same-place preservation, locality, realism, and plausibility.
-Across 50 scenes from five cities, 177 of 250 proposed candidates pass
-the validity audit; all 50 scenes admit at least one valid
-single-lever intervention and 48 admit multiple independently valid
-levers. The strongest auxiliary perception shifts arise from
-lane-marking repainting, crosswalk repainting, and localized greenery
-addition, although valid realization does not guarantee positive
-auxiliary movement. We position these results as evidence that bounded
-interventional search is feasible at scene level, with human pairwise
-evaluation remaining the planned endpoint.
+    Street-view perception models predict subjective attributes such as safety at scale, yet remain correlational: they do not reveal which localized visual changes would plausibly shift human judgement for a specific scene. We propose a lever-based interventional attribution framework that recasts scene-level explainability as a bounded search over structured counterfactual edits. Each candidate lever specifies a semantic concept, spatial support, intervention direction, and constrained edit template, drawn from a theory-grounded intervention vocabulary organised into four families: Physical Maintenance, Environmental Amenity, Visual Legibility, and Mobility Infrastructure. Candidate edits are generated through prompt-conditioned image editing and retained only if they pass validity checks for same-place preservation, locality, realism, and plausibility. In a pilot across 50 scenes from five cities, the framework reveals preliminary proxy-based directional patterns and a practical failure taxonomy under prompt-only editing. Mobility Infrastructure and Physical Maintenance levers show the most promising auxiliary safety shifts in the current setup, while planner triage, generator alignment, critic calibration, and human evaluation remain key next steps. Human pairwise safety judgements remain the ground-truth endpoint; the present work introduces the protocol and pilot baseline needed to study that evaluation systematically.
 \end{abstract}

@@ -1,0 +1,15 @@
+{
+  "attribute": "safe",
+  "n_selected": 100,
+  "cities": {
+    "Abuja": 20,
+    "Amsterdam": 20,
+    "San Francisco": 20,
+    "Santiago": 20,
+    "Singapore": 20
+  },
+  "score_min": 0.5,
+  "score_max": 8.65,
+  "visual_complexity_min": 1.3077164313892198,
+  "visual_complexity_max": 2.1675511421953324
+}

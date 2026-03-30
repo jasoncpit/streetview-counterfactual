@@ -1,0 +1,20 @@
+input_image_path,candidate_id,target_attribute,lever_concept,scene_support,intervention_direction,edit_template,output_image_path,planner_edit_plan,planner_target_object,lever_identity_label,critic_edit_attempted,critic_same_place_preserved,critic_is_localized,critic_is_realistic,critic_is_plausible,critic_is_valid,stochastic_attempt_budget,stochastic_attempts_used,used_mock,critic_notes
+data/01_raw/specs_paper_n50/0b5d5cfd-a752-42e5-a70e-11f1dc3abba2.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/52f83280-5051-4ad6-be96-7327322d6aa5.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/586da6fb-1a6a-45b3-8c0e-a95da6db2a2f.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/9bc0ba77-59af-4a3a-aa27-173a5359d40f.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/c1e12031-ae65-4ad4-93e9-88a3c00cc96f.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/c2143365-5ee3-4530-8511-7f78a80b4b0f.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/e2318419-1b46-4670-a386-d066e0f938e3.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/eee6dd59-4096-4c8c-ae6a-6dc872b7c187.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/f39f6f46-bb60-416b-86d8-b7d64d628bde.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/f7303db5-dc81-4fa4-bad3-e1e4321e9d42.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/037b7755-42d3-4f5d-9101-c6d61135c27e.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/03953c0b-6b22-4a31-932a-f5001150321a.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/17d9caca-68ae-452a-8d98-115c996d2465.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/3b1d59f8-e9b9-418c-98db-8968aefe2baa.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/40d97ad5-c8ae-44df-87fd-33811a1c7414.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/58a0c28a-4cc2-4ca5-969b-f1697739e12f.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/8a5242bb-b6a6-4559-87d6-03bb42b6bd45.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/8ca6a763-e46e-485c-8451-9c2547ac22ca.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast
+data/01_raw/specs_paper_n50/98eedc11-d5f8-4758-bf9e-4f9a7a45e2cd.jpeg,,safety,,,,,,,,,False,False,False,False,False,False,5,0,False,ERROR: Unsupported baseline model: prunaai/flux-kontext-fast

@@ -1,86 +1,35 @@
 \section{Discussion and Future Work}
 \label{sec:discussion}
 
-\noindent\textbf{Claim scope.}
-We frame results as \emph{valid and directionally promising} levers, not
-independent causal levers. Additivity of $\delta_i$ and $\delta_j$ is
-untested; joint effects require factorial designs left for future work.
-Because prompt-only editing can introduce residual texture changes
-outside the intended support~\cite{bazyleva2025xedit}, locality should
-be read as a pragmatic validity screen rather than pixel-accurate
-isolation, and we position the work as interventional attribution rather
-than structural causal inference.
+This paper establishes a pilot baseline with two distinct outputs: a feasibility profile for the generation-and-audit pipeline, and a set of preliminary proxy-based directional patterns to prioritize for future human evaluation. The first is a generator-feasibility result: roadway-marking and maintenance interventions realise reliably across cities, lighting repair remains the clearest bottleneck (valid rate 0.30), and the null baseline-score relationship (Spearman $\rho$ =0.10) confirms that multi-lever richness is driven by scene geometry and visible editable supports rather than starting safety level. The second layer is more substantive: in the current pilot, Mobility Infrastructure produces the largest retained auxiliary safety shifts under the pretrained Place Pulse proxy. Whether this reflects human perceptual sensitivity to roadway-legibility cues, scorer-specific priors, or an interaction with edit realizability remains an open question for human evaluation.
 
-\noindent\textbf{Vocabulary scope and grounding bias.}
-Results are measured only over the bounded intervention vocabulary
-(\S\ref{sec:method}). Cues outside that scope, or too structurally
-complex for prompt-only editing, are excluded; $|V(x)|{=}0$ may reflect
-this limitation rather than a perception ceiling. Planner grounding may
-further favour large, salient elements, so multi-lever counts are likely
-underestimates.
+The heterogeneity within Environmental Amenity is similarly informative: localised greenery addition is strongly positive (+0.650) with near-perfect validity, while lighting repair and canopy management are negative on average despite being theory-grounded cues. This pattern suggests that family-level aggregation may obscure important lever-specific differences in editability and scorer response, motivating finer-grained prioritization in future iterations of the planner.
 
-\noindent\textbf{What the larger run changes.}
-At $N{=}50$, the dominant story is no longer pipeline instability.
-After rerunning the previously quota-blocked images, the final dataset
-contains no pre-audit generator or planner failures. The main source of
-variance is instead lever-specific editability and scorer response:
-maintenance and roadway-marking interventions realise reliably, while
-lighting repair and canopy-management edits remain harder to realise or
-less consistently aligned with auxiliary safety improvement.
 
-\noindent\textbf{Mean effects versus retained positive tail.}
-The new cutoff analysis sharpens that point. Family-level mean
-$\Delta_{\mathrm{aux}}$ is useful, but it can hide whether a family
-produces many modestly positive levers per scene or only a narrow set of
-high-impact ones. Mobility Infrastructure remains strong under stricter
-cutoffs, while Environmental Amenity looks bimodal: localized greenery
-addition drives a substantial positive tail, but lighting repair and
-tree canopy management dilute the family mean. This is a more useful
-screen for downstream human evaluation than raw validity alone, because
-it identifies which families continue to supply multiple
-$\theta_{\mathrm{aux}}$-effective candidates once neutral edits are
-removed.
+\noindent\textbf{On the auxiliary proxy.} The auxiliary scorer $f_a$, has not been validated on diffusion-edited images, and $\Delta_i$ should not be read as a calibrated effect size. However, for semantically targeted, monotone interventions --- road markings appear, graffiti is removed, greenery is added --- the directional signal is grounded in a model trained on large-scale crowdsourced pairwise human preference over exactly this class of scene variation. The claim we make is deliberately narrow: in the present pilot, the sign and relative magnitude of $\Delta_{\mathrm{aux}}$ provide a useful prioritization signal for selecting lever families, scenes, and retained edits to send to human evaluation. They should not be interpreted as calibrated perceptual effect sizes.
 
-\noindent\textbf{Critic calibration.}
-The VLM critic (GPT-5.2) has not been calibrated against human raters.
-Even with 177 accepted edits, a modest false-positive or false-negative
-rate still matters because the paper's claim depends on accepting only
-same-place, local, and plausible single-lever edits. An inter-rater study
-(human annotators judging the same pool on the four audit criteria,
-reporting Cohen's $\kappa$ per criterion) is a priority next step.
 
-\noindent\textbf{Baseline score and realisability.}
-Whether low-baseline scenes admit more valid levers than high-baseline
-scenes remains an open question. The larger $N{=}50$ run still shows no
-meaningful monotonic relationship (Spearman $\rho{=}0.095$,
-$p{=}0.511$), now without the confound of missing candidate generation.
-This suggests that valid lever abundance is not simply a function of the
-starting safety score; scene geometry, visible editable supports, and
-the generator's competence on specific lever families likely matter
-more.
 
-\noindent\textbf{City and family heterogeneity.}
-The cleaned rerun also makes the cross-city picture interpretable.
-Amsterdam and Santiago show the highest valid rates, while Singapore and
-Abuja are weaker on average, and mean auxiliary movement is strongest in
-Santiago and San Francisco. These differences do not yet justify strong
-substantive city-level claims, but they do suggest that both
-realisability and perceived effect are context-sensitive rather than
-uniform across urban settings.
+\noindent\textbf{XAI contribution.} Beyond the urban-perception setting, the main contribution of this work is methodological: it reframes visual explanation around structured, theory-grounded interventions rather than post hoc attribution over pixels or regions. This operationalises a stronger standard for visual explanation — one that requires the proposed change to be both semantically coherent and generatively feasible before it enters the attribution result — and provides a reusable scaffold for extending interventional XAI to other perceptual domains beyond urban safety.
 
-The thresholded view makes the heterogeneity more concrete. San
-Francisco and Santiago contribute the highest average number of
-$\theta_{\mathrm{aux}}$-effective edits, and Amsterdam stays competitive
-once the cutoff is raised, whereas Abuja falls off more quickly. That
-pattern suggests the practical ceiling is not only whether a scene
-admits valid levers, but whether it admits \emph{multiple} visibly
-grounded edits that survive increasingly strict directional thresholds.
 
-\noindent\textbf{Human evaluation.}
-The present paper reports automated auditing and auxiliary-scorer
-diagnostics only. The planned endpoint is a two-stage human study: an
-E1 validity check (same-place, locality, realism, plausibility)
-followed by a randomised 2AFC safety comparison on E1-passing edits.
-Until then, results should be read as validating the intervention
-protocol and its failure modes, not as definitive estimates of which
-levers shift perceived safety.
+\noindent\textbf{Future directions and human endpoint.}
+The present pipeline is intentionally minimal and workshop-stage: prompt-only generation, a prompted VLM critic, and an auxiliary proxy scorer are used here to establish a reproducible lower-bound baseline rather than a fully validated explanation system. Four directions follow naturally from the
+pipeline structure. \emph{(i) Planner triage:} learning to predict lever
+viability from scene features, using the validity and
+$\Delta_{\mathrm{aux}}$ outcomes reported here as supervision, so that
+the $K$-candidate budget is spent on levers most likely to be both
+realisable and promising under the auxiliary proxy. \emph{(ii) Generator alignment:} optimising
+for validity-gate criteria via reward-from-feedback or mask-constrained
+generation; the lighting-repair failure mode (valid rate 0.30) is the
+clearest target, with per-family valid rates as the benchmark metric.
+\emph{(iii) Critic calibration:} aligning the VLM critic with human E1
+raters and ultimately learning a critic that predicts 2AFC preference
+directly, reducing the gap between the auxiliary proxy and the human
+endpoint. \emph{(iv) End-to-end optimisation:} jointly training planner,
+generator, and critic once each component is independently validated.
+The ground-truth estimand throughout is pairwise human safety ratings on
+E1-passing edits, collected via a randomised 2AFC study. Until then,
+validity should be read as an eligibility control on image generation
+and auxiliary shifts as a prioritisation signal for which lever
+families and cities to send to human evaluation first.

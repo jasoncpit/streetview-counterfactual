@@ -18,163 +18,169 @@ full range of starting conditions---from low-safety scenes where
 intervention is most needed to high-safety scenes that may offer fewer
 actionable levers.
 Each scene allows up to $K{=}5$ lever candidates with a stochastic
-budget of $T{=}5$ generation attempts per candidate.
-
-\noindent\textbf{Validity summary.}
-Of 250 proposed candidates, 177 passed the validity audit, giving an
-overall valid-edit rate of $0.708$ (95\% Wilson CI $[0.649, 0.761]$).
-All 50 scenes admit at least one valid lever and 48 admit multiple;
-mean per-scene coverage is $|V(x)|/|L(x)| = 0.708$. Detailed failure
-analysis is in Appendix~\ref{sec:validity_appendix}.
+budget of $T{=}5$ generation attempts per candidate. In this paper, we
+instantiate the framework with Qwen-Image-Edit as the prompt-only
+image editing model and GPT-5.4 as the LLM-as-judge critic to
+establish a reproducible lower-bound baseline.
+Validity auditing serves as an eligibility gate throughout this section:
+all effect summaries are computed only on edits retained in $V(x)$.
 
 \noindent\textbf{Auxiliary directional shifts.}
 Among the 177 valid edits, the auxiliary scorer produces a mean shift of
-$+0.366$ (95\% CI $[+0.198, +0.534]$, median $+0.184$, range
+$+0.366$ (95\% CI $[+0.199, +0.537]$, median $+0.184$, range
 $[-3.624, +3.842]$). Using threshold $\theta_{\mathrm{aux}}{=}0.1$,
 95 of 177 valid edits fall in $E_{\mathrm{aux}}(x,a)$, corresponding to
-a mean of 1.90 auxiliary-effective levers per scene
-(95\% CI $[1.476, 2.324]$). The strongest positive examples come from
+a mean of 1.90 auxiliary-promising levers per scene
+(95\% CI $[1.476, 2.324]$); 40 of the 50 scenes retain at least one
+$\theta_{\mathrm{aux}}{=}0.1$ auxiliary-promising lever and 24 retain multiple.
+In this pilot, the largest retained auxiliary shifts are observed for
 lane-marking repainting, crosswalk repainting, and localized greenery
-addition. At the same time, some valid edits remain neutral or
-negative, reinforcing the distinction between valid realization and
-attribute improvement.
+addition.
+At the same time, some valid edits remain neutral or negative, reinforcing that
+valid realization is necessary for analysis but not sufficient for
+positive auxiliary movement.
 
 \begin{table}[t]
   \centering
   \caption{Lever-type results grouped by intervention family.
-  Valid-rate intervals are 95\% Wilson confidence intervals.
-  Mean~$\Delta_{\mathrm{aux}}$ is computed over valid edits only.
+  Mean~$\Delta_{\mathrm{aux}}$ and $\Delta_{\mathrm{aux}}$ [95\% CI]
+  are computed over valid edits only; confidence intervals are
+  bootstrap percentile intervals over the retained set.
   ``--'' denotes concepts not proposed in this scene pool.}
   \label{tab:levers}
   \scriptsize
   \resizebox{\columnwidth}{!}{%
-  \begin{tabular}{p{0.37\linewidth}cccc}
+  \begin{tabular}{p{0.43\linewidth}ccc}
     \toprule
-    Family / Lever concept & Prop.\ & Valid & Rate [95\% CI] & Mean $\Delta_{\mathrm{aux}}$ \\
+    Family / Lever concept & Valid & Mean $\Delta_{\mathrm{aux}}$ & $\Delta_{\mathrm{aux}}$ [95\% CI] \\
     \midrule
-    \textit{Physical Maintenance} & & & & \\
-    \quad Graffiti removal        &  5 &  4 & 0.80 [0.38, 0.96] & $+$0.396 \\
-    \quad Litter removal          & 33 & 25 & 0.76 [0.59, 0.87] & $+$0.296 \\
-    \quad Facade repair           &  4 &  4 & 1.00 [0.51, 1.00] & $+$0.519 \\
-    \quad Surface cleaning        & 50 & 38 & 0.76 [0.63, 0.86] & $+$0.352 \\
-    \quad Shutter repair          & -- & -- & -- & -- \\
-    \quad\textbf{Family total}    & 92 & 71 & 0.77 [0.68, 0.85] & $+$0.344 \\
+    \textit{Physical Maintenance} & & & \\
+    \quad Graffiti removal        & 4  & $+$0.396 & [$+$0.121, $+$0.670] \\
+    \quad Litter removal          & 25 & $+$0.296 & [$-$0.128, $+$0.743] \\
+    \quad Facade repair           & 4  & $+$0.519 & [$+$0.105, $+$0.949] \\
+    \quad Surface cleaning        & 38 & $+$0.352 & [$+$0.026, $+$0.684] \\
+    \quad\textbf{Family total}    & 71 & $+$0.344 & [$+$0.107, $+$0.584] \\
     \midrule
-    \textit{Environmental Amenity} & & & & \\
-    \quad Localized greenery add.\  & 33 & 32 & 0.97 [0.85, 1.00] & $+$0.650 \\
-    \quad Lighting repair           & 27 &  8 & 0.30 [0.16, 0.49] & $-$0.232 \\
-    \quad Tree canopy management    & 22 & 14 & 0.64 [0.43, 0.80] & $-$0.245 \\
-    \quad\textbf{Family total}      & 82 & 54 & 0.66 [0.55, 0.75] & $+$0.287 \\
+    \textit{Environmental Amenity} & & & \\
+    \quad Localized greenery add.\  & 32 & $+$0.650 & [$+$0.241, $+$1.070] \\
+    \quad Lighting repair           & 8  & $-$0.232 & [$-$0.598, $+$0.173] \\
+    \quad Tree canopy management    & 14 & $-$0.245 & [$-$0.952, $+$0.446] \\
+    \quad\textbf{Family total}      & 54 & $+$0.287 & [$-$0.041, $+$0.610] \\
     \midrule
-    \textit{Visual Legibility} & & & & \\
-    \quad Signage decluttering         &  7 &  5 & 0.71 [0.36, 0.92] & $-$0.631 \\
-    \quad Storefront transparency      &  3 &  2 & 0.67 [0.21, 0.94] & $+$0.958 \\
-    \quad\textbf{Family total}         & 10 &  7 & 0.70 [0.40, 0.89] & $-$0.177 \\
+    \textit{Visual Legibility} & & & \\
+    \quad Signage decluttering         & 5 & $-$0.631 & [$-$1.294, $-$0.151] \\
+    \quad Storefront transparency      & 2 & $+$0.958 & [$+$0.184, $+$1.732] \\
+    \quad\textbf{Family total}         & 7 & $-$0.177 & [$-$0.927, $+$0.599] \\
     \midrule
-    \textit{Mobility Infrastructure} & & & & \\
-    \quad Crosswalk repainting       & 23 & 15 & 0.65 [0.45, 0.81] & $+$0.767 \\
-    \quad Lane marking repainting    & 43 & 30 & 0.70 [0.55, 0.81] & $+$0.485 \\
-    \quad\textbf{Family total}       & 66 & 45 & 0.68 [0.56, 0.78] & $+$0.579 \\
+    \textit{Mobility Infrastructure} & & & \\
+    \quad Crosswalk repainting       & 15 & $+$0.767 & [$+$0.255, $+$1.261] \\
+    \quad Lane marking repainting    & 30 & $+$0.485 & [$+$0.045, $+$0.934] \\
+    \quad\textbf{Family total}       & 45 & $+$0.579 & [$+$0.244, $+$0.923] \\
     \midrule
-    \textbf{Overall}                 & 250 & 177 & 0.71 [0.65, 0.76] & $+$0.366 \\
+    \textbf{Overall}                 & 177 & $+$0.366 & [$+$0.199, $+$0.537] \\
     \bottomrule
   \end{tabular}
   }
 \end{table}
 
-Table~\ref{tab:levers} reveals clear family-level patterns. Mobility
-Infrastructure yields the strongest mean auxiliary shift
-($+0.579$) despite a slightly lower valid rate than Physical
-Maintenance, suggesting that road-marking edits are especially salient
-to the auxiliary safety scorer once they are realised successfully.
-Physical Maintenance is the most reliable family overall
-($71/92$, rate $0.772$, 95\% CI $[0.676, 0.846]$), driven by consistent
-success on surface cleaning, litter removal, and facade repair.
-Environmental Amenity is the most heterogeneous family: localized
-greenery addition is almost always valid and strongly positive, whereas
-lighting repair has the weakest valid rate and tree canopy management
-produces negative mean auxiliary movement. Visual Legibility remains a
-small-sample family and is mixed in sign, indicating that prompt-only
-editing can realise these levers but not yet with stable directional
-effect.
+Table~\ref{tab:levers} shows that the main family-level signal lies in
+the $\Delta_{\mathrm{aux}}$ column. Mobility Infrastructure yields the
+largest mean auxiliary shift in this pilot ($+0.579$, 95\% CI $[+0.244, +0.923]$),
+with crosswalk repainting ($+0.767$, 95\% CI $[+0.255, +1.261]$) and
+lane-marking repainting ($+0.485$, 95\% CI $[+0.045, +0.934]$) leading
+the study. Physical Maintenance is the broadest consistently positive
+family ($+0.344$, 95\% CI $[+0.107, +0.584]$), driven by surface
+cleaning, litter removal, facade repair, and graffiti removal.
+Environmental Amenity is more heterogeneous: localized greenery
+addition is strongly positive ($+0.650$, 95\% CI $[+0.241, +1.070]$),
+whereas lighting repair and tree canopy management remain weak or
+negative on average. Visual Legibility remains small-sample and mixed
+in sign, so its directional pattern is not yet stable; the negative mean
+for signage decluttering ($-0.631$, 95\% CI $[-1.294, -0.151]$) may
+reflect the auxiliary model associating commercial signage density with
+activity and perceived safety in Place Pulse training data. The Valid
+column is included to show the retained sample supporting each estimate;
+proposal and valid-rate diagnostics are reported in
+Appendix Tables~\ref{tab:family_appendix} and~\ref{tab:city_appendix},
+so the main table here remains focused on directional proxy movement.
+
+\noindent\textbf{Thresholded auxiliary-promising lever counts.}
+Figure~\ref{fig:delta_cutoff_counts} is the main per-scene summary
+because it counts levers that are both valid and directionally
+promising under the auxiliary proxy at increasingly strict auxiliary thresholds. At the study
+threshold $\theta_{\mathrm{aux}}{=}0.1$, Mobility Infrastructure
+averages 0.56 auxiliary-promising levers per scene with mean retained shift
+$+1.270$ (95\% CI $[+0.958, +1.583]$), Environmental Amenity averages
+0.54 with mean $+1.168$ (95\% CI $[+0.821, +1.516]$), and
+Physical Maintenance averages 0.76 with mean $+1.044$ (95\% CI
+$[+0.793, +1.296]$). Visual Legibility averages only 0.04 levers per
+scene, so its interval is necessarily wide. By city, San Francisco and
+Santiago dominate the positive tail at $\theta_{\mathrm{aux}}{=}0.1$
+with averages of 2.5 and 2.6 auxiliary-promising levers per scene respectively,
+while Abuja averages 1.1. As the cutoff rises to $1.0$, the family
+ranking compresses but Environmental Amenity and Mobility
+Infrastructure still retain the largest positive tails in this pilot, and
+Amsterdam, San Francisco, and Santiago remain the cities with the
+highest high-delta leverage per scene.
 
 \begin{table}[t]
   \centering
   \caption{City-level summary over the full $N{=}50$ run.
-  Each city contributes 10 scenes and therefore 50 proposed candidates.
-  Valid-rate intervals are 95\% Wilson confidence intervals; mean
-  $\Delta_{\mathrm{aux}}$ is computed over valid edits only.}
+  Mean $\Delta_{\mathrm{aux}}$ and $\Delta_{\mathrm{aux}}$ [95\% CI]
+  are computed over valid edits only. Coverage diagnostics are reported
+  in Appendix Table~\ref{tab:city_appendix}.}
   \label{tab:cities}
   \scriptsize
+  \resizebox{\columnwidth}{!}{%
   \begin{tabular}{lccc}
     \toprule
-    City & Valid / Prop. & Rate [95\% CI] & Mean $\Delta_{\mathrm{aux}}$ \\
+    City & Valid & Mean $\Delta_{\mathrm{aux}}$ & $\Delta_{\mathrm{aux}}$ [95\% CI] \\
     \midrule
-    Amsterdam     & 40 / 50  & 0.80 [0.67, 0.89] & $+$0.400 \\
-    Abuja         & 32 / 50  & 0.64 [0.50, 0.76] & $-$0.136 \\
-    San Francisco & 36 / 50  & 0.72 [0.58, 0.83] & $+$0.704 \\
-    Santiago      & 38 / 50  & 0.76 [0.63, 0.86] & $+$0.742 \\
-    Singapore     & 31 / 50  & 0.62 [0.48, 0.74] & $-$0.012 \\
+    Amsterdam     & 40 & $+$0.400 & [$+$0.073, $+$0.764] \\
+    Abuja         & 32 & $-$0.136 & [$-$0.441, $+$0.141] \\
+    San Francisco & 36 & $+$0.704 & [$+$0.285, $+$1.105] \\
+    Santiago      & 38 & $+$0.742 & [$+$0.398, $+$1.089] \\
+    Singapore     & 31 & $-$0.012 & [$-$0.383, $+$0.352] \\
     \midrule
-    \textbf{Overall} & 177 / 250 & 0.71 [0.65, 0.76] & $+$0.366 \\
+    \textbf{Overall} & 177 & $+$0.366 & [$+$0.199, $+$0.537] \\
     \bottomrule
   \end{tabular}
+  }
 \end{table}
 
-Table~\ref{tab:cities} shows that valid-edit rates remain fairly high
-across all five cities, with Amsterdam and Santiago strongest on
-realisation rate and Singapore lowest. Directional auxiliary movement is
-more context-dependent: Santiago and San Francisco have the largest
-positive mean shifts, whereas Abuja and Singapore are near zero or
-slightly negative on average. The important point is that the final
-rerun removes the earlier planner/API imbalance, so these city
-comparisons are no longer confounded by missing candidate generation.
-
-\noindent\textbf{Thresholded auxiliary-effect distribution.}
-Figure~\ref{fig:delta_cutoff_counts} complements the mean-shift summary
-by showing the average number of valid levers per scene above
-increasingly strict
-auxiliary thresholds, broken out by family and city. At the study
-threshold $\theta_{\mathrm{aux}}{=}0.1$, Mobility Infrastructure
-averages 0.56 levers per scene with mean retained shift $+1.270$
-(95\% CI $[+0.958, +1.583]$), Physical Maintenance averages 0.76 with
-mean $+1.044$ (95\% CI $[+0.793, +1.296]$), and Environmental Amenity
-averages 0.54 with mean $+1.168$ (95\% CI $[+0.821, +1.516]$). Visual
-Legibility averages only 0.04 levers per scene, so its interval is
-necessarily wide. By city, San Francisco and Santiago dominate the
-positive tail at $\theta_{\mathrm{aux}}{=}0.1$ with averages of 2.5 and
-2.6 levers per scene respectively, while Abuja averages 1.1. As the
-cutoff rises to $1.0$, the family ranking compresses but Environmental
-Amenity and Mobility Infrastructure still retain strong positive tails,
-and Amsterdam, San Francisco, and Santiago remain the cities with the
-highest high-delta leverage per scene.
-
-\noindent\textbf{Qualitative examples.}
-Figure~\ref{fig:qualitative} shows the top three positive auxiliary-shift
-examples from distinct scenes: lane-marking repainting in Amsterdam,
-localized greenery addition in San Francisco, and localized greenery
-addition in Santiago. All three are spatially constrained, visually
-legible, and plausible as single-lever urban changes.
-
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/figure_3_qualitative.png}
+  \includegraphics[width=0.9\textwidth]{figures/figure_5_delta_cutoff_counts.png}
   \caption{
-    Top three qualitative examples ranked by auxiliary score delta.
-    From top: lane-marking repainting (Amsterdam), localized greenery
-    addition (San Francisco), localized greenery addition (Santiago).
+    Average number of retained levers per scene satisfying
+    $\Delta_{\mathrm{aux}} \geq \tau$, split by lever family (left) and
+    city (right). The annotation reports the overall mean
+    $\Delta_{\mathrm{aux}}$ with 95\% CI and the mean number of
+    $\theta_{\mathrm{aux}}{=}0.1$ auxiliary-promising levers per scene with
+    95\% CI.
   }
-  \label{fig:qualitative}
-\end{figure}
+  \label{fig:delta_cutoff_counts}
+\end{figure*}
 
-\noindent\textbf{Baseline score and lever realisability.}
+Table~\ref{tab:cities} is best read as supporting context rather than a
+primary preliminary signal. Directional auxiliary movement is more
+context-dependent than validity gating: Santiago and San Francisco have
+the largest positive mean shifts, whereas Abuja and Singapore are near
+zero or slightly negative on average. The valid-rate differences remain
+informative as a feasibility diagnostic, with the appendix table
+showing Amsterdam and Santiago highest on retained valid counts and
+Singapore lowest.
+
+\noindent\textbf{Baseline score and gate-qualified editability.}
 Figure~\ref{fig:baseline_vs_valid} plots each scene's baseline safety
 score $f_a(x)$ against its valid lever count $|V(x)|$. At $N{=}50$, no
 meaningful monotonic relationship is observed (Spearman
-$\rho{=}0.095$, $p{=}0.511$). In other words, once generation reliability
+$\rho{=}0.10$, $p{=}0.511$). In other words, once generation reliability
 is no longer the binding constraint, scenes with lower baseline safety
 do not obviously admit more valid levers than higher-baseline scenes.
-We revisit this null result in \S\ref{sec:discussion}.
+We treat this as a secondary diagnostic about editability rather than a
+main perception result and revisit the null pattern in
+\S\ref{sec:discussion}.
 
 \begin{figure}[t]
   \centering
@@ -182,21 +188,30 @@ We revisit this null result in \S\ref{sec:discussion}.
   \caption{
     Baseline safety score vs.\ valid lever count per scene ($N{=}50$).
     No meaningful relationship is observed
-    (Spearman $\rho{=}0.095$, $p{=}0.511$).
+    (Spearman $\rho{=}0.10$, $p{=}0.511$).
   }
   \label{fig:baseline_vs_valid}
 \end{figure}
 
-\begin{figure}[t]
+\noindent\textbf{Validity gate.}
+Of 250 proposed candidates, 177 pass the validity audit (rate 0.708);
+all 50 scenes retain at least one valid lever. Detailed coverage and
+failure analysis are in Appendix~\ref{sec:validity_appendix}.
+
+\noindent\textbf{Qualitative examples.}
+Figure~\ref{fig:qualitative} shows three positive auxiliary-shift
+examples from distinct scenes: lane-marking repainting in Amsterdam,
+facade repair in Singapore, and surface cleaning in
+Santiago. All three are spatially constrained, visually
+legible, and plausible as single-lever urban changes.
+
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/figure_5_delta_cutoff_counts.png}
+  \includegraphics[width=0.9\textwidth]{figures/figure_3_qualitative.png}
   \caption{
-    Average number of valid levers per scene above auxiliary-score
-    cutoff $\Delta_{\mathrm{aux}} \geq \tau$, split by lever family
-    (left) and city (right). The annotation reports the overall mean
-    $\Delta_{\mathrm{aux}}$ with 95\% CI and the mean number of
-    $\theta_{\mathrm{aux}}{=}0.1$-effective levers per scene with
-    95\% CI.
+    Three qualitative examples from the retained set.
+    From top: lane-marking repainting (Amsterdam), facade repair
+    (Singapore), surface cleaning (Santiago).
   }
-  \label{fig:delta_cutoff_counts}
-\end{figure}
+  \label{fig:qualitative}
+\end{figure*}

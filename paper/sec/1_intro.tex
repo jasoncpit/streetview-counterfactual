@@ -12,11 +12,11 @@ associated with a score without validating that manipulating them changes
 human judgement~\cite{adebayo2018,kim2018}. Empirical urban-design
 research links greenery, maintenance, and visibility cues to perceived
 safety~\cite{li2015greenery,jiang2018brokenwindows,portnov2020lighting},
-but does not isolate individual cue contributions through valid
-counterfactuals.
+but does not by itself establish which localised visual changes validly
+shift perception for a specific scene.
 
 Following Jacobs and defensible-space
-theory~\cite{jacobs1961,newman1972}, perceived safety is often discussed
+theory~\cite{jacobs1961,newman1972}, urban perception is often discussed
 as depending on multiple visible cues within the same scene. We test a
 restricted version of this idea: whether a given scene admits multiple
 distinct \emph{single-lever} interventions that each, evaluated
@@ -26,20 +26,23 @@ perception.
 We propose an \emph{interventional attribution} protocol that makes this
 question empirically testable. Rather than treating arbitrary image
 regions as the explanatory unit, we define structured lever
-interventions grounded in an editor-feasible intervention vocabulary,
+interventions drawn from an editor-feasible intervention vocabulary,
 each specifying a semantic concept, spatial support, intervention
-direction, and constrained edit template. Candidates are realised via
-prompt-conditioned diffusion editing and filtered by a vision--language
-critic, retaining only edits that are localised, plausible, and
-same-place preserving. Because generative editors may introduce
-correlated non-target modifications, we treat every edit as a hypothesis
-to be audited rather than as faithful evidence by default.
+direction, and constrained edit template. Candidate edits are realised
+via prompt-conditioned diffusion editing and retained only if a
+vision--language critic judges them to preserve the same place, remain
+localised, and appear realistic and plausible. Because generative
+editors may introduce correlated non-target modifications, we treat each
+edit as a hypothesis to be audited rather than as faithful evidence by
+default.
 
-Our empirical questions are: \emph{(i)}~which localised urban cues can
-be validly realised under diffusion editing and produce directional
-improvement on an auxiliary perception proxy, and \emph{(ii)}~across
-scenes, how many independently valid single-lever interventions
-typically exist?
+This paper does not claim validated causal effects of specific edits on human perception. Instead, it introduces an auditable interventional attribution framework and a pilot benchmark for studying that question. The current empirical study uses a validity-gated generation pipeline and an auxiliary perception proxy to prioritize promising interventions for future human evaluation.
+
+Our empirical questions are: \emph{(i)} which lever families produce
+directional improvement on an auxiliary perception proxy once edits pass
+validity auditing, and \emph{(ii)} across scenes, how many distinct
+single-lever interventions remain auxiliary-promising after validity
+screening and thresholding?
 
 Our contributions:
 \begin{enumerate}
@@ -49,14 +52,10 @@ Our contributions:
     arbitrary image region.
 
     \item A \textbf{scene-specific candidate construction and evaluation
-    pipeline} that instantiates levers from the intervention vocabulary, realises
-    them through constrained prompt-only edits, and audits them for
-    same-place preservation, locality, realism, and plausibility.
+    pipeline} that instantiates levers from the intervention
+    vocabulary, realises them through constrained prompt-only edits, and
+    audits them for same-place preservation, locality, realism, and
+    plausibility.
 
-    \item A \textbf{reproducible multi-city study} on urban safety
-    perception across 50 scenes from five cities, characterising which
-    lever families are currently realisable, how valid-rate uncertainty
-    varies across intervention families and cities, and which edits
-    produce the strongest auxiliary directional shifts, while
-    positioning human pairwise evaluation as the future endpoint.
+    \item A \textbf{reproducible pilot benchmark} across 50 scenes from five cities, characterising lower-bound pipeline behaviour under prompt-only editing, reporting preliminary auxiliary patterns across lever families, and surfacing practical bottlenecks for future human-grounded evaluation.
 \end{enumerate}

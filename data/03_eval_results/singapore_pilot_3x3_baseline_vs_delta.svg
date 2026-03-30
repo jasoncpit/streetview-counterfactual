@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="560">
+  <rect width="100%" height="100%" fill="#fbfaf7" />
+  <text x="70" y="28" font-size="22" font-family="Helvetica, Arial, sans-serif" fill="#1f2937">Safety baseline vs auxiliary delta</text>
+  <line x1="70" y1="490" x2="830" y2="490" stroke="#111827" />
+  <line x1="70" y1="50" x2="70" y2="490" stroke="#111827" />
+  <line x1="70" y1="369.1" x2="830" y2="369.1" stroke="#b91c1c" stroke-dasharray="6 4" />
+  <text x="78" y="361.1" font-size="13" fill="#b91c1c" font-family="Helvetica, Arial, sans-serif">theta = 0.100</text>
+  <text x="430.0" y="540" text-anchor="middle" font-size="15" font-family="Helvetica, Arial, sans-serif" fill="#111827">Baseline score</text>
+  <text x="20" y="280.0" transform="rotate(-90 20 280.0)" text-anchor="middle" font-size="15" font-family="Helvetica, Arial, sans-serif" fill="#111827">Classifier delta</text>
+  <circle cx="450.0" cy="439.2" r="5" fill="#4a5568"><title>89fd5dc2-0748-459b-9531-3b467b2dc04d: road edge line (-0.041)</title></circle><circle cx="450.0" cy="100.8" r="5" fill="#c0392b"><title>89fd5dc2-0748-459b-9531-3b467b2dc04d: overhanging branches (+0.638)</title></circle>
+  <text x="70" y="515" font-size="12" fill="#4b5563" font-family="Helvetica, Arial, sans-serif">Grey = scored candidate, red = delta &gt; theta</text>
+</svg>

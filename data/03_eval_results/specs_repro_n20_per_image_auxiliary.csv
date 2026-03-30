@@ -1,0 +1,21 @@
+image_id,baseline_score,n_candidates,n_valid,n_scored,coverage,mean_delta_classifier,max_delta_classifier,n_auxiliary_effective_levers,auxiliary_threshold,auxiliary_effective_lever_labels,auxiliary_effective_lever_concepts,auxiliary_effective_scene_supports,auxiliary_effective_intervention_directions,auxiliary_effective_edit_templates,auxiliary_effective_target_objects
+9bc0ba77-59af-4a3a-aa27-173a5359d40f,2.81,3,1,1,0.333,-0.4897,-0.4897,0,0.1,,,,,,
+c1e12031-ae65-4ad4-93e9-88a3c00cc96f,3.92,3,1,1,0.333,0.8072,0.8072,1,0.1,crosswalk repainting | repaint | crosswalk markings | worn zebra crosswalk stripes in foreground,crosswalk repainting,worn zebra crosswalk stripes in foreground,repaint,Repaint the zebra crosswalk stripes to bright white,crosswalk markings
+eee6dd59-4096-4c8c-ae6a-6dc872b7c187,0.95,3,2,2,0.667,0.2281,0.2608,2,0.1,litter removal | remove | street litter | loose debris along curb and roadway edge|surface cleaning | clean | perimeter wall surface | stained concrete wall facing the sidewalk corner,litter removal|surface cleaning,loose debris along curb and roadway edge|stained concrete wall facing the sidewalk corner,remove|clean,Remove scattered litter from curb and road edge|Clean dark grime and streaks from the wall,street litter|perimeter wall surface
+f39f6f46-bb60-416b-86d8-b7d64d628bde,4.59,3,3,3,1.0,-0.2906,0.8033,1,0.1,crosswalk repainting | repaint | crosswalk markings | unmarked pedestrian crossing area near center roadway,crosswalk repainting,unmarked pedestrian crossing area near center roadway,repaint,Paint a clear zebra crosswalk across the crossing point,crosswalk markings
+03953c0b-6b22-4a31-932a-f5001150321a,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+3b1d59f8-e9b9-418c-98db-8968aefe2baa,1.51,3,1,1,0.333,-0.1061,-0.1061,0,0.1,,,,,,
+8ca6a763-e46e-485c-8451-9c2547ac22ca,3.16,3,3,3,1.0,2.1317,3.5246,3,0.1,litter removal | remove | sidewalk litter | small trash pieces along curbside sidewalk|surface cleaning | clean | ground-floor windows | dirty lower facade and windows by sidewalk|localized greenery addition | add greenery | planter pots | bare sidewalk edge beside bollards and curb,litter removal|surface cleaning|localized greenery addition,small trash pieces along curbside sidewalk|dirty lower facade and windows by sidewalk|bare sidewalk edge beside bollards and curb,remove|clean|add greenery,Remove litter from the sidewalk edge|Clean the ground-floor windows and lower wall|Add a few small planters along the sidewalk edge,sidewalk litter|ground-floor windows|planter pots
+98eedc11-d5f8-4758-bf9e-4f9a7a45e2cd,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+1b84a8ca-2db8-4731-a434-89862ed1ba88,3.1,3,1,1,0.333,2.7578,2.7578,1,0.1,lane marking repainting | repaint | centerline markings | unmarked asphalt roadway down the hill,lane marking repainting,unmarked asphalt roadway down the hill,repaint,Paint a clear double yellow centerline along the roadway,centerline markings
+3f61d908-592b-45bb-8fdf-eb82d0a80d2e,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+881e7127-037a-47e2-84ec-770e37597387,,3,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+9528d94c-dfc0-4365-984d-cd437eca256a,1.68,3,1,1,0.333,0.4508,0.4508,1,0.1,lane marking repainting | repaint | centerline markings | faded yellow centerline on sloped roadway,lane marking repainting,faded yellow centerline on sloped roadway,repaint,Repaint the faded yellow centerline to be crisp,centerline markings
+5b0150be-8a08-4e0a-9b18-b29b4bd1e87d,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+83bb9a7c-7107-475c-abf7-b4c98dba2674,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+8f607dd9-bf04-4a35-8327-f3401d43be39,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+df2b7000-a235-41f9-979a-8bf5aad6267d,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+2ac5aa58-1b31-42d5-8e98-cdbb59fb7a62,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+396b865a-fdf1-48f9-848b-18535199842b,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+94cc0549-b343-4001-badb-bd68c4e76a35,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
+e708d69a-96b9-4bd6-a5b8-e307b4a515bf,,1,0,0,0.0,0.0,0.0,0,0.1,,,,,,
