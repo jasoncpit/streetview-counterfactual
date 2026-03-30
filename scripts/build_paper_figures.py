@@ -13,12 +13,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build paper figures from reproducible pilot outputs.")
     parser.add_argument(
         "--scored-csv",
-        default="data/03_eval_results/specs_repro_n20_scored.csv",
+        default="data/03_eval_results/specs_paper_n50_scored.csv",
         help="Scored candidate CSV from scripts.run_analysis.",
     )
     parser.add_argument(
         "--summary-csv",
-        default="data/03_eval_results/specs_repro_n20_per_image_auxiliary.csv",
+        default="data/03_eval_results/specs_paper_n50_per_image_auxiliary.csv",
         help="Per-image auxiliary summary CSV from scripts.run_analysis.",
     )
     parser.add_argument(
@@ -52,12 +52,15 @@ def build_valid_distribution(summary_rows: list[dict[str, str]], out_path: Path)
     counts = Counter(int(float(row["n_valid"])) for row in summary_rows)
     xs = sorted(counts)
     ys = [counts[x] for x in xs]
+    n_images = len(summary_rows)
+    cmap = plt.get_cmap("cividis")
+    colors = [cmap(value) for value in [idx / max(1, len(xs) - 1) for idx in range(len(xs))]]
 
     fig, ax = plt.subplots(figsize=(7.2, 4.2), dpi=200)
-    ax.bar(xs, ys, color=["#d9d2c5", "#7aa37a", "#4f7c78", "#284b63"][: len(xs)], width=0.7)
+    ax.bar(xs, ys, color=colors, width=0.7)
     ax.set_xlabel("Valid realized levers per image")
     ax.set_ylabel("Number of scenes")
-    ax.set_title("Distribution of valid realized lever counts on the N=20 pilot")
+    ax.set_title(f"Distribution of valid realized lever counts on the N={n_images} sample")
     ax.set_xticks(xs)
     ax.grid(axis="y", linestyle="--", linewidth=0.8, alpha=0.4)
 
@@ -66,7 +69,7 @@ def build_valid_distribution(summary_rows: list[dict[str, str]], out_path: Path)
     ax.text(
         0.98,
         0.95,
-        f"mean coverage = {mean_coverage:.3f}\nimages with >=1 valid = {images_with_any_valid}/{len(summary_rows)}",
+        f"mean coverage = {mean_coverage:.3f}\nimages with >=1 valid = {images_with_any_valid}/{n_images}",
         transform=ax.transAxes,
         ha="right",
         va="top",
@@ -104,6 +107,9 @@ def build_qualitative_panel(scored_rows: list[dict[str, str]], out_path: Path) -
         seen_images.add(image_id)
         if len(ranked) == 3:
             break
+
+    if not ranked:
+        raise ValueError("No valid scored rows available to build the qualitative panel.")
 
     panel_w = 540
     panel_h = 300

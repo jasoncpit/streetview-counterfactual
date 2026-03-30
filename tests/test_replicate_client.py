@@ -11,7 +11,7 @@ def models():
         dino_model="dino",
         sam_model="sam",
         inpaint_model="inpaint",
-        flux_kontext_model="black-forest-labs/flux-kontext-max",
+        flux_kontext_model="black-forest-labs/flux-kontext-pro",
         nano_banana_model="banana",
         inpaint_params={},
         flux_kontext_params={
@@ -35,6 +35,7 @@ def client(monkeypatch, models):
         ("google/nano-banana-pro", "image_input"),
         ("bytedance/seedream-4", "image_input"),
         ("openai/gpt-image-1.5", "input_images"),
+        ("black-forest-labs/flux-kontext-pro", "input_image"),
         ("black-forest-labs/flux-kontext-max", "input_image"),
     ],
 )

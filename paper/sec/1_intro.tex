@@ -1,90 +1,62 @@
 \section{Introduction}
 \label{sec:intro}
 
-Street-view perception models can predict subjective attributes such as
-safety, wealth, or liveliness at scale, enabling geographic mapping and
-correlational analysis at a scope previously unavailable to urban
-researchers~\cite{salesses2013,naik2014,dubey2016}. Yet these models
-remain limited as explanatory tools: they do not answer the question
-central to urban planning and design, \emph{for this specific scene,
-which visual elements are responsible for the perception, and what
-targeted modification would plausibly shift it?}
+Street-view perception models predict subjective attributes such as
+safety, wealth, or liveliness at scale~\cite{salesses2013,naik2014,dubey2016},
+yet they remain limited as explanatory tools: they do not answer the
+question central to urban design---\emph{for this specific scene, which
+visual elements drive the perception, and what targeted modification
+would plausibly shift it?} Existing explainability methods (saliency,
+SHAP, concept probes) remain correlational, identifying features
+associated with a score without validating that manipulating them changes
+human judgement~\cite{adebayo2018,kim2018}. Empirical urban-design
+research links greenery, maintenance, and visibility cues to perceived
+safety~\cite{li2015greenery,jiang2018brokenwindows,portnov2020lighting},
+but does not isolate individual cue contributions through valid
+counterfactuals.
 
-Existing explainability approaches such as saliency maps, SHAP, and
-concept probes remain largely correlational: they identify pixels or
-features associated with a score without validating that manipulating
-those features changes human judgement~\cite{adebayo2018,kim2018}. The
-distinction matters. A correlational explanation may point to a visually
-dominant cue that is not causally active; an interventional test instead
-asks whether a proposed localized change actually shifts perception.
+Following Jacobs and defensible-space
+theory~\cite{jacobs1961,newman1972}, perceived safety is often discussed
+as depending on multiple visible cues within the same scene. We test a
+restricted version of this idea: whether a given scene admits multiple
+distinct \emph{single-lever} interventions that each, evaluated
+independently against the same unedited original, plausibly shift
+perception.
 
-This gap is particularly consequential in urban design. Empirical work
-using street-view imagery finds that greenery, street-facing windows,
-and maintenance cues contribute positively to perceived
-safety~\cite{li2015greenery,denadai2016lively}, while intervention
-studies and lighting research emphasize the role of disorder reduction
-and visibility~\cite{jiang2018brokenwindows,portnov2020lighting}. Yet
-these studies do not isolate the contribution of individual cues through
-valid counterfactuals. More fundamentally, following Jacobs and
-defensible-space theory~\cite{jacobs1961,newman1972}, perceived safety
-is often understood as an emergent property of multiple visible cues
-acting simultaneously. This raises a question prior work has not
-directly tested: does a given scene admit one dominant visual pathway to
-improved safety perception, or multiple substitutable levers that could
-each, in isolation, plausibly shift perception?
-
-We propose an \emph{interventional attribution} protocol that makes
-these questions empirically testable. Rather than treating arbitrary
-image regions as the explanatory unit, we define structured lever
-interventions grounded in a curated ontology of manipulable urban cues,
+We propose an \emph{interventional attribution} protocol that makes this
+question empirically testable. Rather than treating arbitrary image
+regions as the explanatory unit, we define structured lever
+interventions grounded in an editor-feasible intervention vocabulary,
 each specifying a semantic concept, spatial support, intervention
-direction, and constrained edit template. Candidate interventions are
-generated via prompt-conditioned diffusion editing and filtered by a
-vision-language critic, retaining only edits that appear localized,
-plausible, and same-place preserving. This yields a controlled
-procedure for testing which urban cues can be validly realized for a
-specific scene and whether scenes admit multiple substitutable candidate
-levers.
+direction, and constrained edit template. Candidates are realised via
+prompt-conditioned diffusion editing and filtered by a vision--language
+critic, retaining only edits that are localised, plausible, and
+same-place preserving. Because generative editors may introduce
+correlated non-target modifications, we treat every edit as a hypothesis
+to be audited rather than as faithful evidence by default.
 
-Our empirical questions are therefore twofold:
+Our empirical questions are: \emph{(i)}~which localised urban cues can
+be validly realised under diffusion editing and produce directional
+improvement on an auxiliary perception proxy, and \emph{(ii)}~across
+scenes, how many independently valid single-lever interventions
+typically exist?
 
-\begin{quote}
-\textit{Which localized urban cues can be validly realized under
-prompt-conditioned diffusion editing, and which of them directionally
-improve an auxiliary safety proxy? Across scenes, how many valid
-substitutable levers typically exist: is safety perception visually
-overdetermined, or concentrated in a smaller set of intervention
-pathways?}
-\end{quote}
-
-Generative editors are an imperfect intervention mechanism: they may
-fail to implement the intended change or introduce correlated,
-non-target modifications that also affect perception. We therefore treat
-generated edits as hypotheses to be audited rather than as faithful
-evidence by default. To make this tractable, we also restrict the
-planner to a curated ontology of manipulable urban cues informed by the
-urban-perception literature. Without such a scaffold, free-form
-intervention proposals become unbounded and difficult to compare across
-scenes. The ontology thus serves not only as a substantive prior, but
-also as an experimental design device that converts open-ended
-generation into a controlled, auditable search problem.
-
-Our contributions are threefold:
+Our contributions:
 \begin{enumerate}
-    \item We introduce a \textbf{lever-based interventional attribution}
-    framework for street-view perception, in which the explanatory atom
-    is a structured lever intervention
-    $l=(c,s,d,\tau)$ rather than an arbitrary image region.
+    \item A \textbf{lever-based interventional attribution} framework
+    for street-view perception, in which the explanatory atom is a
+    structured lever intervention $l=(c,s,d,\tau)$ rather than an
+    arbitrary image region.
 
-    \item We propose a \textbf{scene-specific candidate construction and
-    evaluation pipeline} that instantiates lever interventions from a
-    curated ontology of manipulable urban cues, realizes them through
-    constrained prompt-only edits, and audits them for same-place
-    preservation, locality, realism, and plausibility.
+    \item A \textbf{scene-specific candidate construction and evaluation
+    pipeline} that instantiates levers from the intervention vocabulary, realises
+    them through constrained prompt-only edits, and audits them for
+    same-place preservation, locality, realism, and plausibility.
 
-    \item We provide a \textbf{reproducible pilot empirical study} on
-    urban safety perception on a five-city subset, characterizing which
-    urban cue families are currently realizable and which produce the
-    strongest directional shifts in an auxiliary perception score, while
+    \item A \textbf{reproducible multi-city study} on urban safety
+    perception across 50 scenes from five cities, characterising which
+    lever families are currently realisable, how valid-rate uncertainty
+    varies across intervention families and cities, and which edits
+    produce the strongest auxiliary directional shifts, while
     positioning human pairwise evaluation as the future endpoint.
 \end{enumerate}

@@ -11,6 +11,49 @@ LEVER_IDENTITY_KEYS = (
     "target_object",
 )
 
+LEVER_FAMILY_TO_CONCEPTS = {
+    "Physical Maintenance": (
+        "graffiti removal",
+        "litter removal",
+        "facade repair",
+        "surface cleaning",
+        "shutter repair",
+        "painting restoration",
+        "window replacement",
+        "sidewalk repair",
+        "door maintenance",
+        "fixture replacement",
+    ),
+    "Environmental Amenity": (
+        "localized greenery addition",
+        "lighting repair",
+        "tree canopy management",
+        "planter installation",
+        "rain garden creation",
+        "flower bed revitalization",
+        "outdoor seating upgrade",
+        "permeable paving addition",
+    ),
+    "Visual Legibility": (
+        "signage decluttering",
+        "storefront transparency increase",
+        "wayfinding enhancement",
+        "graffiti-resistant coating",
+        "lighting for signage",
+        "contrast improvement",
+        "window cleaning",
+    ),
+    "Mobility Infrastructure": (
+        "crosswalk repainting",
+        "lane marking repainting",
+        "curb ramp improvement",
+        "sidewalk widening",
+        "bicycle lane installation",
+        "tactile paving addition",
+        "pothole patching",
+    ),
+}
+
 
 def normalize_text(value: object) -> str:
     return " ".join(str(value or "").strip().split())
@@ -20,12 +63,27 @@ def normalize_ontology_value(value: object) -> str:
     return normalize_text(value).casefold()
 
 
+def normalize_family_value(value: object) -> str:
+    return normalize_text(value).casefold()
+
+
 def ontology_lookup(lever_ontology: tuple[str, ...]) -> dict[str, str]:
     return {
         normalize_ontology_value(item): normalize_text(item)
         for item in lever_ontology
         if normalize_text(item)
     }
+
+
+def lever_family_lookup() -> dict[str, str]:
+    lookup: dict[str, str] = {}
+    for family, concepts in LEVER_FAMILY_TO_CONCEPTS.items():
+        family_name = normalize_text(family)
+        for concept in concepts:
+            normalized_concept = normalize_ontology_value(concept)
+            if normalized_concept:
+                lookup[normalized_concept] = family_name
+    return lookup
 
 
 def get_target_object(row: Mapping[str, Any]) -> str:

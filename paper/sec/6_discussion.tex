@@ -1,56 +1,86 @@
 \section{Discussion and Future Work}
 \label{sec:discussion}
 
-\noindent\textbf{Claim language.}
-We deliberately use the weaker framing of valid and directionally
-promising levers rather than ``independent causal levers.'' The
-independence assumption—that $\delta_i$ and $\delta_j$ are additive—is
-not tested by our design. Any future levers in $E(x, a)$ would be
-tested separately against the unedited original; their joint effect and
-potential interactions are left for future work requiring factorial
-intervention designs.
+\noindent\textbf{Claim scope.}
+We frame results as \emph{valid and directionally promising} levers, not
+independent causal levers. Additivity of $\delta_i$ and $\delta_j$ is
+untested; joint effects require factorial designs left for future work.
+Because prompt-only editing can introduce residual texture changes
+outside the intended support~\cite{bazyleva2025xedit}, locality should
+be read as a pragmatic validity screen rather than pixel-accurate
+isolation, and we position the work as interventional attribution rather
+than structural causal inference.
 
-\noindent\textbf{Generator leakage.}
-Because our implementation relies on prompt-only editing rather than
-mask-constrained generation, generators can introduce residual texture
-and style changes outside the intended support.
-The 2AFC measures the total image difference, not the isolated
-effect of the intended edit. This is why we position the work as
-interventional attribution rather than structural causal inference.
+\noindent\textbf{Vocabulary scope and grounding bias.}
+Results are measured only over the bounded intervention vocabulary
+(\S\ref{sec:method}). Cues outside that scope, or too structurally
+complex for prompt-only editing, are excluded; $|V(x)|{=}0$ may reflect
+this limitation rather than a perception ceiling. Planner grounding may
+further favour large, salient elements, so multi-lever counts are likely
+underestimates.
 
-\noindent\textbf{Ontology scope.}
-We measure future $E(x, a)$ only with respect to the bounded
-ontology-scoped candidate set defined by our scene-grounding procedure.
-Some potential
-street-view cues may be outside that scope or excluded because they are
-not judged safely manipulable under the prompt-only protocol.
-$|E|{=}0$ may reflect this scope limitation rather than a
-perception ceiling, particularly for high-baseline scenes.
+\noindent\textbf{What the larger run changes.}
+At $N{=}50$, the dominant story is no longer pipeline instability.
+After rerunning the previously quota-blocked images, the final dataset
+contains no pre-audit generator or planner failures. The main source of
+variance is instead lever-specific editability and scorer response:
+maintenance and roadway-marking interventions realise reliably, while
+lighting repair and canopy-management edits remain harder to realise or
+less consistently aligned with auxiliary safety improvement.
 
-\noindent\textbf{Grounding bias.}
-Scene support grounded by planners or annotators may favor large,
-salient, or easy-to-describe elements. Small but perceptually active
-cues (a barely visible security camera, a subtle entry light) may be
-absent from $\mathcal{L}(x)$.
-Our multi-lever counts are therefore likely underestimates.
+\noindent\textbf{Mean effects versus retained positive tail.}
+The new cutoff analysis sharpens that point. Family-level mean
+$\Delta_{\mathrm{aux}}$ is useful, but it can hide whether a family
+produces many modestly positive levers per scene or only a narrow set of
+high-impact ones. Mobility Infrastructure remains strong under stricter
+cutoffs, while Environmental Amenity looks bimodal: localized greenery
+addition drives a substantial positive tail, but lighting repair and
+tree canopy management dilute the family mean. This is a more useful
+screen for downstream human evaluation than raw validity alone, because
+it identifies which families continue to supply multiple
+$\theta_{\mathrm{aux}}$-effective candidates once neutral edits are
+removed.
 
-\noindent\textbf{Future human evaluation.}
-The current paper reports only automated validity auditing and auxiliary
-classifier diagnostics. A natural next step is a human study that
-explicitly separates edit validity from perceived-safety effect. In a
-future extension, we would first run an E1 validity check on
-original/edited pairs covering same-place preservation, locality,
-realism, and plausibility, and then run an E2 randomized 2AFC question
-such as ``Which image looks safer?'' only on edits that pass E1.
-Pair-level preference share $p_i$ could then be compared against a
-preregistered threshold $\theta$ to estimate membership in $E(x,a)$.
-The long-term scientific endpoint is therefore human-grounded
-counterfactual effect estimation, not auxiliary classifier movement
-alone.
-Accordingly, the current submission should be read as validating the
-intervention protocol and its failure modes, rather than as providing
-definitive human-grounded estimates of which levers shift perceived
-safety.
-Positioning this protocol as future work keeps the present paper focused
-on the reproducible pilot quantities it actually measures: proposal,
-realization, and auxiliary directional shift.
+\noindent\textbf{Critic calibration.}
+The VLM critic (GPT-5.2) has not been calibrated against human raters.
+Even with 177 accepted edits, a modest false-positive or false-negative
+rate still matters because the paper's claim depends on accepting only
+same-place, local, and plausible single-lever edits. An inter-rater study
+(human annotators judging the same pool on the four audit criteria,
+reporting Cohen's $\kappa$ per criterion) is a priority next step.
+
+\noindent\textbf{Baseline score and realisability.}
+Whether low-baseline scenes admit more valid levers than high-baseline
+scenes remains an open question. The larger $N{=}50$ run still shows no
+meaningful monotonic relationship (Spearman $\rho{=}0.095$,
+$p{=}0.511$), now without the confound of missing candidate generation.
+This suggests that valid lever abundance is not simply a function of the
+starting safety score; scene geometry, visible editable supports, and
+the generator's competence on specific lever families likely matter
+more.
+
+\noindent\textbf{City and family heterogeneity.}
+The cleaned rerun also makes the cross-city picture interpretable.
+Amsterdam and Santiago show the highest valid rates, while Singapore and
+Abuja are weaker on average, and mean auxiliary movement is strongest in
+Santiago and San Francisco. These differences do not yet justify strong
+substantive city-level claims, but they do suggest that both
+realisability and perceived effect are context-sensitive rather than
+uniform across urban settings.
+
+The thresholded view makes the heterogeneity more concrete. San
+Francisco and Santiago contribute the highest average number of
+$\theta_{\mathrm{aux}}$-effective edits, and Amsterdam stays competitive
+once the cutoff is raised, whereas Abuja falls off more quickly. That
+pattern suggests the practical ceiling is not only whether a scene
+admits valid levers, but whether it admits \emph{multiple} visibly
+grounded edits that survive increasingly strict directional thresholds.
+
+\noindent\textbf{Human evaluation.}
+The present paper reports automated auditing and auxiliary-scorer
+diagnostics only. The planned endpoint is a two-stage human study: an
+E1 validity check (same-place, locality, realism, plausibility)
+followed by a randomised 2AFC safety comparison on E1-passing edits.
+Until then, results should be read as validating the intervention
+protocol and its failure modes, not as definitive estimates of which
+levers shift perceived safety.

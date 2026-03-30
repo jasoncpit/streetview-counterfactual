@@ -1,0 +1,504 @@
+{
+  "overall": {
+    "n_images": 50,
+    "candidate_rows": 250,
+    "valid_rows": 177,
+    "error_rows": 0,
+    "images_with_candidate_generation_failure": 0,
+    "images_with_any_valid": 50,
+    "images_with_multiple_valid": 48,
+    "mean_coverage": 0.708,
+    "valid_rate": 0.708,
+    "valid_rate_ci_low": 0.649,
+    "valid_rate_ci_high": 0.761,
+    "mean_delta_aux": 0.366,
+    "mean_delta_aux_ci_low": 0.198,
+    "mean_delta_aux_ci_high": 0.534,
+    "median_delta_aux": 0.184,
+    "min_delta_aux": -3.624,
+    "max_delta_aux": 3.842,
+    "n_aux_effective": 95,
+    "mean_aux_effective_per_image": 1.9,
+    "mean_aux_effective_per_image_ci_low": 1.476,
+    "mean_aux_effective_per_image_ci_high": 2.324
+  },
+  "family_table": [
+    {
+      "family": "Physical Maintenance",
+      "concept": "graffiti removal",
+      "proposed": 5,
+      "valid": 4,
+      "valid_rate": 0.8,
+      "valid_rate_ci_low": 0.376,
+      "valid_rate_ci_high": 0.964,
+      "mean_delta_aux": 0.396
+    },
+    {
+      "family": "Physical Maintenance",
+      "concept": "litter removal",
+      "proposed": 33,
+      "valid": 25,
+      "valid_rate": 0.758,
+      "valid_rate_ci_low": 0.59,
+      "valid_rate_ci_high": 0.872,
+      "mean_delta_aux": 0.296
+    },
+    {
+      "family": "Physical Maintenance",
+      "concept": "facade repair",
+      "proposed": 4,
+      "valid": 4,
+      "valid_rate": 1.0,
+      "valid_rate_ci_low": 0.51,
+      "valid_rate_ci_high": 1.0,
+      "mean_delta_aux": 0.519
+    },
+    {
+      "family": "Physical Maintenance",
+      "concept": "surface cleaning",
+      "proposed": 50,
+      "valid": 38,
+      "valid_rate": 0.76,
+      "valid_rate_ci_low": 0.626,
+      "valid_rate_ci_high": 0.857,
+      "mean_delta_aux": 0.352
+    },
+    {
+      "family": "Physical Maintenance",
+      "concept": "shutter repair",
+      "proposed": 0,
+      "valid": 0,
+      "valid_rate": null,
+      "valid_rate_ci_low": null,
+      "valid_rate_ci_high": null,
+      "mean_delta_aux": null
+    },
+    {
+      "family": "Physical Maintenance",
+      "concept": "__family_total__",
+      "proposed": 92,
+      "valid": 71,
+      "valid_rate": 0.772,
+      "valid_rate_ci_low": 0.676,
+      "valid_rate_ci_high": 0.846,
+      "mean_delta_aux": 0.344
+    },
+    {
+      "family": "Environmental Amenity",
+      "concept": "localized greenery addition",
+      "proposed": 33,
+      "valid": 32,
+      "valid_rate": 0.97,
+      "valid_rate_ci_low": 0.847,
+      "valid_rate_ci_high": 0.995,
+      "mean_delta_aux": 0.65
+    },
+    {
+      "family": "Environmental Amenity",
+      "concept": "lighting repair",
+      "proposed": 27,
+      "valid": 8,
+      "valid_rate": 0.296,
+      "valid_rate_ci_low": 0.159,
+      "valid_rate_ci_high": 0.485,
+      "mean_delta_aux": -0.232
+    },
+    {
+      "family": "Environmental Amenity",
+      "concept": "tree canopy management",
+      "proposed": 22,
+      "valid": 14,
+      "valid_rate": 0.636,
+      "valid_rate_ci_low": 0.43,
+      "valid_rate_ci_high": 0.803,
+      "mean_delta_aux": -0.245
+    },
+    {
+      "family": "Environmental Amenity",
+      "concept": "__family_total__",
+      "proposed": 82,
+      "valid": 54,
+      "valid_rate": 0.659,
+      "valid_rate_ci_low": 0.551,
+      "valid_rate_ci_high": 0.752,
+      "mean_delta_aux": 0.287
+    },
+    {
+      "family": "Visual Legibility",
+      "concept": "signage decluttering",
+      "proposed": 7,
+      "valid": 5,
+      "valid_rate": 0.714,
+      "valid_rate_ci_low": 0.359,
+      "valid_rate_ci_high": 0.918,
+      "mean_delta_aux": -0.631
+    },
+    {
+      "family": "Visual Legibility",
+      "concept": "storefront transparency increase",
+      "proposed": 3,
+      "valid": 2,
+      "valid_rate": 0.667,
+      "valid_rate_ci_low": 0.208,
+      "valid_rate_ci_high": 0.939,
+      "mean_delta_aux": 0.958
+    },
+    {
+      "family": "Visual Legibility",
+      "concept": "__family_total__",
+      "proposed": 10,
+      "valid": 7,
+      "valid_rate": 0.7,
+      "valid_rate_ci_low": 0.397,
+      "valid_rate_ci_high": 0.892,
+      "mean_delta_aux": -0.177
+    },
+    {
+      "family": "Mobility Infrastructure",
+      "concept": "crosswalk repainting",
+      "proposed": 23,
+      "valid": 15,
+      "valid_rate": 0.652,
+      "valid_rate_ci_low": 0.449,
+      "valid_rate_ci_high": 0.812,
+      "mean_delta_aux": 0.767
+    },
+    {
+      "family": "Mobility Infrastructure",
+      "concept": "lane marking repainting",
+      "proposed": 43,
+      "valid": 30,
+      "valid_rate": 0.698,
+      "valid_rate_ci_low": 0.549,
+      "valid_rate_ci_high": 0.814,
+      "mean_delta_aux": 0.485
+    },
+    {
+      "family": "Mobility Infrastructure",
+      "concept": "__family_total__",
+      "proposed": 66,
+      "valid": 45,
+      "valid_rate": 0.682,
+      "valid_rate_ci_low": 0.562,
+      "valid_rate_ci_high": 0.782,
+      "mean_delta_aux": 0.579
+    }
+  ],
+  "city_table": [
+    {
+      "family": "Physical Maintenance",
+      "Amsterdam": "16/19",
+      "Amsterdam_detail": {
+        "proposed": 19,
+        "valid": 16,
+        "valid_rate": 0.842,
+        "valid_rate_ci_low": 0.624,
+        "valid_rate_ci_high": 0.945
+      },
+      "Abuja": "15/20",
+      "Abuja_detail": {
+        "proposed": 20,
+        "valid": 15,
+        "valid_rate": 0.75,
+        "valid_rate_ci_low": 0.531,
+        "valid_rate_ci_high": 0.888
+      },
+      "San Francisco": "13/17",
+      "San Francisco_detail": {
+        "proposed": 17,
+        "valid": 13,
+        "valid_rate": 0.765,
+        "valid_rate_ci_low": 0.527,
+        "valid_rate_ci_high": 0.904
+      },
+      "Santiago": "16/19",
+      "Santiago_detail": {
+        "proposed": 19,
+        "valid": 16,
+        "valid_rate": 0.842,
+        "valid_rate_ci_low": 0.624,
+        "valid_rate_ci_high": 0.945
+      },
+      "Singapore": "11/17",
+      "Singapore_detail": {
+        "proposed": 17,
+        "valid": 11,
+        "valid_rate": 0.647,
+        "valid_rate_ci_low": 0.413,
+        "valid_rate_ci_high": 0.827
+      },
+      "total": "71/92",
+      "total_detail": {
+        "proposed": 92,
+        "valid": 71,
+        "valid_rate": 0.772,
+        "valid_rate_ci_low": 0.676,
+        "valid_rate_ci_high": 0.846
+      }
+    },
+    {
+      "family": "Environmental Amenity",
+      "Amsterdam": "15/19",
+      "Amsterdam_detail": {
+        "proposed": 19,
+        "valid": 15,
+        "valid_rate": 0.789,
+        "valid_rate_ci_low": 0.567,
+        "valid_rate_ci_high": 0.915
+      },
+      "Abuja": "9/16",
+      "Abuja_detail": {
+        "proposed": 16,
+        "valid": 9,
+        "valid_rate": 0.562,
+        "valid_rate_ci_low": 0.332,
+        "valid_rate_ci_high": 0.769
+      },
+      "San Francisco": "13/18",
+      "San Francisco_detail": {
+        "proposed": 18,
+        "valid": 13,
+        "valid_rate": 0.722,
+        "valid_rate_ci_low": 0.491,
+        "valid_rate_ci_high": 0.875
+      },
+      "Santiago": "7/10",
+      "Santiago_detail": {
+        "proposed": 10,
+        "valid": 7,
+        "valid_rate": 0.7,
+        "valid_rate_ci_low": 0.397,
+        "valid_rate_ci_high": 0.892
+      },
+      "Singapore": "10/19",
+      "Singapore_detail": {
+        "proposed": 19,
+        "valid": 10,
+        "valid_rate": 0.526,
+        "valid_rate_ci_low": 0.317,
+        "valid_rate_ci_high": 0.727
+      },
+      "total": "54/82",
+      "total_detail": {
+        "proposed": 82,
+        "valid": 54,
+        "valid_rate": 0.659,
+        "valid_rate_ci_low": 0.551,
+        "valid_rate_ci_high": 0.752
+      }
+    },
+    {
+      "family": "Visual Legibility",
+      "Amsterdam": "3/5",
+      "Amsterdam_detail": {
+        "proposed": 5,
+        "valid": 3,
+        "valid_rate": 0.6,
+        "valid_rate_ci_low": 0.231,
+        "valid_rate_ci_high": 0.882
+      },
+      "Abuja": "2/2",
+      "Abuja_detail": {
+        "proposed": 2,
+        "valid": 2,
+        "valid_rate": 1.0,
+        "valid_rate_ci_low": 0.342,
+        "valid_rate_ci_high": 1.0
+      },
+      "San Francisco": null,
+      "San Francisco_detail": {
+        "proposed": 0,
+        "valid": 0,
+        "valid_rate": null,
+        "valid_rate_ci_low": null,
+        "valid_rate_ci_high": null
+      },
+      "Santiago": "1/2",
+      "Santiago_detail": {
+        "proposed": 2,
+        "valid": 1,
+        "valid_rate": 0.5,
+        "valid_rate_ci_low": 0.095,
+        "valid_rate_ci_high": 0.905
+      },
+      "Singapore": "1/1",
+      "Singapore_detail": {
+        "proposed": 1,
+        "valid": 1,
+        "valid_rate": 1.0,
+        "valid_rate_ci_low": 0.207,
+        "valid_rate_ci_high": 1.0
+      },
+      "total": "7/10",
+      "total_detail": {
+        "proposed": 10,
+        "valid": 7,
+        "valid_rate": 0.7,
+        "valid_rate_ci_low": 0.397,
+        "valid_rate_ci_high": 0.892
+      }
+    },
+    {
+      "family": "Mobility Infrastructure",
+      "Amsterdam": "6/7",
+      "Amsterdam_detail": {
+        "proposed": 7,
+        "valid": 6,
+        "valid_rate": 0.857,
+        "valid_rate_ci_low": 0.487,
+        "valid_rate_ci_high": 0.974
+      },
+      "Abuja": "6/12",
+      "Abuja_detail": {
+        "proposed": 12,
+        "valid": 6,
+        "valid_rate": 0.5,
+        "valid_rate_ci_low": 0.254,
+        "valid_rate_ci_high": 0.746
+      },
+      "San Francisco": "10/15",
+      "San Francisco_detail": {
+        "proposed": 15,
+        "valid": 10,
+        "valid_rate": 0.667,
+        "valid_rate_ci_low": 0.417,
+        "valid_rate_ci_high": 0.848
+      },
+      "Santiago": "14/19",
+      "Santiago_detail": {
+        "proposed": 19,
+        "valid": 14,
+        "valid_rate": 0.737,
+        "valid_rate_ci_low": 0.512,
+        "valid_rate_ci_high": 0.882
+      },
+      "Singapore": "9/13",
+      "Singapore_detail": {
+        "proposed": 13,
+        "valid": 9,
+        "valid_rate": 0.692,
+        "valid_rate_ci_low": 0.424,
+        "valid_rate_ci_high": 0.873
+      },
+      "total": "45/66",
+      "total_detail": {
+        "proposed": 66,
+        "valid": 45,
+        "valid_rate": 0.682,
+        "valid_rate_ci_low": 0.562,
+        "valid_rate_ci_high": 0.782
+      }
+    },
+    {
+      "family": "__city_total__",
+      "Amsterdam": "40/50",
+      "Amsterdam_detail": {
+        "proposed": 50,
+        "valid": 40,
+        "valid_rate": 0.8,
+        "valid_rate_ci_low": 0.67,
+        "valid_rate_ci_high": 0.888
+      },
+      "Abuja": "32/50",
+      "Abuja_detail": {
+        "proposed": 50,
+        "valid": 32,
+        "valid_rate": 0.64,
+        "valid_rate_ci_low": 0.501,
+        "valid_rate_ci_high": 0.759
+      },
+      "San Francisco": "36/50",
+      "San Francisco_detail": {
+        "proposed": 50,
+        "valid": 36,
+        "valid_rate": 0.72,
+        "valid_rate_ci_low": 0.583,
+        "valid_rate_ci_high": 0.825
+      },
+      "Santiago": "38/50",
+      "Santiago_detail": {
+        "proposed": 50,
+        "valid": 38,
+        "valid_rate": 0.76,
+        "valid_rate_ci_low": 0.626,
+        "valid_rate_ci_high": 0.857
+      },
+      "Singapore": "31/50",
+      "Singapore_detail": {
+        "proposed": 50,
+        "valid": 31,
+        "valid_rate": 0.62,
+        "valid_rate_ci_low": 0.482,
+        "valid_rate_ci_high": 0.741
+      },
+      "total": "177/250",
+      "total_detail": {
+        "proposed": 250,
+        "valid": 177,
+        "valid_rate": 0.708,
+        "valid_rate_ci_low": 0.649,
+        "valid_rate_ci_high": 0.761
+      }
+    },
+    {
+      "family": "__mean_delta__",
+      "Amsterdam": 0.4,
+      "Abuja": -0.136,
+      "San Francisco": 0.704,
+      "Santiago": 0.742,
+      "Singapore": -0.012,
+      "total": 0.366
+    }
+  ],
+  "failure_table": {
+    "generator_failure_before_audit": 0,
+    "planner_or_api_failure_rows": 0,
+    "mock_or_generation_failure_rows": 0,
+    "invalid_audited_denominator": 73,
+    "implausible_intervention": 73,
+    "non_local_drift": 25,
+    "unrealistic_rendering": 5,
+    "same_place_failure": 0,
+    "no_discernible_target_change": 45
+  },
+  "spearman_baseline_vs_valid_count": {
+    "n": 50,
+    "rho": 0.095,
+    "p_value": 0.511
+  },
+  "top_examples": [
+    {
+      "image_id": "03953c0b-6b22-4a31-932a-f5001150321a",
+      "city": "Amsterdam",
+      "lever_concept": "lane marking repainting",
+      "lever_family": "Mobility Infrastructure",
+      "scene_support": "faded white edge lines along the cycle lane",
+      "delta_aux": 3.842,
+      "baseline_score": 3.91,
+      "edited_score": 7.752,
+      "output_image_path": "/Users/jason_macstudio/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260329_213947_999022.jpg"
+    },
+    {
+      "image_id": "881e7127-037a-47e2-84ec-770e37597387",
+      "city": "San Francisco",
+      "lever_concept": "localized greenery addition",
+      "lever_family": "Environmental Amenity",
+      "scene_support": "bare sidewalk edge beside the right building frontage",
+      "delta_aux": 3.25,
+      "baseline_score": 4.11,
+      "edited_score": 7.36,
+      "output_image_path": "/Users/jason_macstudio/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260329_232514_622356.jpg"
+    },
+    {
+      "image_id": "7dd59105-1c55-43e8-92b6-f7afcc85540b",
+      "city": "Santiago",
+      "lever_concept": "localized greenery addition",
+      "lever_family": "Environmental Amenity",
+      "scene_support": "bare sidewalk edge beside the metal pedestrian railing",
+      "delta_aux": 3.096,
+      "baseline_score": 4.44,
+      "edited_score": 7.536,
+      "output_image_path": "/Users/jason_macstudio/streetview-counterfactual/data/02_counterfactual/image_edit_baseline_20260330_084744_060008.jpg"
+    }
+  ]
+}

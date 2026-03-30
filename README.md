@@ -14,7 +14,7 @@ For each image, the system:
 The current codebase supports:
 
 - closed-ontology lever candidate generation,
-- prompt-only editing with `flux-kontext-max`,
+- prompt-only editing with `flux-kontext-pro`,
 - four-part validity auditing,
 - auxiliary ViT-PP2 scoring with a local checkpoint,
 - per-image auxiliary summaries and scatter plots,
@@ -128,10 +128,10 @@ Important generation semantics:
 
 - Each output row corresponds to one candidate lever for one image.
 - `--candidate-budget` controls how many candidate levers the planner may return per image.
-- `--max-attempts` is the bounded stochastic attempt budget for each fixed candidate lever.
+- `--max-attempts` is the bounded attempt budget for each candidate lever.
 - Planner outputs are filtered in code so `lever_concept` must match the configured ontology exactly after normalization.
 - Invalid ontology members are dropped rather than coerced to a nearest ontology label.
-- Retry semantics are explicit: repeated attempts correspond to repeated stochastic generations of the same candidate lever, not hidden replanning.
+- Retry semantics are explicit: failed attempts keep the same lever concept but may revise the scene support or edit plan using structured critic feedback before retrying.
 
 Useful generation options:
 
@@ -161,6 +161,24 @@ Notes:
 - The threshold passed with `--theta` is auxiliary only. It is not the final human endpoint.
 - The scored candidate CSV and per-image summary CSV are written next to the input CSV by default.
 - The scatter SVG visualizes baseline classifier score versus auxiliary classifier delta.
+
+Single-image shortcut
+---------------------
+If you want one counterfactual from one input image and want auxiliary scoring printed directly in the terminal, use:
+
+```bash
+uv run python scripts/generate_single_counterfactual.py \
+  --input-path data/01_raw/specs_paper_n100/<image>.jpeg \
+  --target-attribute safety \
+  --score-device mps
+```
+
+This script:
+
+- generates a single candidate edit by default (`--candidate-budget 1`),
+- runs the auxiliary scorer on the original and edited image,
+- prints a terminal table with validity checks, baseline score, edited score, and classifier delta,
+- writes a scored CSV and a per-image summary CSV under `data/03_eval_results/single_image_runs/`.
 
 Optional Step 4: Export accepted edits for E2 pairwise human evaluation
 ----------------------------------------------------------------------
@@ -211,6 +229,7 @@ Candidate CSV fields include:
 - `candidate_id`
 - `target_attribute`
 - `lever_concept`
+- `lever_family`
 - `scene_support`
 - `intervention_direction`
 - `edit_template`
@@ -222,11 +241,15 @@ Candidate CSV fields include:
 - `critic_is_realistic`
 - `critic_is_plausible`
 - `critic_is_valid`
+- `critic_failure_modes`
+- `critic_diagnosis`
+- `critic_repair_suggestion`
 - `stochastic_attempt_budget`
 - `stochastic_attempts_used`
 
 Candidate field meanings:
 
+- `lever_family`: ontology family associated with the selected lever concept.
 - `scene_support`: short free-text grounding phrase naming the visible support in the scene.
 - `planner_target_object`: short noun phrase for the object being edited.
 - `lever_identity_label`: canonical human-readable identity string built from the full lever specification.
@@ -272,7 +295,7 @@ Repository Semantics
 --------------------
 - The only supported generation path is the paper-facing multi-candidate pipeline in [`scripts/generate_counterfactual.py`](/Users/jason_macstudio/streetview-counterfactual/scripts/generate_counterfactual.py).
 - Legacy graph-based workflow code has been removed rather than maintained in parallel.
-- `flux-kontext-max` is the current generator implementation, but the paper framing remains generator-agnostic.
+- `flux-kontext-pro` is the current generator implementation, but the paper framing remains generator-agnostic.
 - For the current draft, auxiliary classifier scoring is the reported pilot analysis. Human evaluation remains an optional extension.
 
 Repository Structure
