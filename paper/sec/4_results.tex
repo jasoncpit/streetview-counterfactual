@@ -2,178 +2,166 @@
 \label{sec:results}
 
 \noindent\textbf{Dataset and setup.}
-We report a reproducible pilot on a balanced $N{=}20$ subset of SPECS,
-drawn from the 400-image five-city pool available locally in this
-release (80 images each from Amsterdam, Abuja, San Francisco,
-Santiago, and Singapore). We sample 4 images per city using the same
-vision-based stratification described in Section~\ref{sec:method}:
-baseline safety score together with visual complexity. For each scene we
-allow up to $K{=}3$ lever candidates and a bounded stochastic budget of
-$T{=}1$ generation attempt per fixed candidate lever. The resulting run
-is fully reproducible from the released scripts and configuration.
+We draw our image pool from SPECS (Street Perception Evaluation
+Considering Socioeconomics)~\cite{quintana2025}, a demographically
+balanced perception survey in which 1{,}000 participants from five
+countries rated street-view scenes on ten perceptual indicators---six
+traditional (safe, lively, wealthy, beautiful, boring, depressing) and
+four new (live nearby, walk, cycle, green).
+SPECS provides per-image perception scores grounded in diverse human
+judgements, making it a principled source for studying which visual
+levers shift a specific attribute.
+We sample $N{=}50$ scenes from five SPECS cities (Amsterdam, Abuja,
+San Francisco, Santiago, Singapore; 10 per city), stratified jointly by
+baseline safety score and visual complexity so that the pilot spans the
+full range of starting conditions---from low-safety scenes where
+intervention is most needed to high-safety scenes that may offer fewer
+actionable levers.
+Each scene allows up to $K{=}5$ lever candidates with a stochastic
+budget of $T{=}5$ generation attempts per candidate.
 
-\begin{table}[t]
-  \centering
-  \caption{Actual pilot setup and aggregate outcomes for the reproducible
-  $N{=}20$ run.}
-  \label{tab:setup}
-  \small
-  \begin{tabular}{p{0.54\linewidth}p{0.22\linewidth}}
-    \toprule
-    Setting & Value \\
-    \midrule
-    Source pool & 400 SPECS scenes (5 cities, 80 each) \\
-    Pilot subset & $N{=}20$ (4 per city) \\
-    Sampling & Per-city safety score + complexity stratification \\
-    Attribute & Safety (increase direction) \\
-    Candidate budget $K$ & 3 per image \\
-    Stochastic budget $T$ & 1 per lever \\
-    Generator & \texttt{flux-kontext-max} \\
-    Auxiliary scorer & ViT-PP2 safety classifier \\
-    Realized candidate rows & 38 \\
-    Valid edits & 13 / 38 (34.2\%) \\
-    Mean valid-edit coverage & 0.217 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\noindent\textbf{Validity and coverage.}
-The dominant bottleneck in the current pipeline is not candidate
-proposal but valid realization. Across 20 scenes, the planner produced
-38 candidate rows in total (1.9 candidates per image on average after
-ontology filtering), of which 13 passed the validity audit. This yields
-mean coverage of $|V(x)|/|L(x)| = 0.217$. Only 8 of 20 scenes admit at
-least one valid realized intervention, and only 3 of 20 scenes admit
-more than one. Figure~\ref{fig:distribution} shows the full
-distribution: 12 scenes have zero valid realized levers, 5 have one, 1
-has two, and 2 have three.
-
-\begin{table}[t]
-  \centering
-  \caption{Failure analysis for the reproducible $N{=}20$ pilot.
-  The first row is a pre-audit generator failure count. Audit rows are
-  computed over the 14 audited but invalid edits and are non-exclusive.}
-  \label{tab:failure}
-  \small
-  \begin{tabular}{p{0.54\linewidth}p{0.22\linewidth}}
-    \toprule
-    Failure mode & Count \\
-    \midrule
-    Generator failure before audit & 11 \\
-    Implausible intervention & 12 / 14 \\
-    Non-local drift & 8 / 14 \\
-    Unrealistic rendering & 1 / 14 \\
-    Same-place failure & 0 / 14 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-This breakdown clarifies where the pipeline currently fails. The first
-loss point is generator reliability itself: 11 rows in this run never
-reached a usable audited edit. Among the edits that were audited but
-rejected, plausibility and locality dominate, whereas same-place
-preservation is not the main problem. In other words, the system more
-often keeps the street identity but fails to make a convincing,
-localized version of the requested lever.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/figure_2_valid_distribution.png}
-  \caption{
-    Distribution of valid realized lever counts on the reproducible
-    $N{=}20$ pilot. Most scenes still yield no valid accepted edit under
-    the current prompt-only pipeline, indicating that realization
-    reliability remains the main limiting factor.
-  }
-  \label{fig:distribution}
-\end{figure}
+\noindent\textbf{Validity summary.}
+Of 250 proposed candidates, 177 passed the validity audit, giving an
+overall valid-edit rate of $0.708$ (95\% Wilson CI $[0.649, 0.761]$).
+All 50 scenes admit at least one valid lever and 48 admit multiple;
+mean per-scene coverage is $|V(x)|/|L(x)| = 0.708$. Detailed failure
+analysis is in Appendix~\ref{sec:validity_appendix}.
 
 \noindent\textbf{Auxiliary directional shifts.}
-Among the 13 valid edits, the auxiliary classifier produces a mean
-directional shift of $+0.723$ (median $+0.451$, max $+3.525$, min
-$-0.974$). Using the exploratory auxiliary threshold
-$\theta_{\mathrm{aux}}{=}0.1$, 9 of 13 valid edits exceed threshold.
-These values should be interpreted only as pilot ranking signals, not
-as human-grounded effectiveness estimates. The strongest positive shifts
-in this run come from localized litter removal, lane marking repainting,
-crosswalk repainting, and modest frontage cleanup/greening. Notably,
-some edits that are clearly valid still produce negative auxiliary
-movement, which reinforces the need to separate realization success from
-perceived attribute improvement.
+Among the 177 valid edits, the auxiliary scorer produces a mean shift of
+$+0.366$ (median $+0.184$, range $[-3.624, +3.842]$). Using threshold
+$\theta_{\mathrm{aux}}{=}0.1$, 95 of 177 valid edits fall in
+$E_{\mathrm{aux}}(x,a)$. The strongest positive examples come from
+lane-marking repainting, crosswalk repainting, and localized greenery
+addition. At the same time, some valid edits remain neutral or
+negative, reinforcing the distinction between valid realization and
+attribute improvement.
 
 \begin{table}[t]
   \centering
-  \caption{Observed pilot metrics from the reproducible $N{=}20$ run.}
-  \label{tab:main}
-  \small
-  \begin{tabular}{p{0.54\linewidth}p{0.22\linewidth}}
-    \toprule
-    Metric & Value \\
-    \midrule
-    Images with any valid edit & 8 / 20 \\
-    Images with $>1$ valid edit & 3 / 20 \\
-    Mean valid levers per image & 0.65 \\
-    Valid-count histogram & 12 / 5 / 1 / 2 for 0 / 1 / 2 / 3 \\
-    Mean auxiliary delta & +0.723 \\
-    Median auxiliary delta & +0.451 \\
-    Max auxiliary delta & +3.525 \\
-    Valid edits above $\theta_{\mathrm{aux}}$ & 9 / 13 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{table}[t]
-  \centering
-  \caption{Lever-type breakdown over audited candidate rows with
-  non-empty lever identities. Mean auxiliary delta is computed only over
-  valid rows for that lever type.}
+  \caption{Lever-type results grouped by intervention family.
+  Valid-rate intervals are 95\% Wilson confidence intervals.
+  Mean~$\Delta_{\mathrm{aux}}$ is computed over valid edits only.
+  ``--'' denotes concepts not proposed in this scene pool.}
   \label{tab:levers}
   \scriptsize
-  \begin{tabular}{p{0.48\linewidth}ccc}
+  \resizebox{\columnwidth}{!}{%
+  \begin{tabular}{p{0.37\linewidth}cccc}
     \toprule
-    Lever concept & Proposed & Valid & Mean $\Delta_{\mathrm{aux}}$ \\
+    Family / Lever concept & Prop.\ & Valid & Rate [95\% CI] & Mean $\Delta_{\mathrm{aux}}$ \\
     \midrule
-    Surface cleaning & 7 & 3 & 0.084 \\
-    Tree canopy management & 5 & 1 & -0.106 \\
-    Lane marking repainting & 4 & 3 & 0.906 \\
-    Lighting repair & 4 & 0 & -- \\
-    Litter removal & 3 & 2 & 1.893 \\
-    Crosswalk repainting & 2 & 2 & 0.805 \\
-    Localized greenery addition & 2 & 2 & 0.569 \\
+    \textit{Physical Maintenance} & & & & \\
+    \quad Graffiti removal        &  5 &  4 & 0.80 [0.38, 0.96] & $+$0.396 \\
+    \quad Litter removal          & 33 & 25 & 0.76 [0.59, 0.87] & $+$0.296 \\
+    \quad Facade repair           &  4 &  4 & 1.00 [0.51, 1.00] & $+$0.519 \\
+    \quad Surface cleaning        & 50 & 38 & 0.76 [0.63, 0.86] & $+$0.352 \\
+    \quad Shutter repair          & -- & -- & -- & -- \\
+    \quad\textbf{Family total}    & 92 & 71 & 0.77 [0.68, 0.85] & $+$0.344 \\
+    \midrule
+    \textit{Environmental Amenity} & & & & \\
+    \quad Localized greenery add.\  & 33 & 32 & 0.97 [0.85, 1.00] & $+$0.650 \\
+    \quad Lighting repair           & 27 &  8 & 0.30 [0.16, 0.49] & $-$0.232 \\
+    \quad Tree canopy management    & 22 & 14 & 0.64 [0.43, 0.80] & $-$0.245 \\
+    \quad\textbf{Family total}      & 82 & 54 & 0.66 [0.55, 0.75] & $+$0.287 \\
+    \midrule
+    \textit{Visual Legibility} & & & & \\
+    \quad Signage decluttering         &  7 &  5 & 0.71 [0.36, 0.92] & $-$0.631 \\
+    \quad Storefront transparency      &  3 &  2 & 0.67 [0.21, 0.94] & $+$0.958 \\
+    \quad\textbf{Family total}         & 10 &  7 & 0.70 [0.40, 0.89] & $-$0.177 \\
+    \midrule
+    \textit{Mobility Infrastructure} & & & & \\
+    \quad Crosswalk repainting       & 23 & 15 & 0.65 [0.45, 0.81] & $+$0.767 \\
+    \quad Lane marking repainting    & 43 & 30 & 0.70 [0.55, 0.81] & $+$0.485 \\
+    \quad\textbf{Family total}       & 66 & 45 & 0.68 [0.56, 0.78] & $+$0.579 \\
+    \midrule
+    \textbf{Overall}                 & 250 & 177 & 0.71 [0.65, 0.76] & $+$0.366 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+Table~\ref{tab:levers} reveals clear family-level patterns. Mobility
+Infrastructure yields the strongest mean auxiliary shift
+($+0.579$) despite a slightly lower valid rate than Physical
+Maintenance, suggesting that road-marking edits are especially salient
+to the auxiliary safety scorer once they are realised successfully.
+Physical Maintenance is the most reliable family overall
+($71/92$, rate $0.772$, 95\% CI $[0.676, 0.846]$), driven by consistent
+success on surface cleaning, litter removal, and facade repair.
+Environmental Amenity is the most heterogeneous family: localized
+greenery addition is almost always valid and strongly positive, whereas
+lighting repair has the weakest valid rate and tree canopy management
+produces negative mean auxiliary movement. Visual Legibility remains a
+small-sample family and is mixed in sign, indicating that prompt-only
+editing can realise these levers but not yet with stable directional
+effect.
+
+\begin{table}[t]
+  \centering
+  \caption{City-level summary over the full $N{=}50$ run.
+  Each city contributes 10 scenes and therefore 50 proposed candidates.
+  Valid-rate intervals are 95\% Wilson confidence intervals; mean
+  $\Delta_{\mathrm{aux}}$ is computed over valid edits only.}
+  \label{tab:cities}
+  \scriptsize
+  \begin{tabular}{lccc}
+    \toprule
+    City & Valid / Prop. & Rate [95\% CI] & Mean $\Delta_{\mathrm{aux}}$ \\
+    \midrule
+    Amsterdam     & 40 / 50  & 0.80 [0.67, 0.89] & $+$0.400 \\
+    Abuja         & 32 / 50  & 0.64 [0.50, 0.76] & $-$0.136 \\
+    San Francisco & 36 / 50  & 0.72 [0.58, 0.83] & $+$0.704 \\
+    Santiago      & 38 / 50  & 0.76 [0.63, 0.86] & $+$0.742 \\
+    Singapore     & 31 / 50  & 0.62 [0.48, 0.74] & $-$0.012 \\
+    \midrule
+    \textbf{Overall} & 177 / 250 & 0.71 [0.65, 0.76] & $+$0.366 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:levers} shows that the current pipeline is materially
-better at some lever families than others. Repainting and cleanup
-interventions are both easier to realize validly and more likely to
-produce positive auxiliary shifts, whereas lighting repair and tree
-canopy management remain difficult under prompt-only editing. This is a
-useful workshop result even without human evaluation: the protocol does
-not merely rank scenes, it exposes which classes of localized urban
-counterfactual are currently operational.
+Table~\ref{tab:cities} shows that valid-edit rates remain fairly high
+across all five cities, with Amsterdam and Santiago strongest on
+realisation rate and Singapore lowest. Directional auxiliary movement is
+more context-dependent: Santiago and San Francisco have the largest
+positive mean shifts, whereas Abuja and Singapore are near zero or
+slightly negative on average. The important point is that the final
+rerun removes the earlier planner/API imbalance, so these city
+comparisons are no longer confounded by missing candidate generation.
 
 \noindent\textbf{Qualitative examples.}
 Figure~\ref{fig:qualitative} shows the top three positive auxiliary-shift
-examples from distinct scenes in the pilot. They are representative of
-the types of interventions that currently survive the validity audit:
-localized cleanup, lane-marking repainting, and crosswalk repainting.
-All three are spatially constrained, visually legible, and plausible as
-single-lever urban changes. At the same time, they also illustrate the
-current framing of the paper: these are \emph{valid and directionally
-promising} interventions under an auxiliary scorer, not finalized human
-effect estimates.
+examples from distinct scenes: lane-marking repainting in Amsterdam,
+localized greenery addition in San Francisco, and localized greenery
+addition in Santiago. All three are spatially constrained, visually
+legible, and plausible as single-lever urban changes.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{figures/figure_3_qualitative.png}
   \caption{
-    Top three distinct-scene qualitative examples ranked by auxiliary
-    classifier delta in the $N{=}20$ pilot. From top to bottom: litter
-    removal, lane-marking repainting, and crosswalk repainting. These
-    examples illustrate the interventions that the current pipeline can
-    realize validly; they do not by themselves establish human-perceived
-    effectiveness.
+    Top three qualitative examples ranked by auxiliary score delta.
+    From top: lane-marking repainting (Amsterdam), localized greenery
+    addition (San Francisco), localized greenery addition (Santiago).
   }
   \label{fig:qualitative}
+\end{figure}
+
+\noindent\textbf{Baseline score and lever realisability.}
+Figure~\ref{fig:baseline_vs_valid} plots each scene's baseline safety
+score $f_a(x)$ against its valid lever count $|V(x)|$. At $N{=}50$, no
+meaningful monotonic relationship is observed (Spearman
+$\rho{=}0.095$, $p{=}0.511$). In other words, once generation reliability
+is no longer the binding constraint, scenes with lower baseline safety
+do not obviously admit more valid levers than higher-baseline scenes.
+We revisit this null result in \S\ref{sec:discussion}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure_4_baseline_vs_valid_count.png}
+  \caption{
+    Baseline safety score vs.\ valid lever count per scene ($N{=}50$).
+    No meaningful relationship is observed
+    (Spearman $\rho{=}0.095$, $p{=}0.511$).
+  }
+  \label{fig:baseline_vs_valid}
 \end{figure}

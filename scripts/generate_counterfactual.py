@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
 from dotenv import load_dotenv
 from rich.console import Console
+from rich.panel import Panel
 from tqdm import tqdm
 
 from src.lever_identity import lever_identity_label
@@ -21,7 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate counterfactuals for all images in 01_raw.")
     parser.add_argument(
         "--model",
-        default="black-forest-labs/flux-kontext-max",
+        default="black-forest-labs/flux-kontext-pro",
         help="Baseline edit model slug (default: google/nano-banana-pro).",
     )
     parser.add_argument(
@@ -108,6 +110,7 @@ def result_row(image_path: Path, state: Dict[str, Any]) -> Dict[str, Any]:
         "candidate_id": state.get("candidate_id", ""),
         "target_attribute": state.get("target_attribute", "") or "",
         "lever_concept": state.get("lever_concept", "") or "",
+        "lever_family": state.get("lever_family", "") or "",
         "scene_support": state.get("scene_support", "") or "",
         "intervention_direction": state.get("intervention_direction", "") or "",
         "edit_template": state.get("edit_template", "") or "",
@@ -115,6 +118,7 @@ def result_row(image_path: Path, state: Dict[str, Any]) -> Dict[str, Any]:
         "planner_edit_plan": state.get("edit_plan", "") or "",
         "planner_target_object": state.get("target_object", "") or "",
         "lever_identity_label": "",
+        "critic_edit_attempted": bool(state.get("edit_attempted", False)),
         "critic_same_place_preserved": bool(state.get("same_place_preserved", False)),
         "critic_is_localized": bool(state.get("is_localized", False)),
         "critic_is_realistic": bool(state.get("is_realistic", False)),
@@ -123,6 +127,9 @@ def result_row(image_path: Path, state: Dict[str, Any]) -> Dict[str, Any]:
         "stochastic_attempt_budget": state.get("stochastic_attempt_budget", 0) or 0,
         "stochastic_attempts_used": state.get("attempts", 0) or 0,
         "used_mock": bool(state.get("used_mock", False)),
+        "critic_failure_modes": "|".join(str(item) for item in (state.get("critic_failure_modes") or [])),
+        "critic_diagnosis": state.get("critic_diagnosis", "") or "",
+        "critic_repair_suggestion": state.get("critic_repair_suggestion", "") or "",
         "critic_notes": state.get("critic_notes", "") or "",
     }
     row["lever_identity_label"] = lever_identity_label(row)
@@ -136,6 +143,7 @@ def write_csv(rows: list[Dict[str, Any]], csv_path: Path) -> None:
         "candidate_id",
         "target_attribute",
         "lever_concept",
+        "lever_family",
         "scene_support",
         "intervention_direction",
         "edit_template",
@@ -143,6 +151,7 @@ def write_csv(rows: list[Dict[str, Any]], csv_path: Path) -> None:
         "planner_edit_plan",
         "planner_target_object",
         "lever_identity_label",
+        "critic_edit_attempted",
         "critic_same_place_preserved",
         "critic_is_localized",
         "critic_is_realistic",
@@ -151,6 +160,9 @@ def write_csv(rows: list[Dict[str, Any]], csv_path: Path) -> None:
         "stochastic_attempt_budget",
         "stochastic_attempts_used",
         "used_mock",
+        "critic_failure_modes",
+        "critic_diagnosis",
+        "critic_repair_suggestion",
         "critic_notes",
     ]
     with csv_path.open("w", newline="") as f:
@@ -164,6 +176,103 @@ def read_existing_rows(csv_path: Path) -> list[Dict[str, Any]]:
         return []
     with csv_path.open(newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def _format_json_block(raw: str) -> str:
+    raw = raw.strip()
+    if not raw:
+        return "(empty response)"
+    try:
+        return json.dumps(json.loads(raw), indent=2)
+    except json.JSONDecodeError:
+        return raw
+
+
+def _format_json_value(value: Any) -> str:
+    try:
+        return json.dumps(value, indent=2)
+    except TypeError:
+        return str(value)
+
+
+def print_planner_event(console: Console, payload: dict[str, Any]) -> None:
+    event = payload.get("event")
+    if event in {"planner_propose_exchange", "planner_revise_exchange"}:
+        image_name = Path(str(payload.get("image_path") or "unknown")).name
+        prompt_text = (
+            "System prompt:\n"
+            f"{payload.get('system_prompt', '')}\n\n"
+            "User prompt:\n"
+            f"{payload.get('user_prompt', '')}"
+        )
+        response_text = _format_json_block(str(payload.get("response_content", "")))
+        console.print(
+            Panel(
+                prompt_text,
+                title=f"{event} | image={image_name}",
+                border_style="blue",
+            )
+        )
+        console.print(
+            Panel(
+                response_text,
+                title=f"{event} response | image={image_name}",
+                border_style="green",
+            )
+        )
+        return
+
+    if event in {"planner_propose_parse", "planner_revise_parse"}:
+        image_name = Path(str(payload.get("image_path") or "unknown")).name
+        accepted = payload.get("accepted_candidates") or []
+        rejections = payload.get("rejection_events") or []
+        summary = {
+            "accepted_count": len(accepted),
+            "rejection_count": len(rejections),
+            "accepted_candidates": accepted,
+            "rejection_events": rejections,
+        }
+        console.print(
+            Panel(
+                _format_json_value(summary),
+                title=f"{event} summary | image={image_name}",
+                border_style="yellow",
+            )
+        )
+
+
+def print_critic_exchange(console: Console, payload: dict[str, Any]) -> None:
+    image_name = Path(str(payload.get("input_image_path") or "unknown")).name
+    attempt = payload.get("attempt", "?")
+    lever_concept = payload.get("lever_concept") or "n/a"
+    lever_family = payload.get("lever_family") or "n/a"
+    target_object = payload.get("target_object") or "n/a"
+
+    prompt_text = (
+        "System prompt:\n"
+        f"{payload.get('system_prompt', '')}\n\n"
+        "User prompt:\n"
+        f"{payload.get('user_prompt', '')}"
+    )
+    response_text = _format_json_block(str(payload.get("response_content", "")))
+
+    console.print(
+        Panel(
+            prompt_text,
+            title=(
+                f"Critic Prompt | image={image_name} | attempt={attempt} | "
+                f"lever={lever_concept} | family={lever_family} | target={target_object}"
+            ),
+            border_style="cyan",
+        )
+    )
+    console.print(
+        Panel(
+            response_text,
+            title=f"Critic Response | image={image_name} | attempt={attempt}",
+            border_style="magenta",
+        )
+    )
 
 
 def main() -> None:
@@ -225,7 +334,37 @@ def main() -> None:
                 baseline_model=args.model,
                 max_attempts=args.max_attempts,
                 candidate_budget=args.candidate_budget,
+                planner_debug_hook=lambda payload: print_planner_event(console, payload),
+                critique_debug_hook=lambda payload: print_critic_exchange(console, payload),
             )
+            if not candidate_states:
+                results.append({
+                    "input_image_path": str(image_path),
+                    "candidate_id": "",
+                    "target_attribute": cfg.workflow.target_attribute,
+                    "lever_concept": "",
+                    "lever_family": "",
+                    "scene_support": "",
+                    "intervention_direction": "",
+                    "edit_template": "",
+                    "output_image_path": "",
+                    "planner_edit_plan": "",
+                    "planner_target_object": "",
+                    "lever_identity_label": "",
+                    "critic_edit_attempted": False,
+                    "critic_same_place_preserved": False,
+                    "critic_is_localized": False,
+                    "critic_is_realistic": False,
+                    "critic_is_plausible": False,
+                    "critic_is_valid": False,
+                    "stochastic_attempt_budget": args.max_attempts,
+                    "stochastic_attempts_used": 0,
+                    "used_mock": False,
+                    "critic_failure_modes": "",
+                    "critic_diagnosis": "",
+                    "critic_repair_suggestion": "",
+                    "critic_notes": "ERROR: Planner returned no valid candidates after schema validation.",
+                })
             for state in candidate_states:
                 results.append(result_row(image_path, state))
         except Exception as err:
@@ -234,6 +373,7 @@ def main() -> None:
                 "candidate_id": "",
                 "target_attribute": cfg.workflow.target_attribute,
                 "lever_concept": "",
+                "lever_family": "",
                 "scene_support": "",
                 "intervention_direction": "",
                 "edit_template": "",
@@ -241,6 +381,7 @@ def main() -> None:
                 "planner_edit_plan": "",
                 "planner_target_object": "",
                 "lever_identity_label": "",
+                "critic_edit_attempted": False,
                 "critic_same_place_preserved": False,
                 "critic_is_localized": False,
                 "critic_is_realistic": False,
@@ -249,6 +390,9 @@ def main() -> None:
                 "stochastic_attempt_budget": args.max_attempts,
                 "stochastic_attempts_used": 0,
                 "used_mock": False,
+                "critic_failure_modes": "",
+                "critic_diagnosis": "",
+                "critic_repair_suggestion": "",
                 "critic_notes": f"ERROR: {err}",
             })
         processed_inputs.add(str(image_path))

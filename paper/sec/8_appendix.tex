@@ -1,88 +1,147 @@
-\section{Appendix: Implementation Details}
-\label{sec:appendix}
+\section{Appendix}
 
-\subsection{Lever Ontology Used in the Pilot}
+\subsection{Validity and Coverage Details}
+\label{sec:validity_appendix}
 
-The bounded candidate set in the current implementation is instantiated
-from the following ontology:
-\begin{quote}
-\small
-graffiti removal; litter removal; facade repair; storefront
-transparency increase; localized greenery addition; lighting repair;
-signage decluttering; crosswalk repainting; lane marking repainting;
-surface cleaning; shutter repair; tree canopy management.
-\end{quote}
+Across 50 scenes the planner produces the full 250 candidate rows
+(5.0 per image on average), of which 177 pass the validity audit,
+yielding mean coverage $|V(x)|/|L(x)| = 0.708$.
+Figure~\ref{fig:distribution} shows the distribution of valid counts per
+scene: 2 scenes have one valid lever, 3 have two, 16 have three,
+24 have four, and 5 have all five.
+
+\begin{table}[t]
+  \centering
+  \caption{Failure analysis for the cleaned $N{=}50$ run. The first row
+  is a pre-audit generator/planner failure count. Audit rows are
+  computed over the 73 audited but invalid edits and are non-exclusive.}
+  \label{tab:failure}
+  \small
+  \begin{tabular}{p{0.54\linewidth}p{0.22\linewidth}}
+    \toprule
+    Failure mode & Count \\
+    \midrule
+    Generator failure before audit & 0 \\
+    Implausible intervention & 73 / 73 \\
+    Non-local drift & 25 / 73 \\
+    Unrealistic rendering & 5 / 73 \\
+    Same-place failure & 0 / 73 \\
+    No discernible target change & 45 / 73 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The dominant bottleneck is not candidate proposal but valid realisation.
+Among audited-but-rejected edits, plausibility dominates completely, and
+nearly two thirds also show no discernible target change. Locality
+failures remain common, while same-place preservation is never the
+binding failure mode in the final cleaned run.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure_2_valid_distribution.png}
+  \caption{Distribution of valid realised lever counts per scene
+  ($N{=}50$). Most scenes admit three or four independently valid
+  single-lever interventions.}
+  \label{fig:distribution}
+\end{figure}
+
+\subsection{Intervention Vocabulary}
+\label{sec:intervention_vocabulary}
+
+Each concept below satisfies all three inclusion criteria defined in
+\S\ref{sec:method}. Structural interventions (building setback, road
+geometry, facade cladding) and social-order cues (pedestrian density,
+active frontage) are excluded because they are not realisable under
+prompt-only editing without masking or inpainting.
+
+\smallskip\noindent\textbf{Physical Maintenance}
+(broken-windows and perceived-upkeep
+literature~\cite{newman1972,jiang2018brokenwindows}):
+graffiti removal; litter removal; facade repair; surface cleaning;
+shutter repair.
+
+\smallskip\noindent\textbf{Environmental Amenity}
+(biophilic safety and nighttime
+visibility~\cite{li2015greenery,portnov2020lighting}):
+localised greenery addition; lighting repair; tree canopy management.
+
+\smallskip\noindent\textbf{Visual Legibility}
+(active-edges and surveillance theory~\cite{jacobs1961}):
+signage decluttering; storefront transparency increase.
+
+\smallskip\noindent\textbf{Mobility Infrastructure}
+(pedestrian safety and walkability~\cite{quintana2025}):
+crosswalk repainting; lane marking repainting.
 
 \subsection{Prompt Contracts}
 
-The code-level planner, editor, and critic prompts are implemented in
-the repository configuration and enforce a structured contract rather
-than free-form prompting.
+The planner, editor, and critic each operate under a structured prompt
+contract. Condensed versions are shown below; full prompts are in the
+released repository.
 
-\noindent\textbf{Planner contract.}
-The planner is instructed to return a bounded set of single-lever
-candidates grounded in visible scene elements. Each candidate must
-contain exactly:
-\begin{quote}
-\small
-\texttt{lever\_concept}, \texttt{scene\_support},
-\texttt{target\_object}, \texttt{intervention\_direction},
-\texttt{edit\_template}, and \texttt{edit\_plan}.
-\end{quote}
-Additional hard constraints require ontology membership, one lever per
-candidate, locality, plausibility, and prompt-only-friendly edits.
+\begin{promptbox}{Planner prompt (condensed)}
+\scriptsize\ttfamily
+You are an urban perception planner. Given a street-view image and
+target percept, propose a constrained set of candidate lever
+interventions.\par\medskip
+ONTOLOGY: Choose only from four families --- Physical Maintenance,
+Environmental Amenity, Visual Legibility, Mobility Infrastructure ---
+and prefer cross-family diversity when the scene supports it.\par\medskip
+HARD CONSTRAINTS: (1) One lever per candidate. (2) Grounded in a
+visible scene element. (3) Local, plausible, prompt-only friendly.
+(4) No global relighting, weather, or camera changes. (5) Prefer
+the smallest plausible intervention. (6) Exclude theoretically
+relevant levers whose target element is not clearly visible/editable
+in the image.\par\medskip
+DIVERSITY: Return distinct candidates using different lever concepts
+and avoid magnitude variants of the same intervention.\par\medskip
+Return JSON with field ``candidates'', each containing:
+lever\_concept, lever\_family, scene\_support, target\_object,
+intervention\_direction, edit\_template, edit\_plan.
+\end{promptbox}
 
-\noindent\textbf{Edit prompt contract.}
-The image-edit prompt explicitly forbids global restyling, relighting,
-camera changes, background changes, and adding or removing non-target
-objects. The prompt requires the model to preserve the input scene and
-modify only the specified target object according to the lever plan.
+\begin{promptbox}{Edit prompt (condensed)}
+\scriptsize\ttfamily
+Use the PROVIDED image as base. Preserve exact viewpoint, geometry,
+and layout.\par\medskip
+ALLOWED: Only modify the target object as required by the plan.
+If repainting/retexturing, keep shape and placement identical.\par\medskip
+FORBIDDEN: No global restyling, relighting, or recoloring. No
+adding/removing other objects. No readable text. No background,
+sky, road, or context changes.\par\medskip
+Lever concept: \{lever\_concept\} \\
+Lever family: \{lever\_family\} \\
+Scene support: \{scene\_support\} \\
+Intervention direction: \{intervention\_direction\} \\
+Edit template: \{edit\_template\} \\
+Target object: \{target\_object\} \\
+Edit plan: \{edit\_plan\}
+\end{promptbox}
 
-\noindent\textbf{Critic contract.}
-The automated critic receives the original image, the edited image, and
-the intended lever specification, and returns structured JSON for four
-binary checks:
-\begin{quote}
-\small
-\texttt{same\_place\_preserved}, \texttt{is\_localized},
-\texttt{is\_realistic}, and \texttt{is\_plausible},
-\end{quote}
-plus brief repair guidance. An edit is accepted only if all four checks
-are true.
-
-\subsection{Current Pilot Configuration}
-
-The reproducible pilot reported in the paper uses:
-\begin{itemize}
-    \item SPECS subset size $N{=}20$;
-    \item five cities with 4 images per city;
-    \item per-city stratification by baseline safety score and visual
-    complexity;
-    \item candidate budget $K{=}3$;
-    \item stochastic budget $T{=}1$ per fixed lever;
-    \item \texttt{flux-kontext-max} for prompt-only editing;
-    \item ViT-PP2 for auxiliary safety scoring.
-\end{itemize}
-
-The corresponding driver command is:
-\begin{quote}
-\small
-\texttt{uv run python scripts/run\_repro\_pipeline.py --prefix specs\_repro\_n20 --n-total 20 --candidate-budget 3 --max-attempts 1 --score-device mps}
-\end{quote}
-
-\subsection{Exported Artifacts}
-
-The main paper-facing run writes:
-\begin{itemize}
-    \item a candidate-level CSV with full lever identities and critic
-    fields;
-    \item a scored CSV with baseline score, edited score, and auxiliary
-    delta;
-    \item a per-image auxiliary summary CSV;
-    \item generated paper figures derived directly from the scored
-    outputs.
-\end{itemize}
-
-Human-evaluation export and ingestion paths are implemented in the
-repository but are optional in the current draft and were not used to
-produce the reported pilot results.
+\begin{promptbox}{Critic prompt (condensed)}
+\scriptsize\ttfamily
+Evaluate whether the edited image is a valid single-lever
+counterfactual relative to the original.\par\medskip
+CONTEXT: Edit produced by prompt-only diffusion without masking.
+Minor incidental changes (tone drift, texture resampling) are
+expected artefacts and should not cause failure unless they
+materially alter scene meaning; plausibility and locality are still
+judged strictly against the requested lever and support.\par\medskip
+CRITERIA:
+(A) edit\_attempted: generator made a visible change at the target
+    (false only if output looks identical to original there).
+(B) same\_place\_preserved: same underlying place.
+(C) is\_localised: primary meaningful change is in/near intended
+    support; minor global tone shifts do not count as non-local.
+(D) is\_realistic: physically plausible and coherent.
+(E) is\_plausible: recognisably the requested lever at the stated
+    support; fail if the edit type/support is wrong or too
+    excessive.\par\medskip
+CLEAR FAIL CONDITIONS: Viewpoint/geometry changed; large non-target
+objects added/removed; requested lever replaced by a different
+change; no discernible change at target.\par\medskip
+Return JSON: \{edit\_attempted, same\_place\_preserved,
+is\_localised, is\_realistic, is\_plausible, notes\}, where
+notes = \{failure\_modes, diagnosis, repair\_suggestion\}.
+\end{promptbox}

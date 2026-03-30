@@ -5,6 +5,12 @@
 %% Inline annotations; for predefined colors, refer to "dvipsnames" in the xcolor package:
 %% https://tinyurl.com/overleaf-colors
 %%
+\usepackage[most]{tcolorbox}
+\newtcolorbox{promptbox}[1]{
+  colback=black!5, colframe=black!30, boxrule=0.4pt,
+  fonttitle=\small\bfseries, title={#1},
+  left=4pt, right=4pt, top=2pt, bottom=2pt,
+  before skip=6pt, after skip=6pt}
 \newcommand{\red}[1]{{\color{red}#1}}
 \newcommand{\todo}[1]{{\color{red}#1}}
 \newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}

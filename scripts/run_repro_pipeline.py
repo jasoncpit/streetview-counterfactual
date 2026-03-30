@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--model",
-        default="black-forest-labs/flux-kontext-max",
+        default="black-forest-labs/flux-kontext-pro",
         help="Image editing model slug.",
     )
     parser.add_argument(

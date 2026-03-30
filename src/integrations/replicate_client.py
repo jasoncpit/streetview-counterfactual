@@ -34,7 +34,7 @@ class ReplicateModels:
     dino_model: str = ""
     sam_model: str = ""
     inpaint_model: str = ""
-    flux_kontext_model: str = "black-forest-labs/flux-kontext-max"
+    flux_kontext_model: str = "black-forest-labs/flux-kontext-pro"
     nano_banana_model: str = "google/nano-banana-pro"
     inpaint_params: Dict[str, Any] | None = None
     flux_kontext_params: Dict[str, Any] | None = None
@@ -60,8 +60,9 @@ class ReplicateClient:
             "google/nano-banana-pro",
             "bytedance/seedream-4",
             "openai/gpt-image-1.5",
-            "black-forest-labs/flux-kontext-max",
+            "black-forest-labs/flux-kontext-pro",
             "qwen/qwen-image-edit",
+            "qwen/qwen-image-edit-plus"
         ],
         image_path: str,
         edit_plan: str,
@@ -69,6 +70,7 @@ class ReplicateClient:
         output_dir: Path,
         prompt_template: str,
         lever_concept: str = "",
+        lever_family: str = "",
         scene_support: str = "",
         intervention_direction: str = "",
         edit_template: str = "",
@@ -79,6 +81,7 @@ class ReplicateClient:
     ) -> Path:
         prompt = prompt_template.format(
             lever_concept=lever_concept,
+            lever_family=lever_family,
             scene_support=scene_support,
             intervention_direction=intervention_direction,
             edit_template=edit_template,
@@ -296,7 +299,10 @@ class ReplicateClient:
                 image_key: [image_handle],
             }, "png"
 
-        if model == "black-forest-labs/flux-kontext-max":
+        if model in {
+            "black-forest-labs/flux-kontext-max",
+            "black-forest-labs/flux-kontext-pro",
+        }:
             return {
                 "prompt": prompt,
                 "input_image": image_handle,

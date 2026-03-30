@@ -1,3 +1,21 @@
 \begin{abstract}
-Street-view perception models can predict subjective attributes such as safety and wealth at scale, yet they remain fundamentally correlational: they do not answer the scene-level question practitioners care about most --- which visual changes would plausibly shift human perception for this specific street? Drawing on urban design theory that treats perceived safety as the product of multiple co-occurring visual cues, we ask not only which localized urban cues matter, but whether individual scenes admit multiple substitutable visual pathways to the same perceptual outcome. We propose a lever-based interventional attribution framework that reframes scene-level explainability as a structured search over manipulable urban cues. Rather than treating arbitrary image regions as the explanatory unit, we define structured lever interventions with a semantic concept, spatial support, intervention direction, and constrained edit template. Candidate interventions are generated via prompt-conditioned diffusion editing and validated by a VLM-as-judge critic for same-place preservation, locality, realism, and plausibility. On a pilot of N=100 street-view images spanning five cities, we show that different lever families exhibit distinct realization and auxiliary shift profiles, and that some scenes admit multiple valid levers.
+Street-view perception models predict subjective attributes such as
+safety at scale, yet they remain correlational: they do not reveal which
+localised visual changes would plausibly shift human perception for a
+specific street. We propose a lever-based interventional attribution
+framework that reframes scene-level explainability as a structured search
+over manipulable urban cues. Each candidate lever specifies a semantic
+concept, spatial support, intervention direction, and constrained edit
+template drawn from an editor-feasible intervention vocabulary. Candidates are realised via
+prompt-conditioned diffusion editing and validated by a vision--language
+critic for same-place preservation, locality, realism, and plausibility.
+Across 50 scenes from five cities, 177 of 250 proposed candidates pass
+the validity audit; all 50 scenes admit at least one valid
+single-lever intervention and 48 admit multiple independently valid
+levers. The strongest auxiliary perception shifts arise from
+lane-marking repainting, crosswalk repainting, and localized greenery
+addition, although valid realization does not guarantee positive
+auxiliary movement. We position these results as evidence that bounded
+interventional search is feasible at scene level, with human pairwise
+evaluation remaining the planned endpoint.
 \end{abstract}
