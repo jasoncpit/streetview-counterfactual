@@ -1,3 +1,4 @@
+\newpage
 \section{Appendix}
 
 \subsection{Validity and Coverage Details}
@@ -12,39 +13,71 @@ scene: 2 scenes have one valid lever, 3 have two, 16 have three,
 
 \begin{table}[t]
   \centering
-  \caption{Failure analysis for the cleaned $N{=}50$ run. The first row
-  is a pre-audit generator/planner failure count. Audit rows are
-  computed over the 73 audited but invalid edits and are non-exclusive.}
-  \label{tab:failure}
-  \small
-  \begin{tabular}{p{0.54\linewidth}p{0.22\linewidth}}
+  \caption{Family-level summary over the full $N{=}50$ run.
+  Valid-rate intervals are 95\% Wilson confidence intervals; mean
+  $\Delta_{\mathrm{aux}}$ and $\Delta_{\mathrm{aux}}$ [95\% CI] are
+  computed over valid edits only.}
+  \label{tab:family_appendix}
+  \scriptsize
+  \resizebox{\columnwidth}{!}{%
+  \begin{tabular}{lcccc}
     \toprule
-    Failure mode & Count \\
+    Family & Valid / Prop. & Rate [95\% CI] & Mean $\Delta_{\mathrm{aux}}$ & $\Delta_{\mathrm{aux}}$ [95\% CI] \\
     \midrule
-    Generator failure before audit & 0 \\
-    Implausible intervention & 73 / 73 \\
-    Non-local drift & 25 / 73 \\
-    Unrealistic rendering & 5 / 73 \\
-    Same-place failure & 0 / 73 \\
-    No discernible target change & 45 / 73 \\
+    Physical Maintenance      & 71 / 92 & 0.77 [0.68, 0.85] & $+$0.344 & [$+$0.107, $+$0.584] \\
+    Environmental Amenity     & 54 / 82 & 0.66 [0.55, 0.75] & $+$0.287 & [$-$0.041, $+$0.610] \\
+    Visual Legibility         &  7 / 10 & 0.70 [0.40, 0.89] & $-$0.177 & [$-$0.927, $+$0.599] \\
+    Mobility Infrastructure   & 45 / 66 & 0.68 [0.56, 0.78] & $+$0.579 & [$+$0.244, $+$0.923] \\
+    \midrule
+    \textbf{Overall}          & 177 / 250 & 0.71 [0.65, 0.76] & $+$0.366 & [$+$0.199, $+$0.537] \\
     \bottomrule
   \end{tabular}
+  }
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{City-level coverage and directional summary over the full
+  $N{=}50$ run. Each city contributes 10 scenes and therefore 50
+  proposed candidates. Valid-rate intervals are 95\% Wilson confidence
+  intervals; mean $\Delta_{\mathrm{aux}}$ and
+  $\Delta_{\mathrm{aux}}$ [95\% CI] are computed over valid edits
+  only.}
+  \label{tab:city_appendix}
+  \scriptsize
+  \resizebox{\columnwidth}{!}{%
+  \begin{tabular}{lcccc}
+    \toprule
+    City & Valid / Prop. & Rate [95\% CI] & Mean $\Delta_{\mathrm{aux}}$ & $\Delta_{\mathrm{aux}}$ [95\% CI] \\
+    \midrule
+    Amsterdam     & 40 / 50  & 0.80 [0.67, 0.89] & $+$0.400 & [$+$0.073, $+$0.764] \\
+    Abuja         & 32 / 50  & 0.64 [0.50, 0.76] & $-$0.136 & [$-$0.441, $+$0.141] \\
+    San Francisco & 36 / 50  & 0.72 [0.58, 0.83] & $+$0.704 & [$+$0.285, $+$1.105] \\
+    Santiago      & 38 / 50  & 0.76 [0.63, 0.86] & $+$0.742 & [$+$0.398, $+$1.089] \\
+    Singapore     & 31 / 50  & 0.62 [0.48, 0.74] & $-$0.012 & [$-$0.383, $+$0.352] \\
+    \midrule
+    \textbf{Overall} & 177 / 250 & 0.71 [0.65, 0.76] & $+$0.366 & [$+$0.199, $+$0.537] \\
+    \bottomrule
+  \end{tabular}
+  }
 \end{table}
 
 The dominant bottleneck is not candidate proposal but valid realisation.
-Among audited-but-rejected edits, plausibility dominates completely, and
-nearly two thirds also show no discernible target change. Locality
-failures remain common, while same-place preservation is never the
-binding failure mode in the final cleaned run.
+Among the 73 audited-but-rejected edits, plausibility dominates
+completely; 45 also show no discernible target change, 25 exhibit
+non-local drift, 5 are unrealistic, and none fail same-place
+preservation. Generator failure before audit is zero in the cleaned
+$N{=}50$ run, so the remaining variance is concentrated in valid
+realisation rather than missing candidate production.
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/figure_2_valid_distribution.png}
+  \includegraphics[width=\textwidth]{figures/figure_2_valid_distribution.png}
   \caption{Distribution of valid realised lever counts per scene
   ($N{=}50$). Most scenes admit three or four independently valid
   single-lever interventions.}
   \label{fig:distribution}
-\end{figure}
+\end{figure*}
 
 \subsection{Intervention Vocabulary}
 \label{sec:intervention_vocabulary}

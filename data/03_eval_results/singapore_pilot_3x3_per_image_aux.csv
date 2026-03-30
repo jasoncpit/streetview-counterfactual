@@ -1,0 +1,4 @@
+image_id,baseline_score,n_candidates,n_valid,n_scored,coverage,mean_delta_classifier,max_delta_classifier,E_size_aux,theta_aux,effective_levers_aux
+76d51909-0a1e-4a6b-b0bc-ef9e5d1781ab,,3,0,0,0.0,0.0,0.0,0,0.1,
+396b865a-fdf1-48f9-848b-18535199842b,,3,0,0,0.0,0.0,0.0,0,0.1,
+89fd5dc2-0748-459b-9531-3b467b2dc04d,6.47,3,2,2,0.667,0.2986,0.6379,1,0.1,overhanging branches

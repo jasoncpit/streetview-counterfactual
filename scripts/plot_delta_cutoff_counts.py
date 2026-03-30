@@ -278,8 +278,6 @@ def main() -> None:
     family_ax.set_ylabel("Average valid levers per scene")
     family_ax.set_xlim(x_min, x_max)
     family_ax.grid(True, axis="y", linestyle="--", linewidth=0.8, alpha=0.35)
-    family_handles, family_labels = family_ax.get_legend_handles_labels()
-
     for city in city_order:
         city_ax.step(
             city_cutoffs,
@@ -294,65 +292,10 @@ def main() -> None:
     city_ax.set_xlabel(r"Delta cutoff $\tau$ (keep edits with $\Delta_{\mathrm{aux}} \geq \tau$)")
     city_ax.set_xlim(x_min, x_max)
     city_ax.grid(True, axis="y", linestyle="--", linewidth=0.8, alpha=0.35)
-    city_handles, city_labels = city_ax.get_legend_handles_labels()
-
-    summary_lines = [
-        f"n valid edits = {len(valid_rows)}",
-        f"mean delta = {mean_delta:+.3f} [{mean_delta_ci_low:+.3f}, {mean_delta_ci_high:+.3f}]",
-        f"mean # levers at theta=0.1 = {mean_aux_effective:.2f} [{mean_aux_effective_ci_low:.2f}, {mean_aux_effective_ci_high:.2f}]",
-        f"avg # levers at tau=0.1 = {sum(delta >= 0.1 for delta in deltas) / total_scenes:.2f}",
-        f"avg # levers at tau=0.5 = {sum(delta >= 0.5 for delta in deltas) / total_scenes:.2f}",
-        f"avg # levers at tau=1.0 = {sum(delta >= 1.0 for delta in deltas) / total_scenes:.2f}",
-    ]
-    family_ax.text(
-        0.02,
-        0.98,
-        "\n".join(summary_lines),
-        transform=family_ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=8.5,
-        bbox={"facecolor": "#fbfaf7", "edgecolor": "#d8d1c4", "boxstyle": "round,pad=0.35"},
-    )
-
-    family_ax.legend(
-        family_handles,
-        family_labels,
-        title="Family",
-        title_fontsize=8.5,
-        fontsize=8.5,
-        ncol=2,
-        frameon=True,
-        facecolor="#ffffff",
-        edgecolor="#d8d1c4",
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.24),
-        handlelength=2.0,
-        borderpad=0.4,
-        labelspacing=0.4,
-        columnspacing=1.0,
-    )
-    city_ax.legend(
-        city_handles,
-        city_labels,
-        title="City",
-        title_fontsize=8.5,
-        fontsize=8.5,
-        ncol=2,
-        frameon=True,
-        facecolor="#ffffff",
-        edgecolor="#d8d1c4",
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.24),
-        handlelength=2.0,
-        borderpad=0.4,
-        labelspacing=0.4,
-        columnspacing=1.0,
-    )
 
     out_path = Path(args.out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout(rect=(0, 0.08, 1, 1))
+    fig.tight_layout()
     fig.savefig(out_path, bbox_inches="tight")
     plt.close(fig)
 

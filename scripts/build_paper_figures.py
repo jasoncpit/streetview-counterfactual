@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import random
 from collections import Counter
 from pathlib import Path
 
@@ -22,9 +23,38 @@ def parse_args() -> argparse.Namespace:
         help="Per-image auxiliary summary CSV from scripts.run_analysis.",
     )
     parser.add_argument(
+        "--manifest-csv",
+        default="data/specs_paper_n50_manifest.csv",
+        help="Manifest CSV used to recover per-image city metadata for figure summaries.",
+    )
+    parser.add_argument(
         "--fig-dir",
         default="paper/figures",
         help="Output directory for generated paper figures.",
+    )
+    parser.add_argument(
+        "--qualitative-mode",
+        choices=["top-delta", "random-distinct-family", "image-ids"],
+        default="random-distinct-family",
+        help="Selection rule for the qualitative panel.",
+    )
+    parser.add_argument(
+        "--qualitative-seed",
+        type=int,
+        default=8,
+        help="Random seed used by qualitative selection modes that sample rows.",
+    )
+    parser.add_argument(
+        "--qualitative-image-ids",
+        nargs="*",
+        default=[],
+        help="Image IDs to visualize in image-ids mode; the best valid edit per image is used.",
+    )
+    parser.add_argument(
+        "--qualitative-lever-concepts",
+        nargs="*",
+        default=[],
+        help="Optional lever concepts aligned with --qualitative-image-ids; when provided, select that valid edit for each image.",
     )
     return parser.parse_args()
 
@@ -88,25 +118,68 @@ def fit_panel_image(path: str, *, size: tuple[int, int]) -> Image.Image:
     return ImageOps.fit(image, size, method=Image.Resampling.LANCZOS)
 
 
-def build_qualitative_panel(scored_rows: list[dict[str, str]], out_path: Path) -> None:
-    ranked: list[dict[str, str]] = []
-    seen_images: set[str] = set()
-    for row in sorted(
-        (
-            row
-            for row in scored_rows
-            if row.get("critic_is_valid") == "True" and row.get("delta_classifier") not in {"", None}
-        ),
-        key=lambda row: float(row["delta_classifier"]),
-        reverse=True,
-    ):
-        image_id = row["image_id"]
-        if image_id in seen_images:
-            continue
-        ranked.append(row)
-        seen_images.add(image_id)
-        if len(ranked) == 3:
-            break
+def valid_scored_rows(scored_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [
+        row
+        for row in scored_rows
+        if row.get("critic_is_valid") == "True" and row.get("delta_classifier") not in {"", None}
+    ]
+
+
+def select_qualitative_rows(
+    scored_rows: list[dict[str, str]],
+    *,
+    mode: str,
+    seed: int,
+    image_ids: list[str],
+    lever_concepts: list[str],
+) -> list[dict[str, str]]:
+    rows = valid_scored_rows(scored_rows)
+    if not rows:
+        raise ValueError("No valid scored rows available to build the qualitative panel.")
+
+    if mode == "top-delta":
+        return sorted(rows, key=lambda row: float(row["delta_classifier"]), reverse=True)[:3]
+
+    if mode == "random-distinct-family":
+        by_family: dict[str, list[dict[str, str]]] = {}
+        for row in rows:
+            by_family.setdefault(row["lever_family"], []).append(row)
+        if len(by_family) < 3:
+            raise ValueError("Need at least three lever families to sample distinct-family qualitative examples.")
+
+        rng = random.Random(seed)
+        selected_families = rng.sample(sorted(by_family), k=3)
+        return [rng.choice(by_family[family]) for family in selected_families]
+
+    if mode == "image-ids":
+        if not image_ids:
+            raise ValueError("image-ids mode requires one or more --qualitative-image-ids values.")
+        if lever_concepts and len(lever_concepts) != len(image_ids):
+            raise ValueError("--qualitative-lever-concepts must align 1:1 with --qualitative-image-ids.")
+
+        selected: list[dict[str, str]] = []
+        for idx, image_id in enumerate(image_ids):
+            candidates = [row for row in rows if row["image_id"] == image_id]
+            if not candidates:
+                raise ValueError(f"No valid scored edits found for image_id={image_id}.")
+            if lever_concepts:
+                target_concept = lever_concepts[idx]
+                candidates = [
+                    row for row in candidates if row["lever_concept"] == target_concept
+                ]
+                if not candidates:
+                    raise ValueError(
+                        f"No valid scored edits found for image_id={image_id} and lever_concept={target_concept}."
+                    )
+            selected.append(max(candidates, key=lambda row: float(row["delta_classifier"])))
+        return selected
+
+    raise ValueError(f"Unsupported qualitative mode: {mode}")
+
+
+def build_qualitative_panel(selected_rows: list[dict[str, str]], out_path: Path) -> None:
+    ranked = selected_rows
 
     if not ranked:
         raise ValueError("No valid scored rows available to build the qualitative panel.")
@@ -144,13 +217,34 @@ def build_qualitative_panel(scored_rows: list[dict[str, str]], out_path: Path) -
     canvas.save(out_path)
 
 
+def build_city_lookup(manifest_rows: list[dict[str, str]]) -> dict[str, str]:
+    return {row["image_id"]: row.get("city", "") for row in manifest_rows}
+
+
 def main() -> None:
     args = parse_args()
     scored_rows = read_csv(args.scored_csv)
     summary_rows = read_csv(args.summary_csv)
+    manifest_rows = read_csv(args.manifest_csv)
     fig_dir = Path(args.fig_dir)
     build_valid_distribution(summary_rows, fig_dir / "figure_2_valid_distribution.png")
-    build_qualitative_panel(scored_rows, fig_dir / "figure_3_qualitative.png")
+    selected_rows = select_qualitative_rows(
+        scored_rows,
+        mode=args.qualitative_mode,
+        seed=args.qualitative_seed,
+        image_ids=args.qualitative_image_ids,
+        lever_concepts=args.qualitative_lever_concepts,
+    )
+    build_qualitative_panel(selected_rows, fig_dir / "figure_3_qualitative.png")
+    city_lookup = build_city_lookup(manifest_rows)
+    print(f"qualitative_mode={args.qualitative_mode} seed={args.qualitative_seed}")
+    for idx, row in enumerate(selected_rows, start=1):
+        city = city_lookup.get(row["image_id"], "Unknown city")
+        delta = float(row["delta_classifier"])
+        print(
+            f"{idx}. {row['lever_family']} | {row['lever_concept']} | "
+            f"{city} | image_id={row['image_id']} | delta={delta:+.4f}"
+        )
     print(f"Wrote figures to {fig_dir}")
 
 

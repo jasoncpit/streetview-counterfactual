@@ -1,18 +1,6 @@
 \section{Method}
 \label{sec:method}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/figure_1_pipeline.png}
-  \caption{
-    Pipeline overview. Phase~1 constructs scene-specific lever candidates
-    from an editor-feasible intervention vocabulary. Phase~2 realises them via bounded stochastic
-    generation with validity auditing. Phase~3 scores accepted edits with
-    an auxiliary perception model.
-  }
-  \label{fig:pipeline}
-\end{figure}
-
 \subsection{Problem Setup}
 
 Let $x \in \mathcal{X}$ denote a street-view image and
@@ -39,7 +27,7 @@ are never composed sequentially.
 We define an \emph{editor-feasible intervention vocabulary}: a bounded
 set of lever concepts that each satisfy three inclusion criteria.
 \textbf{(i)}~\emph{Empirical grounding}: the cue has prior evidence
-linking it to perceived safety in the urban perception
+linking it to perceived urban attributes in the urban perception
 literature~\cite{jacobs1961,newman1972,li2015greenery,jiang2018brokenwindows,portnov2020lighting}.
 \textbf{(ii)}~\emph{Semantic distinctness}: each item targets a
 non-overlapping scene element so that lever attributions remain
@@ -52,8 +40,7 @@ redesign or building-mass alteration.
 
 The twelve resulting concepts are organised into four families
 reflecting distinct urban-design mechanisms
-(Table~\ref{tab:vocabulary}; full list in
-Appendix~\ref{sec:intervention_vocabulary}):
+(full list in Appendix~\ref{sec:intervention_vocabulary}):
 \textbf{Physical Maintenance} covers disorder removal and surface
 repair, grounded in broken-windows and perceived-upkeep
 theory~\cite{newman1972,jiang2018brokenwindows};
@@ -69,40 +56,6 @@ For each image, a VLM planner grounds vocabulary concepts to visible
 scene locations, yielding candidates such as \emph{remove graffiti from
 this wall} or \emph{add modest greenery near this entrance}.
 
-\begin{table}[t]
-  \centering
-  \caption{Editor-feasible intervention vocabulary. Each concept
-  satisfies the empirical-grounding, semantic-distinctness, and
-  prompt-only-editability criteria above. Theory anchors indicate
-  the primary literature motivation per family.}
-  \label{tab:vocabulary}
-  \scriptsize
-  \begin{tabular}{p{0.22\linewidth}p{0.50\linewidth}l}
-    \toprule
-    Family & Lever concepts & Anchor \\
-    \midrule
-    Physical Maint.\ &
-      graffiti removal, litter removal,
-      facade repair, surface cleaning,
-      shutter repair &
-      \cite{newman1972,jiang2018brokenwindows} \\
-    Environ.\ Amenity &
-      localised greenery addition,
-      lighting repair,
-      tree canopy management &
-      \cite{li2015greenery,portnov2020lighting} \\
-    Visual Legibility &
-      signage decluttering,
-      storefront transparency increase &
-      \cite{jacobs1961} \\
-    Mobility Infra.\ &
-      crosswalk repainting,
-      lane marking repainting &
-      \cite{quintana2025} \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
 \subsection{Phase 2: Bounded Stochastic Intervention}
 
 For each candidate $l_i$, a prompt-only image generator $G$ produces
@@ -110,17 +63,28 @@ For each candidate $l_i$, a prompt-only image generator $G$ produces
   x'_{i,j} = G(x;\, c_i, s_i, d_i, \tau_i, \varphi_j),
 \end{equation}
 where $\varphi_j$ indexes stochastic draws under a bounded retry budget
-$T$. Currently $G$ is \texttt{flux-kontext-pro}; the framework is
-generator-agnostic.
+$T$, with $G$ being a prompt-only image editing model.
+
+The formulation itself is not tied to a specific generator or critic:
+mask-constrained
+inpainting, learned edit policies, or calibrated critics could replace
+the current generator and auditing modules in future works.
 
 Each candidate is subjected to an automated validity audit performed by
-a vision--language model (GPT-5.2 in the current implementation),
+a vision--language model,
 evaluating: \textbf{(1)}~same-place preservation,
 \textbf{(2)}~locality to the intended support, \textbf{(3)}~realism,
 and \textbf{(4)}~plausibility of the intended lever. If at least one
 draw passes within $T$ attempts, the first accepted edit $\tilde{x}_i$
-is retained and $l_i$ enters $V(x)$. We report valid-edit coverage as
-$\mathrm{Coverage}(x) = |V(x)| / |L(x)|$.
+is retained and $l_i$ enters $V(x)$. Validity auditing functions as a
+gating mechanism rather than a primary outcome: only edits that pass
+all four criteria enter the retained set, so auxiliary shifts are
+measured only on edits with confirmed semantic and spatial integrity.
+We report valid-edit coverage as
+$\mathrm{Coverage}(x) = |V(x)| / |L(x)|$ for reproducibility and future
+generator benchmarking, but interpret it as a property of edit
+realisability under bounded prompt control rather than an urban
+perception signal in itself.
 
 \subsection{Phase 3: Auxiliary Scoring}
 
@@ -139,7 +103,7 @@ a ranking signal rather than a calibrated effect size. The auxiliary-promising s
   \theta_{\mathrm{aux}} \},
 \end{equation}
 where $\theta_{\mathrm{aux}}$ is an exploratory threshold.
-Human-grounded effectiveness via pairwise evaluation remains future
+Human-grounded pairwise evaluation remains future
 work.%
 \footnote{Our method is constrained interventional search, not
 pixel-level decomposition or causal identification. ``Multiple levers''

@@ -1,19 +1,5 @@
 \section{Conclusion}
 
-We have presented a lever-based interventional attribution framework for
-street-view perception that moves beyond correlational feature
-importance toward testable, per-scene hypotheses. By constructing a
-bounded ontology-scoped scene-specific candidate set, realising
-constrained prompt-only edits, and filtering them through a validity
-audit, we operationalise the question of whether a scene admits multiple
-distinct \emph{single-lever} intervention options that can each be
-tested independently against the original image. In the present $N{=}50$
-study, 177 of 250 proposed candidates pass the validity audit, all 50
-scenes admit at least one valid lever, and 48 admit multiple. The
-resulting pattern is heterogeneous rather than uniform: roadway-marking
-and maintenance edits are especially reliable, while environmental and
-legibility levers are more mixed in both realisability and auxiliary
-effect. Human pairwise evaluation remains the longer-term endpoint, but
-the current paper now supports a stronger claim than a small pilot: a
-bounded intervention-screening and auditing protocol can recover
-multiple valid scene-specific urban perception hypotheses at scale.
+We presented a lever-based interventional attribution framework for street-view perception that reframes scene explainability as a bounded search over structured, theory-grounded counterfactual edits. Rather than treating saliency over pixels or regions as the explanatory endpoint, the framework uses semantically coherent, validity-audited single-lever interventions as the unit of analysis. In a pilot over 50 scenes, this formulation yields a reproducible lower-bound baseline, a practical failure taxonomy, and preliminary proxy-based signals that can guide future human evaluation.
+
+We view the present study as a pilot benchmark rather than a completed human-validated explanation system. Its value lies in formalising the intervention unit, making the generation-and-audit process explicit, and identifying where future work should focus: planner triage, stronger editing control, critic calibration, and pairwise human judgement as the ground-truth endpoint.
