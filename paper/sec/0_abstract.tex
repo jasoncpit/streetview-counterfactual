@@ -1,3 +1,16 @@
 \begin{abstract}
-    Street-view perception models predict subjective attributes such as safety at scale, yet remain correlational: they do not reveal which localized visual changes would plausibly shift human judgement for a specific scene. We propose a lever-based interventional attribution framework that recasts scene-level explainability as a bounded search over structured counterfactual edits. Each candidate lever specifies a semantic concept, spatial support, intervention direction, and constrained edit template, drawn from a theory-grounded intervention vocabulary organised into four families: Physical Maintenance, Environmental Amenity, Visual Legibility, and Mobility Infrastructure. Candidate edits are generated through prompt-conditioned image editing and retained only if they pass validity checks for same-place preservation, locality, realism, and plausibility. In a pilot across 50 scenes from five cities, the framework reveals preliminary proxy-based directional patterns and a practical failure taxonomy under prompt-only editing. Mobility Infrastructure and Physical Maintenance levers show the most promising auxiliary safety shifts in the current setup, while planner triage, generator alignment, critic calibration, and human evaluation remain key next steps. Human pairwise safety judgements remain the ground-truth endpoint; the present work introduces the protocol and pilot baseline needed to study that evaluation systematically.
+Street-view perception models predict attributes such as safety, yet do
+not explain which scene elements should change to shift judgement. We
+propose \emph{interventional attribution}: a protocol that tests
+structured single-lever edits rather than correlational saliency over
+pixels or regions. Each lever specifies a semantic concept, grounded
+scene support, edit direction, and constrained prompt template. Edited
+candidates are retained only if they pass validity checks for same-place
+preservation, locality, realism, and plausibility. In a 50-scene pilot
+across five cities, 177 of 250 proposed edits pass this gate and 95 of
+those exceed an auxiliary safety threshold. Mobility Infrastructure and
+Physical Maintenance are the most promising families in the current
+setup. The contribution is the protocol and pilot benchmark, not a
+human-validated causal claim: pairwise human evaluation remains the
+ground-truth endpoint.
 \end{abstract}
