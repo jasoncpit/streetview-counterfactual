@@ -1,0 +1,34 @@
+\section{Discussion and Future Work}
+\label{sec:discussion}
+
+This paper establishes a pilot baseline with two outputs: a feasibility profile for the generation-and-audit pipeline, and preliminary proxy-based directional patterns to prioritise for human evaluation. On feasibility, roadway-marking and maintenance interventions realise reliably across cities while lighting repair remains the clearest bottleneck (valid rate 0.30), and the null baseline-score relationship (Spearman $\rho{=}0.10$) confirms that multi-lever richness is driven by scene geometry rather than starting safety level. On directionality, Mobility Infrastructure produces the largest retained auxiliary shifts; whether this reflects human perceptual sensitivity, scorer priors, or edit realizability remains open.
+
+The heterogeneity within Environmental Amenity is similarly informative: localised greenery addition is strongly positive (+0.650) with near-perfect validity, while lighting repair and canopy management are negative on average despite being theory-grounded cues. This pattern suggests that family-level aggregation may obscure important lever-specific differences in editability and scorer response, motivating finer-grained prioritization in future iterations of the planner.
+
+
+\noindent\textbf{On the auxiliary proxy.} The scorer $f_a$ has not been validated on edited images, so $\Delta_i$ should not be read as a calibrated effect size. However, for monotone interventions (road markings appear, graffiti is removed, greenery is added), the directional signal is grounded in large-scale crowdsourced pairwise preference over this class of scene variation, making the sign and relative magnitude of $\Delta_{\mathrm{aux}}$ a useful prioritisation signal for selecting which levers and scenes to send to human evaluation.
+
+
+
+\noindent\textbf{XAI contribution.} Beyond urban perception, the methodological contribution is a stronger standard for visual explanation: the proposed change must be semantically coherent and generatively feasible before it enters the attribution result, providing a reusable scaffold for interventional XAI in other perceptual domains.
+
+
+\noindent\textbf{Future directions and human endpoint.}
+The present pipeline is intentionally minimal and workshop-stage: prompt-only generation, a prompted VLM critic, and an auxiliary proxy scorer are used here to establish a reproducible lower-bound baseline rather than a fully validated explanation system. Four directions follow naturally from the
+pipeline structure. \emph{(i) Planner tuning:} learning to predict lever
+viability from scene features, using the validity and
+$\Delta_{\mathrm{aux}}$ outcomes reported here as supervision, so that
+the $K$-candidate budget is spent on levers most likely to be both
+realisable and promising under the auxiliary proxy. \emph{(ii) Generator alignment:} optimising
+for validity-gate criteria via reward-from-feedback or mask-constrained
+generation; the lighting-repair failure mode (valid rate 0.30) is the
+clearest target, with per-family valid rates as the benchmark metric.
+\emph{(iii) Critic calibration:} aligning the VLM critic with human
+raters and ultimately learning a critic that predicts 2AFC preference
+directly, reducing the gap between the auxiliary proxy and the human
+endpoint. \emph{(iv) End-to-end optimisation:} jointly training planner,
+generator, and critic once each component is independently validated.
+The ground-truth estimand throughout is pairwise human safety ratings on passing edits, collected via a randomised 2AFC study. Until then,
+validity should be read as an eligibility control on image generation
+and auxiliary shifts as a prioritisation signal for which lever
+families and cities to send to human evaluation first.
