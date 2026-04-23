@@ -5,7 +5,7 @@ Crowdsourced pairwise judgement datasets have enabled vision models for
 perceived safety, wealth, and liveliness at
 scale~\cite{salesses2013,naik2014,dubey2016,quintana2025}, but these
 models are not designed to answer mechanistic scene-level questions.
-Urban-design theory links perceived safety to surveillance, active edges,
+Urban-design theory links perceived safety to surveillance, active fontages,
 upkeep, and legibility~\cite{jacobs1961,newman1972,loewen1993}, and
 empirical street-view studies confirm roles for greenery, street-facing
 windows, maintenance, and lighting~\cite{li2015greenery,denadai2016lively,jiang2018brokenwindows,portnov2020lighting}. However, none provides scene-level tests of localised, validity-audited
@@ -17,17 +17,17 @@ unfaithful~\cite{adebayo2018}; concept-based methods such as
 TCAV~\cite{kim2018} remain correlational unless paired with explicit
 interventions. Counterfactual visual explanations~\cite{goyal2019} and
 causal evaluation benchmarks~\cite{melistas2024} provide stronger tools
-but typically target model logits rather than human perceptual preference.
+but typically target model logits, focusing on the effect of a single feature on the model output rather than the holistic perceptual experience of the scene which can be affected by multiple single visual changes.
 
 \noindent\textbf{Urban counterfactuals and diffusion-based editing.}
 Law et al.~\cite{law2023} demonstrate plausible counterfactuals for
 urban image regressors, establishing that generative edits can serve as
-explanations in urban analytics. UrbanPhysicalDisorder-4K~\cite{vera2025} brings counterfactual reasoning
+explanations in urban analytics but does not explicitly identify which edits are plausible for a given scene. UrbanPhysicalDisorder-4K~\cite{vera2025} brings counterfactual reasoning
 into urban safety via annotated disorder features, but operates in
 feature space rather than through localised image edits with explicit
 validity auditing. Zhao et al.~\cite{zhao2026} propose
 perception-guided street-view generation, but target scene optimisation
-rather than scene-level interventional attribution.
+rather than scene-level interventional counterfactual analysis.
 Diffusion-based editors such as SDEdit~\cite{meng2022},
 InstructPix2Pix~\cite{brooks2023}, and
 Prompt-to-Prompt~\cite{hertz2023prompt} make localised edits
@@ -36,10 +36,4 @@ explicit validity auditing.
 
 \noindent\textbf{Positioning.}
 The diffusion-editing literature above optimises for editing
-fidelity---how faithfully a model executes an instruction---whereas our
-objective is \emph{interventional attribution}: identifying which
-single-lever urban changes plausibly shift perception for a specific
-scene, with each result retained only after explicit validity
-auditing. The cost of prompt-only generation is imperfect locality:
-without a segmentation mask the editor may introduce minor non-target
-drift, which our critic must catch.
+fidelity, how faithfully a model executes an instruction, whereas our work sits at this intersection: rather than attributing a scene-level judgement to pixels or concepts alone, we search over structured, editor-feasible single-lever edits and retain only those that pass explicit validity auditing.

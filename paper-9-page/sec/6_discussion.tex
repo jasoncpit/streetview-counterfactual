@@ -1,20 +1,18 @@
 \section{Discussion and Future Work}
 \label{sec:discussion}
 
-This paper establishes a pilot baseline with two outputs: a feasibility profile for the generation-and-audit pipeline, and preliminary proxy-based directional patterns to prioritise for human evaluation. On feasibility, roadway-marking and maintenance interventions realise reliably across cities while lighting repair remains the clearest bottleneck (valid rate 0.30), and the null baseline-score relationship (Spearman $\rho{=}0.10$) confirms that multi-lever richness is driven by scene geometry rather than starting safety level. On directionality, Mobility Infrastructure produces the largest retained auxiliary shifts; whether this reflects human perceptual sensitivity, scorer priors, or edit realizability remains open.
+This pilot establishes two outputs: a feasibility profile for the generation-and-audit pipeline, and preliminary proxy-based directional patterns to prioritise for human evaluation. On feasibility, roadway-marking and maintenance interventions realise reliably across cities, while lighting repair remains the clearest bottleneck. No meaningful relationship is observed between baseline safety and valid lever count, suggesting that multi-lever richness depends more on scene geometry than starting safety level. On directionality, Mobility Infrastructure yields the largest retained auxiliary shifts, though it remains unclear whether this reflects human perceptual sensitivity, scorer priors, or edit realisability.
 
-The heterogeneity within Environmental Amenity is similarly informative: localised greenery addition is strongly positive (+0.650) with near-perfect validity, while lighting repair and canopy management are negative on average despite being theory-grounded cues. This pattern suggests that family-level aggregation may obscure important lever-specific differences in editability and scorer response, motivating finer-grained prioritization in future iterations of the planner.
+Environmental Amenity is more heterogeneous. Localised greenery addition is strongly positive, whereas lighting repair and canopy management are negative on average despite being theory-grounded cues. This contrast suggests that the auxiliary scorer may encode a simple “more green = safer” prior rather than a more nuanced sensitivity to sightlines or surveillance, and that family-level aggregation can obscure important lever-specific differences.
 
-
-\noindent\textbf{On the auxiliary proxy.} The scorer $f_a$ has not been validated on edited images, so $\Delta_i$ should not be read as a calibrated effect size. However, for monotone interventions (road markings appear, graffiti is removed, greenery is added), the directional signal is grounded in large-scale crowdsourced pairwise preference over this class of scene variation, making the sign and relative magnitude of $\Delta_{\mathrm{aux}}$ a useful prioritisation signal for selecting which levers and scenes to send to human evaluation.
-
+\noindent\textbf{On the model-based evaluation proxy.} The scorer $f_a$ has not been validated on edited images, so $\Delta_i$ should not be read as a calibrated effect size. However, for monotone interventions (road markings appear, graffiti is removed, greenery is added), the directional signal is grounded in large-scale crowdsourced pairwise preference over this class of scene variation, making the sign and relative magnitude of $\Delta_{\mathrm{aux}}$ a useful prioritisation signal for selecting which levers and scenes to send to human evaluation.
 
 
 \noindent\textbf{XAI contribution.} Beyond urban perception, the methodological contribution is a stronger standard for visual explanation: the proposed change must be semantically coherent and generatively feasible before it enters the attribution result, providing a reusable scaffold for interventional XAI in other perceptual domains.
 
 
 \noindent\textbf{Future directions and human endpoint.}
-The present pipeline is intentionally minimal and workshop-stage: prompt-only generation, a prompted VLM critic, and an auxiliary proxy scorer are used here to establish a reproducible lower-bound baseline rather than a fully validated explanation system. Four directions follow naturally from the
+The present pipeline is intentionally minimal, prompt-only generation, a prompted VLM critic, and an auxiliary proxy scorer are used here to establish a reproducible baseline rather than a fully validated explanation system. Four directions follow naturally from the
 pipeline structure. \emph{(i) Planner tuning:} learning to predict lever
 viability from scene features, using the validity and
 $\Delta_{\mathrm{aux}}$ outcomes reported here as supervision, so that

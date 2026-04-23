@@ -3,17 +3,17 @@
 
 
 \noindent\textbf{Dataset and setup.}
-We use SPECS (Street Perception Evaluation Considering Socioeconomics)~\cite{quintana2025}, a demographically balanced survey in which 1{,}000 participants from five countries rated street-view scenes on ten perceptual indicators. We sample $N{=}50$ scenes from five SPECS cities (Amsterdam, Abuja, San Francisco, Santiago, Singapore; 10 per city), stratified by baseline safety and visual complexity to cover a broad range of starting conditions. Each scene allows up to $K{=}5$ lever candidates with a stochastic budget of $T{=}5$ generation attempts per candidate. We instantiate the framework with Qwen-Image-Edit as the prompt-only editor and GPT-5.4 as the LLM-as-judge critic, yielding a reproducible lower-bound baseline. Validity auditing acts as an eligibility gate throughout: all reported effect summaries are computed only on edits retained in $V(x)$.
+We use SPECS (Street Perception Evaluation Considering Socioeconomics)~\cite{quintana2025}, a demographically balanced survey in which 1{,}000 participants from five countries rated street-view scenes on ten perceptual indicators. We sample $N{=}50$ scenes from five SPECS cities (Amsterdam, Abuja, San Francisco, Santiago, Singapore; 10 per city), stratified by baseline safety and visual complexity to cover a broad range of starting conditions. Each scene allows up to $K{=}5$ lever candidates with a stochastic budget of $T{=}5$ generation attempts per candidate. We instantiate the framework \footnote{The framework is model-agnostic: any component (e.g., planner, editor, auditor) can be swapped, finetuned, or extended as needed.} with Qwen-Image-Edit as the prompt-only editor and GPT-5.4 as the LLM-as-judge critic, yielding a reproducible baseline. Validity auditing acts as an eligibility gate: all reported effect summaries are computed only on edits retained in $V(x)$.
 
-\noindent\textbf{Auxiliary directional shifts.}
-Among the 177 valid edits, the auxiliary scorer produces a mean shift of
-$+0.366$ (95\% CI $[+0.199, +0.537]$, median $+0.184$, range
+\noindent\textbf{Proxy safety-score shifts.}
+For each valid edit $\tilde{x}_i$, we compute the model-based score delta $\Delta_i$ using the ViT-B/16 safety proxy defined in \S\ref{sec:method}; positive values indicate a higher
+predicted safety score relative to the unedited original. Among the 177 valid edits, the proxy produces a mean shift of $+0.366$ (95\% CI $[+0.199, +0.537]$, median $+0.184$, range
 $[-3.624, +3.842]$). Using threshold $\theta_{\mathrm{aux}}{=}0.1$,
 95 of 177 valid edits fall in $E_{\mathrm{aux}}(x,a)$, corresponding to
 a mean of 1.90 proxy-shortlisted levers per scene
 (95\% CI $[1.476, 2.324]$); 40 of the 50 scenes retain at least one
-$\theta_{\mathrm{aux}}{=}0.1$ proxy-shortlisted lever and 24 retain multiple.
-The largest retained auxiliary shifts are observed for
+proxy-shortlisted lever and 24 retain multiple.
+The largest positive proxy shifts are observed for
 lane-marking repainting, crosswalk repainting, and localized greenery
 addition.
 
@@ -21,9 +21,8 @@ addition.
   \centering
   \caption{Lever-type results grouped by intervention family.
   Mean~$\Delta_{\mathrm{aux}}$ and $\Delta_{\mathrm{aux}}$ [95\% CI]
-  are computed over valid edits only; confidence intervals are
-  bootstrap percentile intervals over the retained set.
-  ``--'' denotes concepts not proposed in this scene pool.}
+  are computed over valid edits only where $\theta_{\mathrm{aux}}{>=}0.1$; confidence intervals are
+  bootstrap percentile intervals over the retained set.}
   \label{tab:levers}
   \scriptsize
   \resizebox{\columnwidth}{!}{%
@@ -62,11 +61,21 @@ addition.
 
 Mobility Infrastructure yields the largest family-level mean auxiliary
 shift ($+0.579$), led by crosswalk and lane-marking repainting.
+These interventions are conventionally associated with traffic safety
+rather than crime safety; whether the proxy shift reflects a genuine
+crime-safety signal or a scorer artefact remains an open question
+(see safety-definition footnote in \S\ref{sec:intro}).
 Physical Maintenance is the broadest consistently positive family
 ($+0.344$), driven by surface cleaning, litter removal, facade repair,
 and graffiti removal. Environmental Amenity is more heterogeneous:
 localized greenery addition is strongly positive ($+0.650$), whereas
-lighting repair and tree canopy management are weak or negative.
+lighting repair and tree canopy management are weak or
+negative.\footnote{Tree canopy management refers to pruning or trimming
+overgrown canopy to improve sightlines and pedestrian visibility, 
+the opposite direction from greenery addition. The ViT-B/16 safety model, trained
+on Place Pulse images where visible greenery correlates with higher
+safety, may penalise any net reduction in canopy cover regardless of
+the urbanistic intent.}
 Visual Legibility is small-sample and mixed in sign; the negative mean
 for signage decluttering ($-0.631$) may reflect the proxy associating
 commercial signage density with activity in Place Pulse training data.

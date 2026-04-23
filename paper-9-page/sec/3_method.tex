@@ -26,7 +26,7 @@ are never composed sequentially.
 
 We define an \emph{editor-feasible intervention vocabulary}: a bounded
 set of lever concepts chosen to satisfy three criteria:
-\textbf{(i)}~\emph{empirical grounding} in the urban perception
+\textbf{(i)}~\emph{theoretical grounding} in the urban perception
 literature~\cite{jacobs1961,newman1972,li2015greenery,jiang2018brokenwindows,portnov2020lighting},
 \textbf{(ii)}~\emph{semantic distinctness} so concepts remain
 interpretable, and \textbf{(iii)}~\emph{prompt-only editability}
@@ -61,7 +61,7 @@ $\mathrm{Coverage}(x) = |V(x)| / |L(x)|$ as a property of edit
 realisability under bounded prompt control rather than an urban
 perception signal.
 
-\subsection{Phase 3: Auxiliary Scoring}
+\subsection{Phase 3: Model-based Evaluation}
 
 For each accepted edit $\tilde{x}_i$, we compute
 \begin{equation}
@@ -70,9 +70,9 @@ For each accepted edit $\tilde{x}_i$, we compute
 where $f_a$ is a ViT-B/16 perception model pretrained on the MIT Place
 Pulse~2.0 pairwise safety dataset~\cite{hou2024globalstreetscapes},
 which outputs a continuous score on a 0--10 scale (higher = safer).
-This is strictly an auxiliary proxy, not the main estimand; $f_a$ has
-not been validated on edited images, so $\Delta_i$ should be treated as
-a ranking signal rather than a calibrated effect size. The proxy-shortlisted set is
+This is strictly a model-based evaluation, not the main estimand; $f_a$ has
+not been tuned on edited images, so $\Delta_i$ should be treated as
+a ranking signal. The proxy-shortlisted set is
 \begin{equation}
   E_{\mathrm{aux}}(x,a) = \{ l_i \in V(x) \mid \Delta_i >
   \theta_{\mathrm{aux}} \},
@@ -81,7 +81,7 @@ where $\theta_{\mathrm{aux}}$ is an exploratory threshold.
 Human-grounded pairwise evaluation remains future
 work.%
 \footnote{Our method is constrained interventional search, not
-pixel-level decomposition or causal identification. ``Multiple levers''
+pixel-level attribution or causal identification. ``Multiple levers''
 means distinct interventions that each pass validity checks
 independently; it does not imply additive effects. Locality is audited,
 not pixel-guaranteed.}
