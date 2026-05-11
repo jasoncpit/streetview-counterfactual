@@ -1,0 +1,59 @@
+\section{Method}
+\label{sec:method}
+
+\noindent\textbf{Problem setup.}
+Let $x$ denote a street-view image and $a$ a perceptual attribute such
+as safety. Our explanatory atom is a \emph{lever intervention}
+$l=(c,s,d,\tau)$, where $c$ is a lever concept, $s$ the grounded scene
+support, $d$ the intervention direction, and $\tau$ a constrained edit
+template. For image $x$, a planner grounds a bounded intervention
+vocabulary to the visible scene, yielding candidates $L(x)$. Each lever
+is tested independently against the unedited original; edits are never
+composed sequentially.
+
+\noindent\textbf{Phase 1: Lever candidate construction.}
+Following the 9-page formulation, the intervention vocabulary is
+\emph{editor-feasible}: each concept must satisfy three criteria,
+\textbf{(i)} empirical grounding in urban-perception
+literature~\cite{jacobs1961,newman1972,li2015greenery,jiang2018brokenwindows,portnov2020lighting},
+\textbf{(ii)} semantic distinctness from other concepts, and
+\textbf{(iii)} prompt-only editability without masks or geometry
+redesign. The current pilot uses twelve concepts in four families:
+Physical Maintenance, Environmental Amenity, Visual Legibility, and
+Mobility Infrastructure. The full vocabulary is listed in
+Appendix~\ref{sec:intervention_vocabulary}.
+
+\noindent\textbf{Phase 2: Bounded stochastic intervention.}
+Each candidate is edited independently from the original image with a
+bounded retry budget. A candidate enters the retained set
+\begin{equation}
+  V(x) = \{ l_i \in L(x) \mid \exists\, \tilde{x}_i \text{ passing the validity audit} \}
+\end{equation}
+only if at least one edited sample passes four checks: same-place
+preservation, locality, realism, and plausibility. This validity gate is
+the key design choice. Generative editors can introduce non-target
+changes, so failed edits are excluded from attribution rather than being
+treated as noisy evidence. We report valid-edit coverage as
+$|V(x)|/|L(x)|$, but interpret it as a property of edit realizability
+under bounded prompt control rather than an urban-perception signal in
+itself.
+
+\noindent\textbf{Phase 3: Auxiliary scoring.}
+For each retained edit $\tilde{x}_i$, we compute an auxiliary shift
+\begin{equation}
+  \Delta_i = f_a(\tilde{x}_i) - f_a(x),
+\end{equation}
+where $f_a$ is a pretrained Place Pulse safety scorer. This is strictly
+an auxiliary proxy, not the main estimand, so $\Delta_i$ is used only
+as a prioritization signal. The main reported set is
+\begin{equation}
+  E_{\mathrm{aux}}(x,a) = \{ l_i \in V(x) \mid \Delta_i > \theta_{\mathrm{aux}} \},
+\end{equation}
+with $\theta_{\mathrm{aux}}=0.1$ in this pilot. The method therefore
+separates three questions: which levers can be grounded, which can be
+realised cleanly, and which retained edits look promising enough to send
+to human pairwise evaluation.%
+\footnote{This is constrained interventional search, not causal
+identification or pixel-level decomposition. Distinct levers are tested
+independently against the same original image and are not assumed to add
+linearly.}

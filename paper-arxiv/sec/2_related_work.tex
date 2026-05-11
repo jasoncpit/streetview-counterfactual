@@ -1,0 +1,27 @@
+\section{Related Work}
+
+\noindent\textbf{Urban perception and design cues.}
+Crowdsourced pairwise-judgement datasets have enabled vision models for
+perceived safety, wealth, and liveliness at
+scale~\cite{salesses2013,naik2014,dubey2016,quintana2025}, but these
+models do not answer mechanistic scene-level questions. Urban-design
+theory and empirical street-view studies link perceived safety to
+surveillance, active edges, upkeep, greenery, and
+lighting~\cite{jacobs1961,newman1972,loewen1993,li2015greenery,denadai2016lively,jiang2018brokenwindows,portnov2020lighting},
+yet they stop short of testing localized, validity-audited
+single-lever interventions in a specific scene.
+
+\noindent\textbf{Interpretability and counterfactual editing.}
+Saliency and SHAP-style methods can be visually plausible yet
+unfaithful~\cite{adebayo2018}, and concept-based methods such as
+TCAV~\cite{kim2018} remain correlational unless paired with explicit
+interventions. Counterfactual visual explanations~\cite{goyal2019},
+causal evaluation benchmarks~\cite{melistas2024}, and urban
+counterfactual work~\cite{law2023,vera2025,zhao2026} move closer to
+intervention, but typically optimize model outputs, feature-space
+perturbations, or full-scene generation. Our focus is narrower:
+identify which localized urban edits can be realised cleanly, preserved
+as the same place, and prioritized for later human evaluation. In that
+sense, the target is not a single best counterfactual, but a
+scene-grounded set of auditable lever interventions that can be compared
+and filtered before any human-endpoint study.

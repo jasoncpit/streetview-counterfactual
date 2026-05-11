@@ -68,6 +68,19 @@
   \label{fig:qualitative}
 \end{figure}
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_3_rejected_examples.png}
+  \caption{Three representative rejected counterfactuals from the
+  audited-but-rejected set. From top: crosswalk repainting adds a new
+  foreground zebra crossing rather than repairing the supported
+  intersection marking (Santiago), localised greenery addition places
+  shrubs in the wrong roadside verge (Abuja), and storefront
+  transparency increase turns the target windows into opaque black
+  openings rather than revealing a plausible interior (Amsterdam).}
+  \label{fig:rejected_qualitative}
+\end{figure}
+
 % ── A.3  Validity and Coverage Details ──────────────────────────────
 \subsection{Validity and Coverage Details}
 \label{sec:validity_appendix}
@@ -82,7 +95,9 @@ The dominant bottleneck is not candidate proposal but valid realisation.
 Among the 73 audited-but-rejected edits, plausibility dominates
 completely; 45 also show no discernible target change, 25 exhibit
 non-local drift, 5 are unrealistic, and none fail same-place
-preservation.  Generator failure before audit is zero in the cleaned
+preservation.  Representative rejected counterfactuals are shown in
+Figure~\ref{fig:rejected_qualitative}. Generator failure before audit
+is zero in the cleaned
 $N{=}50$ run, so the remaining variance is concentrated in valid
 realisation rather than missing candidate production.
 

@@ -1,0 +1,15 @@
+\section{Introduction}
+\label{sec:intro}
+
+Street-view perception models predict subjective attributes such as safety, wealth, and liveliness at scale~\cite{salesses2013,naik2014,dubey2016}, but they remain limited as explanatory tools: they do not show which local visual changes would plausibly shift judgement for a specific scene. Existing explainability methods, including saliency, SHAP, and concept-based probes, are largely correlational, identifying features associated with a score without testing whether manipulating them changes perceived safety~\cite{adebayo2018,kim2018}. Urban-design research links cues such as greenery, maintenance, and visibility to perceived safety\footnote{\emph{Perceived safety} here refers to the subjective feeling of safety from crime and disorder, as elicited in Place Pulse~\cite{salesses2013} and SPECS~\cite{quintana2025}, rather than traffic safety. Some lever families, especially Mobility Infrastructure, may also evoke traffic-safety cues; whether these generalise to crime-safety perception remains open.}~\cite{li2015greenery,jiang2018brokenwindows,portnov2020lighting}, but does not establish which scene-specific local changes validly shift perception.
+
+Following urban planning theory~\cite{jacobs1961,newman1972}, we study a restricted question: whether a scene admits multiple distinct \emph{single-lever} interventions that, evaluated independently against the same original image, plausibly shift perception. We propose an \emph{interventional counterfactual} protocol that makes this question testable through structured lever interventions defined by a semantic concept, spatial support, intervention direction, and constrained edit template. Candidate edits are generated with prompt-conditioned diffusion editing and retained only if a vision--language critic judges them to preserve the same place, remain localised, and appear realistic and plausible. Because generative editors may introduce non-target changes, each edit is treated as an auditable hypothesis rather than faithful evidence by default.
+
+This paper introduces an auditable pilot framework rather than a validated causal estimate of human perception. We ask: (i) which lever families show positive auxiliary shifts after validity auditing, and (ii) how many distinct single-lever edits remain promising per scene after screening and thresholding?
+
+Our contributions are:
+\begin{enumerate}
+    \item a \textbf{lever-based interventional counterfactual} formulation for street-view perception, with structured lever interventions $l=(c,s,d,\tau)$ as the explanatory unit;
+    \item a \textbf{scene-specific generation-and-audit pipeline} that instantiates, realises, and validity-checks prompt-only edits; and
+    \item a \textbf{50-scene pilot benchmark} across five cities, reporting preliminary proxy-based directional patterns and feasibility diagnostics under prompt-only editing.
+\end{enumerate}
