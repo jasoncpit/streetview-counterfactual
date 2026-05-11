@@ -273,11 +273,14 @@ def main() -> None:
             color=palette[family],
         )
     family_ax.axvline(0.1, color="#6b7280", linestyle="--", linewidth=1.2, alpha=0.8)
+    family_ax.text(0.15, family_ax.get_ylim()[1] * 0.92, r"$\theta_{\mathrm{aux}}=0.1$",
+                   fontsize=8.5, color="#6b7280", va="top")
     family_ax.set_title("Average valid levers per scene above cutoff by family")
     family_ax.set_xlabel(r"Delta cutoff $\tau$ (keep edits with $\Delta_{\mathrm{aux}} \geq \tau$)")
     family_ax.set_ylabel("Average valid levers per scene")
     family_ax.set_xlim(x_min, x_max)
     family_ax.grid(True, axis="y", linestyle="--", linewidth=0.8, alpha=0.35)
+    family_ax.legend(loc="upper right", fontsize=9, framealpha=0.9)
     for city in city_order:
         city_ax.step(
             city_cutoffs,
@@ -288,10 +291,13 @@ def main() -> None:
             color=palette[city],
         )
     city_ax.axvline(0.1, color="#6b7280", linestyle="--", linewidth=1.2, alpha=0.8)
+    city_ax.text(0.15, city_ax.get_ylim()[1] * 0.92, r"$\theta_{\mathrm{aux}}=0.1$",
+                 fontsize=8.5, color="#6b7280", va="top")
     city_ax.set_title("Average valid levers per scene above cutoff by city")
     city_ax.set_xlabel(r"Delta cutoff $\tau$ (keep edits with $\Delta_{\mathrm{aux}} \geq \tau$)")
     city_ax.set_xlim(x_min, x_max)
     city_ax.grid(True, axis="y", linestyle="--", linewidth=0.8, alpha=0.35)
+    city_ax.legend(loc="upper right", fontsize=9, framealpha=0.9)
 
     out_path = Path(args.out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
